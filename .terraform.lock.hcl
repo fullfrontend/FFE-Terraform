@@ -1,10 +1,10 @@
-# This file is maintained automatically by "terraform init".
+# This file is maintained automatically by "tofu init".
 # Manual edits may be lost in future updates.
 
-provider "registry.terraform.io/digitalocean/digitalocean" {
+provider "registry.opentofu.org/digitalocean/digitalocean" {
   version     = "2.45.0"
   constraints = "~> 2.0"
-  hashes      = [
+  hashes = [
     "h1:mFx6YS2NF8TisFMGvMUsxco0kQ3++ylJMwsqiwATTuA=",
     "zh:0135d8191806b717c9b419c3ac84f5cb4da337b25f97bcc1f73e3e4de8a65928",
     "zh:05f298f6d7562dbe47f2052d2c62ecba7131a9dbc92d3a6ec28636ce3e8f605f",
