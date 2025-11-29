@@ -1,30 +1,28 @@
 resource "digitalocean_project" "terraform_learn" {
-    #Dropletss and volumes
-    module.cloud-server.urns.droplet,
-    module.cloud-server.urns.volume,
-
-    module.prod-server.urns.droplet,
-    module.prod-server.urns.volume,
-
-    #Spaces
   name        = "Full Front-End"
   description = "Web stack for Website and Automation"
   environment = "Production"
   purpose     = "Website or Blog"
   resources = [
+    module.doks-cluster.urns.cluster
 
   ]
 }
 
-module "prod-server" {
-  source = "./modules/prod"
-  ssh_key = data.digitalocean_ssh_key.terraform
-  do_region = var.do_region
+resource "random_id" "cluster_name" {
+  byte_length = 5
+}
+
+locals {
+  cluster_name = "${var.doks_name}-${random_id.cluster_name.hex}"
 }
 
 
-module "cloud-server" {
-  source = "./modules/cloud"
-  ssh_key = data.digitalocean_ssh_key.terraform
-  do_region = var.do_region
+module "doks-cluster" {
+  source         = "./modules/doks-cluster"
+  name           = local.cluster_name
+  region         = var.doks_region
+  node_size      = var.doks_node_size
+  pool_min_count = 1
+  pool_max_count = 5
 }
