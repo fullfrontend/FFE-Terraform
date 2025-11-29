@@ -1,23 +1,23 @@
 resource "digitalocean_spaces_bucket" "website-public" {
-  name = "website-public"
+  name   = "website-public"
   region = var.do_region
 }
 
 resource "digitalocean_spaces_bucket" "website-backup" {
-  name = "website-backup"
+  name   = "website-backup"
   region = var.do_region
-  acl = "private"
+  acl    = "private"
 }
 
 resource "digitalocean_spaces_bucket" "mautic-public" {
-  name = "mautic-public"
+  name   = "mautic-public"
   region = var.do_region
 }
 
 resource "digitalocean_spaces_bucket" "mautic-backup" {
-  name = "mautic-backup"
+  name   = "mautic-backup"
   region = var.do_region
-  acl = "private"
+  acl    = "private"
 }
 
 

@@ -1,9 +1,4 @@
 resource "digitalocean_project" "terraform_learn" {
-  name        = "Learn Terraform"
-  description = "Learning Project for Terraform"
-  environment = "Development"
-  purpose     = "Class project / Educational purposes"
-  resources   = [
     #Dropletss and volumes
     module.cloud-server.urns.droplet,
     module.cloud-server.urns.volume,
@@ -12,6 +7,11 @@ resource "digitalocean_project" "terraform_learn" {
     module.prod-server.urns.volume,
 
     #Spaces
+  name        = "Full Front-End"
+  description = "Web stack for Website and Automation"
+  environment = "Production"
+  purpose     = "Website or Blog"
+  resources = [
 
   ]
 }
