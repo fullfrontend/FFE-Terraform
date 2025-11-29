@@ -26,3 +26,10 @@ module "doks-cluster" {
   pool_min_count = 1
   pool_max_count = 5
 }
+
+
+module "k8s-config" {
+  source = "./modules/k8s-config"
+  cluster_id = module.doks-cluster.cluster_id
+  cluster_name = module.doks-cluster.cluster_name
+}

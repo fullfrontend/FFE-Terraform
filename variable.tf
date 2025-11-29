@@ -23,6 +23,6 @@ variable "doks_name" {
 
 variable "doks_node_size" {
   type        = string
-  default     = "s-1vcpu-1gb"
-  description = "K8S cluster nodes size"
+  default     = "s-1vcpu-2gb"
+  description = "K8S cluster Droplet nodes size"
 }
