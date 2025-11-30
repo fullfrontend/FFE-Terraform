@@ -1,7 +1,3 @@
-locals {
-  minio_s3_url = "http://minio-dev.${kubernetes_namespace.infra.metadata[0].name}.svc.cluster.local:9000"
-}
-
 resource "kubernetes_secret" "velero" {
   count = var.enable_velero ? 1 : 0
 
@@ -56,12 +52,42 @@ resource "helm_release" "velero" {
       value = var.is_prod ? var.velero_s3_url : local.minio_s3_url
     },
     {
-      name  = "credentials.existingSecret"
-      value = kubernetes_secret.velero[0].metadata[0].name
+      name  = "deployNodeAgent"
+      value = true
     },
     {
-      name  = "deployNodeAgent"
-      value = false
+      name  = "configuration.defaultVolumesToFsBackup"
+      value = true
+    },
+    {
+      name  = "credentials.existingSecret"
+      value = kubernetes_secret.velero[0].metadata[0].name
     }
+  ]
+
+}
+
+resource "kubernetes_manifest" "velero_schedule_db" {
+  count = var.enable_velero ? 1 : 0
+
+  manifest = {
+    apiVersion = "velero.io/v1"
+    kind       = "Schedule"
+    metadata = {
+      name      = "db-daily"
+      namespace = kubernetes_namespace.infra.metadata[0].name
+    }
+    spec = {
+      schedule = "0 3 * * *"
+      template = {
+        defaultVolumesToFsBackup = true
+        includedNamespaces       = ["data"]
+        ttl                      = "720h"
+      }
+    }
+  }
+
+  depends_on = [
+    helm_release.velero
   ]
 }

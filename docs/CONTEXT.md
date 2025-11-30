@@ -1,80 +1,64 @@
-Objectif
-Migrer toute l’infrastructure vers un cluster Kubernetes DigitalOcean (DOKS) piloté via OpenTofu (Terraform) pour l’auto-hébergement, la maîtrise des coûts, la cohérence et le contrôle du stateful.
+Objectif  
+Migrer l’infra vers Kubernetes (DOKS en prod, minikube en dev) géré via OpenTofu, en séparant bloc/objet et avec backups quotidiens.
 
-Références
-- Provider DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest
-- Provider Kubernetes : https://search.opentofu.org/provider/hashicorp/kubernetes/latest
-- Provider Helm : https://search.opentofu.org/provider/hashicorp/helm/latest
+Références  
+- DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest  
+- Kubernetes : https://search.opentofu.org/provider/hashicorp/kubernetes/latest  
+- Helm : https://search.opentofu.org/provider/hashicorp/helm/latest  
+- Minikube : https://registry.terraform.io/providers/scott-the-programmer/minikube/latest/docs
 
-Plateforme cible
-- Ingress : Traefik
-- Certificats : cert-manager (Let’s Encrypt)
-- DNS : external-dns (DigitalOcean)
-- Stockage POSIX : DigitalOcean Block Storage (PVC)
-- Stockage objet : DigitalOcean Spaces (S3)
-- Backups : Velero (backups uniquement) vers Spaces
-- Interdit : images/charts Bitnami (licence payante)
+Plateforme  
+- Ingress : Traefik  
+- Certificats : cert-manager (prod)  
+- DNS : external-dns (DO)  
+- Stockage : PVC bloc (DO CSI) + objet (Spaces/MinIO)  
+- Backups : Velero (quotidien 03:00, rétention 30 jours)  
+- Interdit : charts/images Bitnami
 
-Règles de stockage
-1) Block storage (PVC) pour tout le stateful : Postgres/MariaDB, data Nextcloud, wp-content, Mailu (maildir/queue/config).  
-2) Spaces (S3) pour objets : médias WordPress, backups DB/Nextcloud/Mailu, stockage externe Nextcloud optionnel.  
-Ne pas utiliser Spaces comme FS principal via CSI pour DB/Nextcloud.
+Environnements  
+- prod (`APP_ENV=prod`) : cluster DOKS, kubeconfig `${path.root}/.kube/config`, cert-manager on, Velero vers DO Spaces (bucket auto-créé).  
+- dev (`APP_ENV=dev`) : minikube (driver docker) via provider minikube, kubeconfig `~/.kube/config`, cert-manager off, Velero optionnel via MinIO + hostPath `./data/<velero_dev_bucket>`.  
+- Basculer : `export APP_ENV=dev; export TF_VAR_app_env=$APP_ENV`.
 
-Base de données
-- Pas de DB managée.
-- StatefulSets Postgres prioritaires ; MariaDB seulement si l’app ne supporte pas Postgres.
-- 1 StatefulSet + 1 PVC + backups vers Spaces + restauration testée.
+Architecture cible  
+Kubernetes  
+├─ infra : traefik, external-dns, cert-manager (prod), velero  
+├─ data : postgres (statefulset+pvc), mariadb (statefulset+pvc)  
+└─ apps : wordpress, n8n, crm, nextcloud, mailu
 
-Architecture cible
-Kubernetes (DOKS)  
-├── infra : ingress-controller, cert-manager, external-dns, monitoring/logging, velero/backups  
-├── data : postgres (statefulset+pvc), mariadb (statefulset+pvc)  
-└── apps : wordpress, n8n, crm, nextcloud, mailu
+Domaines par défaut (`root_domain`)  
+- wordpress `<root_domain>`  
+- n8n `n8n.<root_domain>` + `webhook.<root_domain>`  
+- nextcloud `cloud.<root_domain>`  
+- mailu `mail.<root_domain>` + MX/SPF/DKIM/DMARC  
+Overrides via variables app.
 
-Organisation des modules
-- `k8s-config` : infra + data (Traefik, cert-manager, external-dns, Velero, namespaces infra/data).
-- Chaque application : module dédié et namespace dans `apps`.
-- Domaine principal unique `root_domain` (ex: fullfrontend.test) pour dériver les FQDN par défaut :
-  - WordPress : `<root_domain>`
-  - n8n : `n8n.<root_domain>` ; webhooks : `webhook.<root_domain>`
-  - Nextcloud : `cloud.<root_domain>`
-  - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
-  - Overrides possibles via variables par app.
-- Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, kubeconfig généré dans `${path.root}/.kube/config` ; `dev` = minikube, pas de création DOKS ni cert-manager, kubeconfig local `~/.kube/config`).
-- Velero : toujours activé en prod (bucket DO Spaces créé automatiquement) ; en dev, activable via `enable_velero` avec MinIO/hostPath local (`/tmp/velero-dev` par défaut).
-- Velero : toujours activé en prod ; en dev, activable via `enable_velero`.
+Stockage  
+1) Bloc (PVC) : Postgres/MariaDB, data Nextcloud, wp-content, Mailu.  
+2) Objet (Spaces/MinIO) : médias WordPress, backups DB/Nextcloud/Mailu, stockage externe Nextcloud optionnel.  
+Ne pas utiliser S3 comme FS principal pour DB/Nextcloud.
 
-Applications cibles
-- WordPress : DB MariaDB, wp-content sur PVC, plugin S3 optionnel, ingress cert-manager, FQDN défaut `<root_domain>`.
-- n8n : DB Postgres partagée, stockage S3 optionnel, ingress, FQDN défaut `n8n.<root_domain>` + webhooks `webhook.<root_domain>`.
-- CRM (à choisir) : DB Postgres prioritaire (MariaDB si incompatible), fichiers éventuels S3, FQDN dérivé ou override.
-- Nextcloud : DB Postgres, data sur PVC, S3 externe optionnel, FQDN défaut `cloud.<root_domain>`.
-- Mailu : chart officiel, PV block, DNS DKIM/SPF/DMARC via external-dns, backups Spaces, FQDN `mail.<root_domain>` + enregistrements mail.
+Applications  
+- WordPress : DB MariaDB, PVC wp-content, plugin S3 optionnel, ingress cert-manager, FQDN `<root_domain>`.  
+- n8n : DB Postgres partagée, S3 optionnel, ingress, FQDN `n8n.<root_domain>` + webhooks.  
+- CRM : Postgres prioritaire (MariaDB si incompatible), S3 éventuel.  
+- Nextcloud : Postgres, data PVC, S3 externe optionnel, FQDN `cloud.<root_domain>`.  
+- Mailu : chart officiel, PV bloc, DNS mail via external-dns, backups Spaces, FQDN `mail.<root_domain>`.
 
-Ajout d’une application sur cluster live
-- Créer un module dédié (namespace `apps/<app>`, ingress Traefik, chart non-Bitnami).
-- Définir le FQDN via `root_domain` ou override.
-- Ajouter l’entrée dans `postgres_app_credentials` ou `mariadb_app_credentials` pour générer le secret DB.
-- Les scripts d’init DB ne rejouent pas : si Postgres/MariaDB sont déjà en production, créer DB+user manuellement (kubectl exec ou Job) avec les mêmes credentials avant le déploiement.
-- external-dns et cert-manager gèrent DNS/ACME dès que l’ingress est appliqué.
-- Bascule dev/prod avec Terraform : `export APP_ENV=dev; export TF_VAR_app_env=$APP_ENV` (prod par défaut).
+Backups Velero  
+- Prod : bucket DO Spaces, planifié 03:00 quotidien, rétention 30 jours, cible namespace `data`.  
+- Dev : MinIO + hostPath (si `enable_velero=true`).
 
-Ordre de migration recommandé
-1) Cluster + infra (Ingress, certs, DNS, storage)  
-2) Postgres (statefulset + backups)  
-3) MariaDB (statefulset + backups si nécessaire)  
-4) WordPress  
-5) n8n  
-6) Migration DNS vers DO  
-7) Nextcloud  
-8) Mailu
+Ajout d’app (cluster live)  
+- Module dédié (namespace apps/<app>, ingress Traefik, chart non-Bitnami).  
+- Ajouter creds dans `postgres_app_credentials` ou `mariadb_app_credentials`.  
+- Si DB déjà en place, créer DB+user manuellement avant déploiement (init non rejoué).  
+- external-dns/cert-manager gèrent DNS/ACME quand l’ingress est appliqué.
 
-Règles pour l’IA (important)
-- Toujours proposer des solutions 100% auto-hébergées.
-- Ne jamais recommander une base de données managée.
-- Utiliser DigitalOcean, Kubernetes, OpenTofu, Helm, PVC block, Spaces S3 uniquement.
-- Séparer stateful (PVC) et objet (Spaces).
-- Proposer des solutions robustes, simples, extensibles.
-- Architecture modulaire (namespace : infra, data, apps).
-- Toute nouvelle app → chart Helm + DB Postgres en priorité ; MariaDB seulement si l’app ne supporte pas Postgres (ex : WordPress).
-- Bannir les images/charts Bitnami (privilégier charts upstream/officiels).
+Règles IA  
+- 100% auto-hébergé, pas de DB managée.  
+- Tech autorisées : DigitalOcean, Kubernetes, OpenTofu, Helm, PVC bloc, Spaces/MinIO.  
+- Séparer stateful (PVC) et objet (Spaces/MinIO).  
+- Architecture modulaire (infra, data, apps).  
+- DB Postgres par défaut ; MariaDB seulement si l’app ne supporte pas Postgres (ex : WordPress).  
+- Bannir Bitnami.

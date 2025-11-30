@@ -45,7 +45,6 @@ variable "velero_dev_bucket" {
 
 variable "velero_dev_host_path" {
   type        = string
-  default     = "/tmp/velero-dev"
   description = "Chemin hostPath pour stocker les backups Velero en dev"
 }
 

@@ -1,4 +1,5 @@
 resource "helm_release" "external_dns" {
+  count      = var.is_prod ? 1 : 0
   name       = "external-dns"
   namespace  = kubernetes_namespace.infra.metadata[0].name
 

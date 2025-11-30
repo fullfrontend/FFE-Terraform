@@ -11,6 +11,7 @@ locals {
   wp_host          = var.wp_host != "" ? var.wp_host : format("%s", local.root_domain)
   kubeconfig_path  = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
   velero_s3_url    = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
+  velero_dev_host_path = "${path.root}/data/${var.velero_dev_bucket}"
 }
 
 module "doks-cluster" {
@@ -29,6 +30,11 @@ module "doks-cluster" {
   project_purpose     = "Website or blog"
 }
 
+module "minikube" {
+  count = local.is_prod ? 0 : 1
+  source = "./modules/minikube"
+}
+
 module "k8s-config" {
   source          = "./modules/k8s-config"
   cluster_name    = local.cluster_name
@@ -41,7 +47,7 @@ module "k8s-config" {
   enable_velero     = local.is_prod ? true : var.enable_velero
   velero_bucket     = var.velero_bucket
   velero_dev_bucket = var.velero_dev_bucket
-  velero_dev_host_path = var.velero_dev_host_path
+  velero_dev_host_path = local.velero_dev_host_path
   velero_s3_url     = local.velero_s3_url
   velero_access_key = var.velero_access_key
   velero_secret_key = var.velero_secret_key

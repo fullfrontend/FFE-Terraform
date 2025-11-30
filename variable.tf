@@ -229,12 +229,6 @@ variable "velero_dev_bucket" {
   description = "Bucket Velero pour l'environnement dev (MinIO local)"
 }
 
-variable "velero_dev_host_path" {
-  type        = string
-  default     = "/tmp/velero-dev"
-  description = "Chemin hostPath pour stocker localement les backups Velero en dev"
-}
-
 variable "velero_s3_url" {
   type        = string
   default     = ""

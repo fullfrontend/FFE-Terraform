@@ -15,9 +15,10 @@ resource "kubernetes_persistent_volume" "minio_dev" {
     }
     access_modes = ["ReadWriteOnce"]
     persistent_volume_reclaim_policy = "Retain"
-
-    host_path {
-      path = var.velero_dev_host_path
+    persistent_volume_source {
+      host_path {
+        path = var.velero_dev_host_path
+      }
     }
   }
 }
@@ -49,7 +50,7 @@ resource "kubernetes_secret" "minio_dev" {
     namespace = kubernetes_namespace.infra.metadata[0].name
   }
 
-  string_data = {
+  data = {
     accesskey = var.velero_access_key
     secretkey = var.velero_secret_key
   }
