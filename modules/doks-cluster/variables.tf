@@ -22,3 +22,9 @@ variable "pool_max_count" {
   type = number
   description = "K8S cluster maximal nodes count"
 }
+
+variable "write_kubeconfig" {
+  type = bool
+  default = false
+  description = "Should we write the Kubeconfig on disk ?"
+}
