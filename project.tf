@@ -2,7 +2,7 @@ resource "digitalocean_project" "terraform_learn" {
   name        = "Full Front-End"
   description = "Web stack for Website and Automation"
   environment = "Production"
-  purpose     = "Website or Blog"
+  purpose     = "Website or blog"
   resources = [
     module.doks-cluster.urns.cluster
 
@@ -14,7 +14,7 @@ resource "random_id" "cluster_name" {
 }
 
 locals {
-  cluster_name = "${var.doks_name}-${random_id.cluster_name.hex}"
+  cluster_name       = "${var.doks_name}-${random_id.cluster_name.hex}"
 }
 
 
