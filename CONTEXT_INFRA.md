@@ -46,7 +46,7 @@ Kubernetes (DOKS)
   - Nextcloud : `cloud.<root_domain>`
   - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
   - Overrides possibles via variables spécifiques (wp_host, n8n_host, n8n_webhook_host, etc.).
-- Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, `dev` = minikube, pas de cluster DOKS ni cert-manager, providers pointent sur le kubeconfig local `kubeconfig_path`).
+- Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, kubeconfig généré dans `${path.root}/.kube/config` ; `dev` = minikube, pas de cluster DOKS ni cert-manager, kubeconfig `~/.kube/config`).
 
 ## Applications (règles et domaines)
 - WordPress : MariaDB uniquement ; wp-content sur PVC ; plugin S3 optionnel ; ingress cert-manager ; FQDN par défaut `<root_domain>`.

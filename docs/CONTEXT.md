@@ -40,7 +40,7 @@ Organisation des modules
   - Nextcloud : `cloud.<root_domain>`
   - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
   - Overrides possibles via variables par app.
-- Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager ; `dev` = minikube, pas de création DOKS ni cert-manager, providers k8s/helm via kubeconfig local `kubeconfig_path`).
+- Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, kubeconfig généré dans `${path.root}/.kube/config` ; `dev` = minikube, pas de création DOKS ni cert-manager, kubeconfig local `~/.kube/config`).
 
 Applications cibles
 - WordPress : DB MariaDB, wp-content sur PVC, plugin S3 optionnel, ingress cert-manager, FQDN défaut `<root_domain>`.

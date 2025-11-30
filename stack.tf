@@ -9,6 +9,7 @@ locals {
   n8n_host         = var.n8n_host != "" ? var.n8n_host : format("n8n.%s", local.root_domain)
   n8n_webhook_host = var.n8n_webhook_host != "" ? var.n8n_webhook_host : format("webhook.%s", local.root_domain)
   wp_host          = var.wp_host != "" ? var.wp_host : format("%s", local.root_domain)
+  kubeconfig_path  = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
 }
 
 module "doks-cluster" {
@@ -33,7 +34,7 @@ module "k8s-config" {
   region          = var.doks_region
   do_token        = var.do_token
   is_prod         = local.is_prod
-  kubeconfig_path = var.kubeconfig_path
+  kubeconfig_path = local.kubeconfig_path
   enable_cert_manager = local.is_prod
 
   enable_velero     = var.enable_velero

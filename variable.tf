@@ -10,13 +10,6 @@ variable "app_env" {
   }
 }
 
-# Chemin kubeconfig (minikube ou DOKS généré)
-variable "kubeconfig_path" {
-  type        = string
-  default     = "~/.kube/config"
-  description = "Chemin du kubeconfig utilisé par les providers k8s/helm"
-}
-
 variable "enable_velero" {
   type        = bool
   default     = false
