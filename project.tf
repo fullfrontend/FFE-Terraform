@@ -23,8 +23,9 @@ module "doks-cluster" {
   name           = local.cluster_name
   region         = var.doks_region
   node_size      = var.doks_node_size
-  pool_min_count = 1
+  pool_min_count = 3
   pool_max_count = 5
+  write_kubeconfig = true
 }
 
 

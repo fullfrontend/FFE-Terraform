@@ -1,0 +1,1 @@
+resource "kubernetes_namespace" "website" {}
