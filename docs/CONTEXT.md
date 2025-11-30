@@ -1,157 +1,76 @@
-Objectif du projet
+Objectif
+Migrer toute l’infrastructure vers un cluster Kubernetes DigitalOcean (DOKS) piloté via OpenTofu (Terraform) pour l’auto-hébergement, la maîtrise des coûts, la cohérence et le contrôle du stateful.
 
-Migrer toute l’infrastructure actuelle vers un cluster Kubernetes DigitalOcean (DOKS) entièrement piloté via OpenTofu (Terraform).
-But : auto-hébergement, maîtrise des coûts, cohérence, extensibilité, et contrôle total sur le stateful.
+Références
+- Provider DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest
+- Provider Kubernetes : https://search.opentofu.org/provider/hashicorp/kubernetes/latest
+- Provider Helm : https://search.opentofu.org/provider/hashicorp/helm/latest
 
-⸻
-
-Références documentation
-•	Provider DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest
-•	Provider Kubernetes : https://search.opentofu.org/provider/hashicorp/kubernetes/latest
-•	Provider Helm : https://search.opentofu.org/provider/hashicorp/helm/latest
-
-⸻
-
-Composants actuels (à migrer)
-•	WordPress (site principal)
-•	Mautic → sera remplacé
-•	n8n (automatisations)
-•	CRM (solution à définir)
-•	Nextcloud (fichiers, CalDAV, CardDAV)
-•	Mail (Mailinabox aujourd’hui → Mailu demain)
-•	DNS actuellement géré par Mailinabox
-
-⸻
-
-Stack cible (plateforme Kubernetes)
-
-Infrastructure
-•	Cluster : Kubernetes DigitalOcean (DOKS)
-•	Provisioning : OpenTofu (Terraform)
-•	Ingress : Traefik
-•	Certificats : cert-manager (Let’s Encrypt)
-•	DNS : external-dns (provider DigitalOcean)
-•	Storage POSIX : DigitalOcean Block Storage via CSI driver (PVC)
-•	Storage Object : DigitalOcean Spaces (équivalent S3)
-•	Backups : Velero (backups seulement) vers Spaces
+Plateforme cible
+- Ingress : Traefik
+- Certificats : cert-manager (Let’s Encrypt)
+- DNS : external-dns (DigitalOcean)
+- Stockage POSIX : DigitalOcean Block Storage (PVC)
+- Stockage objet : DigitalOcean Spaces (S3)
+- Backups : Velero (backups uniquement) vers Spaces
+- Interdit : images/charts Bitnami (licence payante)
 
 Règles de stockage
-1.	Do Block Storage = POSIX
-À utiliser pour tout ce qui est stateful :
-•	Bases de données (Postgres/MariaDB)
-•	Nextcloud data (base)
-•	WordPress wp-content si non déporté
-•	Mailu (maildir, queue, config)
-2.	Spaces (S3) = objet
-Usage :
-•	Médias WordPress (via plugin S3)
-•	Stockage externe Nextcloud (optionnel)
-•	Backups DB
-•	Backups Mailu
-•	Assets statiques
-Ne pas utiliser comme FS principal via CSI pour DB ou Nextcloud.
-Interdit : images/charts Bitnami (licence payante).
-
-⸻
+1) Block storage (PVC) pour tout le stateful : Postgres/MariaDB, data Nextcloud, wp-content, Mailu (maildir/queue/config).  
+2) Spaces (S3) pour objets : médias WordPress, backups DB/Nextcloud/Mailu, stockage externe Nextcloud optionnel.  
+Ne pas utiliser Spaces comme FS principal via CSI pour DB/Nextcloud.
 
 Base de données
+- Pas de DB managée.
+- StatefulSets Postgres prioritaires ; MariaDB seulement si l’app ne supporte pas Postgres.
+- 1 StatefulSet + 1 PVC + backups vers Spaces + restauration testée.
 
-Pas de managed DB.
-→ Le cluster utilise Postgres (recommandé) ou MariaDB, déployé comme StatefulSet K8S, avec :
-•	1 StatefulSet
-•	1 PVC block storage
-•	Backups en CronJob → Spaces
-•	Restauration testée régulièrement
+Architecture cible
+Kubernetes (DOKS)  
+├── infra : ingress-controller, cert-manager, external-dns, monitoring/logging, velero/backups  
+├── data : postgres (statefulset+pvc), mariadb (statefulset+pvc)  
+└── apps : wordpress, n8n, crm, nextcloud, mailu
 
-⸻
+Organisation des modules
+- `k8s-config` : infra + data (Traefik, cert-manager, external-dns, Velero, namespaces infra/data).
+- Chaque application : module dédié et namespace dans `apps`.
+- Domaine principal unique `root_domain` (ex: fullfrontend.test) pour dériver les FQDN par défaut :
+  - WordPress : `<root_domain>`
+  - n8n : `n8n.<root_domain>` ; webhooks : `webhook.<root_domain>`
+  - Nextcloud : `cloud.<root_domain>`
+  - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
+  - Overrides possibles via variables par app.
 
-Applications à déployer
+Applications cibles
+- WordPress : DB MariaDB, wp-content sur PVC, plugin S3 optionnel, ingress cert-manager, FQDN défaut `<root_domain>`.
+- n8n : DB Postgres partagée, stockage S3 optionnel, ingress, FQDN défaut `n8n.<root_domain>` + webhooks `webhook.<root_domain>`.
+- CRM (à choisir) : DB Postgres prioritaire (MariaDB si incompatible), fichiers éventuels S3, FQDN dérivé ou override.
+- Nextcloud : DB Postgres, data sur PVC, S3 externe optionnel, FQDN défaut `cloud.<root_domain>`.
+- Mailu : chart officiel, PV block, DNS DKIM/SPF/DMARC via external-dns, backups Spaces, FQDN `mail.<root_domain>` + enregistrements mail.
 
-WordPress
-•	Nginx + PHP-FPM
-•	DB MariaDB uniquement
-•	wp-content → PVC ou plugin S3
-•	Exposé via Ingress + cert-manager
-
-n8n
-•	DB Postgres (DB séparée dans le même cluster)
-•	Stockage fichiers secondaire → S3 si besoin
-•	Accès via Ingress
-
-CRM (auto-hébergé)
-•	DB à définir (Postgres prioritaire ; MariaDB si l’app ne supporte pas Postgres)
-•	Stockage éventuel → S3
-
-Nextcloud
-•	DB Postgres
-•	data → PVC block
-•	Support possible du backend S3 en mode externe
-
-Mailu (Kubernetes)
-•	Helm chart officiel
-•	PV block pour maildir/config
-•	Backups → Spaces
-•	SPF/DKIM/DMARC configurés via DNS DO
-
-⸻
-
-DNS
-•	Migration complète vers DigitalOcean DNS
-•	Gestion automatique via external-dns
-•	TTL bas pour migration
-•	Étapes mail : conserver DKIM/SPF/DMARC coherents
-
-⸻
-
-Architecture recommandée (simplifiée)
-
-
-Kubernetes (DOKS)
-├── Namespace infra
-│    ├── ingress-controller
-│    ├── cert-manager
-│    ├── external-dns
-│    ├── monitoring/logging
-│    ├── velero/backups
-│
-├── Namespace data
-│    ├── postgres (statefulset + pvc)
-│    ├── MariaDB (statefulset + pvc)
-│
-├── Namespace apps
-│    ├── wordpress
-│    ├── n8n
-│    ├── crm
-│    ├── nextcloud
-│    ├── mailu
-
-Organisation modules
-•	module k8s-config → ne gère que l’infra et data (Traefik, cert-manager, external-dns, Velero, namespaces infra/data).
-•	chaque application → module dédié qui crée son namespace dans “apps”.
-•	Domaine principal défini à un seul endroit (`root_domain`, ex: example.com) pour dériver les FQDN des apps.
-
-
-
-⸻
+Ajout d’une application sur cluster live
+- Créer un module dédié (namespace `apps/<app>`, ingress Traefik, chart non-Bitnami).
+- Définir le FQDN via `root_domain` ou override.
+- Ajouter l’entrée dans `postgres_app_credentials` ou `mariadb_app_credentials` pour générer le secret DB.
+- Les scripts d’init DB ne rejouent pas : si Postgres/MariaDB sont déjà en production, créer DB+user manuellement (kubectl exec ou Job) avec les mêmes credentials avant le déploiement.
+- external-dns et cert-manager gèrent DNS/ACME dès que l’ingress est appliqué.
 
 Ordre de migration recommandé
-1.	Déploiement cluster + infra (Ingress, certs, DNS, storage)
-2.	Postgres (statefulset + backups)
-3.	MariaDB (statefulset + backups si nécessaire)
-4.	WordPress
-5.	n8n
-6.	Migration DNS vers DO
-7.	Nextcloud
-8.	Mailu
-
-⸻
+1) Cluster + infra (Ingress, certs, DNS, storage)  
+2) Postgres (statefulset + backups)  
+3) MariaDB (statefulset + backups si nécessaire)  
+4) WordPress  
+5) n8n  
+6) Migration DNS vers DO  
+7) Nextcloud  
+8) Mailu
 
 Règles pour l’IA (important)
-•	Toujours proposer des solutions 100% auto-hébergées.
-•	Ne jamais recommander une base de données managée.
-•	Utiliser DigitalOcean, Kubernetes, OpenTofu, Helm, PVC block, Spaces S3 uniquement.
-•	Séparer stateful (PVC) et objet (Spaces).
-•	Proposer des solutions robustes, simples et extensibles.
-•	Préférer une architecture modulaire (namespace : infra, data, apps).
-•	Toute nouvelle app → chart Helm + DB Postgres en priorité ; MariaDB uniquement si l’app ne supporte pas Postgres (ex : WordPress).
-•	Bannir les images/charts Bitnami (privilégier charts upstream/officiels).
+- Toujours proposer des solutions 100% auto-hébergées.
+- Ne jamais recommander une base de données managée.
+- Utiliser DigitalOcean, Kubernetes, OpenTofu, Helm, PVC block, Spaces S3 uniquement.
+- Séparer stateful (PVC) et objet (Spaces).
+- Proposer des solutions robustes, simples, extensibles.
+- Architecture modulaire (namespace : infra, data, apps).
+- Toute nouvelle app → chart Helm + DB Postgres en priorité ; MariaDB seulement si l’app ne supporte pas Postgres (ex : WordPress).
+- Bannir les images/charts Bitnami (privilégier charts upstream/officiels).

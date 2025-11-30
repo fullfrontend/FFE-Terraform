@@ -1,140 +1,77 @@
 # CONTEXTE DE L’INFRA
 
-Objectif global
+## Objectif
+Migrer l’infrastructure existante vers un cluster Kubernetes DigitalOcean (DOKS) géré via OpenTofu/Terraform pour gagner en maîtrise des coûts, extensibilité, résilience et gestion du stateful.
 
-Migrer l’infrastructure existante vers un cluster Kubernetes DigitalOcean (DOKS), entièrement géré via OpenTofu (Terraform).
-But : auto-hébergement, maîtrise des coûts, extensibilité, résilience, gestion propre du stateful.
+## Références
+- Provider DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest  
+- Provider Kubernetes : https://search.opentofu.org/provider/hashicorp/kubernetes/latest  
+- Provider Helm : https://search.opentofu.org/provider/hashicorp/helm/latest
 
-⸻
+## Stack actuelle (avant migration)
+- Serveur cloud (Ubuntu 22.04) : Mailinabox (mail + DNS + CalDAV + CardDAV via Nextcloud).
+- Serveur prod Docker (Ubuntu 24.04) : WordPress + Mautic + Traefik.
 
-Références documentation
-•	Provider DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest
-•	Provider Kubernetes : https://search.opentofu.org/provider/hashicorp/kubernetes/latest
-•	Provider Helm : https://search.opentofu.org/provider/hashicorp/helm/latest
+## Stack cible (plateforme)
+- Ingress : Traefik
+- Certificats : cert-manager (Let’s Encrypt)
+- DNS : external-dns (DigitalOcean)
+- Stockage POSIX : CSI DigitalOcean Block Storage (PVC)
+- Stockage objet : DigitalOcean Spaces (S3)
+- Backups : Velero (backups uniquement vers Spaces)
+- Interdit : images/charts Bitnami (licence payante)
 
-⸻
+## Stockage
+1) Block Storage (PVC) pour tout le stateful : Postgres/MariaDB, Nextcloud data, wp-content, Mailu (maildir/queue/config).  
+2) Spaces (S3) pour objets : médias WordPress, backups DB/Nextcloud/Mailu, stockage externe Nextcloud optionnel.  
+Ne pas utiliser Spaces comme volume POSIX principal pour DB/Nextcloud.
 
-Stack actuelle (avant migration)
-•	Serveur cloud (Ubuntu 22.04) : Mailinabox (mail + DNS + CalDAV + CardDAV via Nextcloud).
-•	Serveur prod Docker (Ubuntu 24.04) : WordPress + Mautic + Traefik.
+## Base de données
+- Pas de managed DB. StatefulSets auto-hébergés.
+- Postgres prioritaire ; MariaDB seulement si l’app ne supporte pas Postgres.
+- 1 StatefulSet + 1 PVC + backups vers Spaces + vérif de restauration.
 
-⸻
+## Architecture cible
+Kubernetes (DOKS)  
+├── Namespace infra : ingress-controller, cert-manager, external-dns, monitoring/logging, velero/backups  
+├── Namespace data : postgres (statefulset + pvc), mariadb (statefulset + pvc)  
+└── Namespace apps : wordpress, n8n, crm, nextcloud, mailu
 
-Stack cible (Kubernetes)
+## Organisation des modules
+- `k8s-config` : uniquement infra/data (Traefik, cert-manager, external-dns, Velero, namespaces infra/data).
+- Chaque application : module dédié qui crée son namespace dans `apps`.
+- Domaine principal : variable unique `root_domain` (ex: fullfrontend.test) pour dériver les FQDN par défaut :
+  - WordPress : `<root_domain>`
+  - n8n : `n8n.<root_domain>` ; webhooks : `webhook.<root_domain>`
+  - Nextcloud : `cloud.<root_domain>`
+  - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
+  - Overrides possibles via variables spécifiques (wp_host, n8n_host, n8n_webhook_host, etc.).
 
-Cluster Kubernetes DigitalOcean, provisionné via OpenTofu.
+## Applications (règles et domaines)
+- WordPress : MariaDB uniquement ; wp-content sur PVC ; plugin S3 optionnel ; ingress cert-manager ; FQDN par défaut `<root_domain>`.
+- n8n : Postgres partagé ; stockage fichiers → S3 si besoin ; ingress ; FQDN par défaut `n8n.<root_domain>` + webhooks `webhook.<root_domain>`.
+- CRM (à choisir) : Postgres prioritaire (MariaDB si incompatibilité) ; fichiers éventuels → S3 ; FQDN dérivé de `root_domain` ou override.
+- Nextcloud : Postgres ; data sur PVC ; S3 en stockage externe optionnel ; FQDN par défaut `cloud.<root_domain>`.
+- Mailu : chart officiel ; PV block ; DNS (DKIM/SPF/DMARC) via external-dns ; backups Spaces ; FQDN `mail.<root_domain>` + enregistrements MX/SPF/DKIM/DMARC.
 
-Composants “plateforme”
-•	Ingress Controller (Traefik)
-•	cert-manager (certificats Let’s Encrypt)
-•	external-dns (DNS automatisé avec DigitalOcean)
-•	CSI DigitalOcean Block Storage (storage POSIX pour PVC)
-•	Velero (backups seulement, vers Spaces)
+## DNS
+- Migration complète vers DNS DigitalOcean.
+- external-dns gère automatiquement les enregistrements.
+- Baisser les TTL pour les migrations ; mail : DKIM/SPF/DMARC gérés dans DO.
 
-Stockage
+## Ajout d’une nouvelle application (cluster live)
+- Créer un module dédié (namespace dans `apps`, ingress Traefik, chart non-Bitnami).
+- Définir le FQDN via `root_domain` ou override.
+- Ajouter les credentials DB dans `postgres_app_credentials` ou `mariadb_app_credentials` pour générer le secret applicatif.
+- Important : les scripts d’init DB ne s’exécutent qu’au premier bootstrap des StatefulSets. Si Postgres/MariaDB tournent déjà, créer la DB et l’utilisateur manuellement (kubectl exec ou Job) avant de déployer l’app, avec les mêmes credentials que le secret.
+- external-dns et cert-manager gèrent DNS/ACME dès que l’ingress est appliqué.
 
-Important : deux niveaux de storage
-1.	Volumes Block DO (PVC) → pour tout ce qui nécessite POSIX :
-•	Postgres/MariaDB (bases WP, n8n, CRM, Nextcloud, Mailu)
-•	Nextcloud data (base)
-•	WordPress wp-content (si non déporté)
-•	Mailu (maildir, queue, config)
-2.	Spaces DO (Object Storage S3) → pour assets et backups via API :
-•	Médias WordPress (via plugin S3)
-•	Backups DB
-•	Backups Nextcloud
-•	Backups Mailu
-•	Stockage externe Nextcloud (optionnel)
-
-Ne pas utiliser Spaces comme volume POSIX principal pour DB ou Nextcloud.
-Interdit : images/charts Bitnami (licence payante).
-
-⸻
-
-Applications à déployer dans K8S
-
-1. WordPress
-   •	PHP-FPM + Nginx
-   •	DB (MariaDB uniquement)
-   •	wp-content sur PVC
-   •	Médias → plugin S3 vers Spaces (optionnel)
-   •	Ingress + cert-manager
-
-2. n8n
-   •	DB Postgres (cluster partagé)
-   •	Stockage fichiers → S3 si besoin
-   •	Exposé via Ingress
-
-3. CRM (auto-hébergé, choix futur)
-   •	DB à définir (Postgres prioritaire ; MariaDB si l’app ne supporte pas Postgres)
-   •	Fichiers éventuels → S3
-
-4. Nextcloud
-   •	DB Postgres
-   •	data sur PVC
-   •	Stockage S3 comme backend externe possible
-
-5. Mailu (recommandé)
-   •	Helm chart officiel
-   •	PV block pour maildir
-   •	DKIM/SPF/DMARC via external-dns
-   •	Backups → Spaces
-
-⸻
-
-DNS
-•	Migration complète vers DNS DigitalOcean
-•	Gestion automatisée des enregistrements via external-dns
-•	Baisse des TTL pour migrations
-•	Mail : gérer DKIM/SPF/DMARC dans DO
-
-⸻
-
-Base de données
-
-Pas de managed DB → auto-hébergement via StatefulSet :
-•	Postgres prioritaire (dès que possible par l'app), MariaDB uniquement si l'app ne supporte pas Postgres
-•	1 StatefulSet, 1 PVC Block Storage
-•	Backups vers Spaces
-•	Monitoring + job de vérification de restauration
-
-⸻
-
-Architecture recommandée (résumé)
-
-Kubernetes (DOKS)
-├── Namespace infra
-│    ├── ingress-controller
-│    ├── cert-manager
-│    ├── external-dns
-│    ├── monitoring/logging
-│    ├── velero/backups
-│
-├── Namespace data
-│    ├── postgres (statefulset + pvc)
-│    ├── MariaDB (statefulset + pvc)
-│
-├── Namespace apps
-│    ├── wordpress
-│    ├── n8n
-│    ├── crm
-│    ├── nextcloud
-│    ├── mailu
-
-Organisation modules
-•	module k8s-config → provisionne seulement l’“infra” et “data” (Traefik, cert-manager, external-dns, Velero, namespaces infra/data).
-•	chaque application dispose de son propre module dédié, qui crée son namespace dans “apps”.
-•	Domaine principal configurable en une seule variable (`root_domain`, ex: example.com) pour dériver les FQDN des apps.
-
-
-⸻
-
-Priorités de migration (ordre logique)
-1.	Cluster DOKS + infrastructure plateforme (Ingress, cert-manager, external-dns).
-2.	Postgres (StatefulSet + backups).
-3.	MariaDB (StatefulSet + backups si nécessaire).
-4.	WordPress.
-5.	n8n.
-6.	Centralisation DNS DO.
-7.	Nextcloud (remplacement Mailinabox partiel).
-8.	Mailu (migration mail complète).
+## Priorités de migration
+1) Cluster DOKS + infra (Ingress, cert-manager, external-dns).  
+2) Postgres (StatefulSet + backups).  
+3) MariaDB (StatefulSet + backups si nécessaire).  
+4) WordPress.  
+5) n8n.  
+6) Centralisation DNS DO.  
+7) Nextcloud (remplacement Mailinabox partiel).  
+8) Mailu (migration mail complète).

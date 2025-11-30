@@ -7,7 +7,7 @@ variable "enable_velero" {
   description = "Activer le déploiement Velero (backups vers Spaces)"
 }
 
-# Domaine racine commun (ex: example.com)
+# Domaine racine commun (ex: fullfrontend.test)
 variable "root_domain" {
   type        = string
   default     = "fullfrontend.test"
@@ -124,6 +124,68 @@ variable "wp_image" {
   type        = string
   default     = "wordpress:6.5-php8.2-apache"
   description = "Image WordPress (officielle, non Bitnami)"
+}
+
+# Postgres (data)
+variable "postgres_image" {
+  type        = string
+  default     = "postgres:16-alpine"
+  description = "Image Postgres (officielle)"
+}
+
+variable "postgres_storage_size" {
+  type        = string
+  default     = "20Gi"
+  description = "Taille du volume Postgres"
+}
+
+variable "postgres_root_password" {
+  type        = string
+  default     = ""
+  description = "Mot de passe superuser Postgres"
+  sensitive   = true
+}
+
+variable "postgres_app_credentials" {
+  type = list(object({
+    name     = string
+    db_name  = string
+    user     = string
+    password = string
+  }))
+  default     = []
+  description = "Liste des DB/users Postgres par application"
+}
+
+# MariaDB (data)
+variable "mariadb_image" {
+  type        = string
+  default     = "mariadb:11.4"
+  description = "Image MariaDB (officielle)"
+}
+
+variable "mariadb_storage_size" {
+  type        = string
+  default     = "20Gi"
+  description = "Taille du volume MariaDB"
+}
+
+variable "mariadb_root_password" {
+  type        = string
+  default     = ""
+  description = "Mot de passe root MariaDB"
+  sensitive   = true
+}
+
+variable "mariadb_app_credentials" {
+  type = list(object({
+    name     = string
+    db_name  = string
+    user     = string
+    password = string
+  }))
+  default     = []
+  description = "Liste des DB/users MariaDB par application"
 }
 
 variable "do_region" {

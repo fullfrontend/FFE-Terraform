@@ -18,7 +18,7 @@ locals {
   root_domain        = var.root_domain
   n8n_host           = var.n8n_host != "" ? var.n8n_host : format("n8n.%s", local.root_domain)
   n8n_webhook_host   = var.n8n_webhook_host != "" ? var.n8n_webhook_host : format("webhook.%s", local.root_domain)
-  wp_host            = var.wp_host != "" ? var.wp_host : format("www.%s", local.root_domain)
+  wp_host            = var.wp_host != "" ? var.wp_host : format("%s", local.root_domain)
 }
 
 
@@ -45,6 +45,16 @@ module "k8s-config" {
   velero_s3_url   = var.velero_s3_url
   velero_access_key = var.velero_access_key
   velero_secret_key = var.velero_secret_key
+
+  postgres_image          = var.postgres_image
+  postgres_storage_size   = var.postgres_storage_size
+  postgres_root_password  = var.postgres_root_password
+  postgres_app_credentials = var.postgres_app_credentials
+
+  mariadb_image           = var.mariadb_image
+  mariadb_storage_size    = var.mariadb_storage_size
+  mariadb_root_password   = var.mariadb_root_password
+  mariadb_app_credentials = var.mariadb_app_credentials
 }
 
 module "n8n" {

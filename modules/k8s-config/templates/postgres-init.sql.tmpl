@@ -1,0 +1,21 @@
+%{ for app in apps ~}
+DO
+$$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${app.user}') THEN
+    CREATE ROLE ${app.user} LOGIN PASSWORD '${app.password}';
+  END IF;
+END
+$$;
+
+DO
+$$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_database WHERE datname = '${app.db_name}') THEN
+    CREATE DATABASE ${app.db_name} OWNER ${app.user};
+  END IF;
+END
+$$;
+
+GRANT ALL PRIVILEGES ON DATABASE ${app.db_name} TO ${app.user};
+%{ endfor ~}
