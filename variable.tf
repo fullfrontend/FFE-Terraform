@@ -1,6 +1,23 @@
 variable "do_token" {}
 #variable "pvt_key" {}
 
+variable "app_env" {
+  type        = string
+  default     = "prod"
+  description = "Environnement (prod = DOKS, dev = minikube via kubeconfig)"
+  validation {
+    condition     = contains(["prod", "dev"], var.app_env)
+    error_message = "app_env doit être 'prod' ou 'dev'."
+  }
+}
+
+# Chemin kubeconfig (minikube ou DOKS généré)
+variable "kubeconfig_path" {
+  type        = string
+  default     = "~/.kube/config"
+  description = "Chemin du kubeconfig utilisé par les providers k8s/helm"
+}
+
 variable "enable_velero" {
   type        = bool
   default     = false

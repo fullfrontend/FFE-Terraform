@@ -46,6 +46,7 @@ Kubernetes (DOKS)
   - Nextcloud : `cloud.<root_domain>`
   - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
   - Overrides possibles via variables spécifiques (wp_host, n8n_host, n8n_webhook_host, etc.).
+- Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, `dev` = minikube, pas de cluster DOKS ni cert-manager, providers pointent sur le kubeconfig local `kubeconfig_path`).
 
 ## Applications (règles et domaines)
 - WordPress : MariaDB uniquement ; wp-content sur PVC ; plugin S3 optionnel ; ingress cert-manager ; FQDN par défaut `<root_domain>`.
@@ -65,6 +66,7 @@ Kubernetes (DOKS)
 - Ajouter les credentials DB dans `postgres_app_credentials` ou `mariadb_app_credentials` pour générer le secret applicatif.
 - Important : les scripts d’init DB ne s’exécutent qu’au premier bootstrap des StatefulSets. Si Postgres/MariaDB tournent déjà, créer la DB et l’utilisateur manuellement (kubectl exec ou Job) avant de déployer l’app, avec les mêmes credentials que le secret.
 - external-dns et cert-manager gèrent DNS/ACME dès que l’ingress est appliqué.
+- Pour basculer dev/prod avec Terraform : `export APP_ENV=dev; export TF_VAR_app_env=$APP_ENV` (prod par défaut).
 
 ## Priorités de migration
 1) Cluster DOKS + infra (Ingress, cert-manager, external-dns).  

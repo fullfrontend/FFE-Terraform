@@ -40,6 +40,7 @@ Organisation des modules
   - Nextcloud : `cloud.<root_domain>`
   - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
   - Overrides possibles via variables par app.
+- Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager ; `dev` = minikube, pas de création DOKS ni cert-manager, providers k8s/helm via kubeconfig local `kubeconfig_path`).
 
 Applications cibles
 - WordPress : DB MariaDB, wp-content sur PVC, plugin S3 optionnel, ingress cert-manager, FQDN défaut `<root_domain>`.
@@ -54,6 +55,7 @@ Ajout d’une application sur cluster live
 - Ajouter l’entrée dans `postgres_app_credentials` ou `mariadb_app_credentials` pour générer le secret DB.
 - Les scripts d’init DB ne rejouent pas : si Postgres/MariaDB sont déjà en production, créer DB+user manuellement (kubectl exec ou Job) avec les mêmes credentials avant le déploiement.
 - external-dns et cert-manager gèrent DNS/ACME dès que l’ingress est appliqué.
+- Bascule dev/prod avec Terraform : `export APP_ENV=dev; export TF_VAR_app_env=$APP_ENV` (prod par défaut).
 
 Ordre de migration recommandé
 1) Cluster + infra (Ingress, certs, DNS, storage)  

@@ -28,3 +28,27 @@ variable "write_kubeconfig" {
   default = false
   description = "Should we write the Kubeconfig on disk ?"
 }
+
+variable "project_name" {
+  type        = string
+  default     = "Full Front-End"
+  description = "Nom du projet DigitalOcean"
+}
+
+variable "project_description" {
+  type        = string
+  default     = "Web stack for Website and Automation"
+  description = "Description du projet DigitalOcean"
+}
+
+variable "project_environment" {
+  type        = string
+  default     = "Production"
+  description = "Environnement du projet DigitalOcean"
+}
+
+variable "project_purpose" {
+  type        = string
+  default     = "Website or blog"
+  description = "Purpose du projet DigitalOcean"
+}

@@ -1,3 +1,17 @@
+locals {
+  traefik_service_type = var.is_prod ? "LoadBalancer" : "NodePort"
+  traefik_sets_prod = [
+    {
+      name  = "service.annotations.service\\.beta\\.kubernetes\\.io/do-loadbalancer-name"
+      value = format("%s-traefik", var.cluster_name)
+    },
+    {
+      name  = "service.spec.loadBalancerClass"
+      value = ""
+    }
+  ]
+}
+
 resource "helm_release" "traefik" {
   name       = "traefik"
   namespace  = kubernetes_namespace.infra.metadata[0].name
@@ -7,22 +21,14 @@ resource "helm_release" "traefik" {
   cleanup_on_fail = true
   atomic          = true
 
-  set = [
+  set = concat([
     {
       name  = "deployment.replicas"
       value = 2
     },
     {
       name  = "service.type"
-      value = "LoadBalancer"
-    },
-    {
-      name  = "service.spec.loadBalancerClass"
-      value = ""
-    },
-    {
-      name  = "service.annotations.service\\.beta\\.kubernetes\\.io/do-loadbalancer-name"
-      value = format("%s-traefik", var.cluster_name)
+      value = local.traefik_service_type
     },
     {
       name  = "ingressClass.enabled"
@@ -36,5 +42,5 @@ resource "helm_release" "traefik" {
       name  = "ports.websecure.tls.enabled"
       value = true
     }
-  ]
+  ], var.is_prod ? local.traefik_sets_prod : [])
 }

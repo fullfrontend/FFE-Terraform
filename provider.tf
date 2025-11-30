@@ -22,7 +22,12 @@ provider "digitalocean" {
   token = var.do_token
 }
 
-data "digitalocean_ssh_key" "terraform" {
-  name = "Bubus-Mac"
+provider "kubernetes" {
+  config_path = var.kubeconfig_path
 }
 
+provider "helm" {
+  kubernetes  = {
+    config_path = var.kubeconfig_path
+  }
+}

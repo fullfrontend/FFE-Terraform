@@ -20,3 +20,11 @@ resource "digitalocean_kubernetes_cluster" "k8s" {
   }
 
 }
+
+resource "digitalocean_project" "ffe_project" {
+  name        = var.project_name
+  description = var.project_description
+  environment = var.project_environment
+  purpose     = var.project_purpose
+  resources   = [resource.digitalocean_kubernetes_cluster.k8s.urn]
+}

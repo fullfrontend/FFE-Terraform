@@ -1,11 +1,17 @@
 variable "cluster_name" {
-  type = string
+  type        = string
+  description = "Nom du cluster (utilisé pour quelques annotations/nommage)"
 }
 
-variable "cluster_id" {
-  type = string
+variable "kubeconfig_path" {
+  type        = string
+  description = "Chemin du kubeconfig (minikube ou DOKS écrit par Terraform)"
 }
 
+variable "is_prod" {
+  type        = bool
+  description = "Prod = DOKS, Dev = minikube"
+}
 
 variable "do_token" {
   type        = string
@@ -18,6 +24,12 @@ variable "enable_velero" {
   type        = bool
   default     = false
   description = "Activer le déploiement Velero"
+}
+
+variable "enable_cert_manager" {
+  type        = bool
+  default     = true
+  description = "Déployer cert-manager (désactivé en dev/minikube)"
 }
 
 variable "velero_bucket" {
