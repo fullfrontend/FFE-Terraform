@@ -37,6 +37,18 @@ variable "enable_cert_manager" {
   description = "Déployer cert-manager (désactivé en dev/minikube)"
 }
 
+variable "velero_dev_bucket" {
+  type        = string
+  default     = "velero-dev"
+  description = "Bucket Velero en dev (MinIO)"
+}
+
+variable "velero_dev_host_path" {
+  type        = string
+  default     = "/tmp/velero-dev"
+  description = "Chemin hostPath pour stocker les backups Velero en dev"
+}
+
 variable "velero_bucket" {
   type        = string
   default     = ""

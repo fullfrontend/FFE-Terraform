@@ -19,7 +19,7 @@ Infrastructure Terraform Full Front-End avec OpenTofu, pour provisionner un clus
 - Bannir les images/charts Bitnami (licence payante) : privilégier charts upstream/officiels.
 - Choix env : exporter `APP_ENV=dev` pour viser minikube (kubeconfig `~/.kube/config`), `APP_ENV=prod` pour DOKS (kubeconfig `${path.root}/.kube/config` généré).
 - Exemple d’export pour Terraform : `export APP_ENV=dev; export TF_VAR_app_env=$APP_ENV`
-- Velero toujours activé en prod ; en dev, activation optionnelle via `enable_velero`.
+- Velero toujours activé en prod (bucket DO Spaces auto-créé) ; en dev, activation optionnelle via `enable_velero` avec MinIO sur hostPath local (`/tmp/velero-dev` par défaut).
 - Ajout d’une app en prod : module dédié (namespace `apps`), ingress Traefik, entrée DB dans `postgres_app_credentials`/`mariadb_app_credentials`, créer DB+user manuellement si Postgres/MariaDB tournent déjà (init non rejoué). external-dns/cert-manager gèrent DNS/ACME dès l’ingress appliqué.
 - Accès DB sécurisé (pour création/migration) : privilégier le kube-port-forwarding ponctuel plutôt qu’un panel web ; arrêter le port-forward une fois l’opération terminée.
   - Postgres : `kubectl port-forward svc/postgres 5432:5432 -n data`

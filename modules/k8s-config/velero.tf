@@ -1,3 +1,7 @@
+locals {
+  minio_s3_url = "http://minio-dev.${kubernetes_namespace.infra.metadata[0].name}.svc.cluster.local:9000"
+}
+
 resource "kubernetes_secret" "velero" {
   count = var.enable_velero ? 1 : 0
 
@@ -37,11 +41,11 @@ resource "helm_release" "velero" {
     },
     {
       name  = "configuration.backupStorageLocation[0].bucket"
-      value = var.velero_bucket
+      value = var.is_prod ? var.velero_bucket : var.velero_dev_bucket
     },
     {
       name  = "configuration.backupStorageLocation[0].config.region"
-      value = var.region
+      value = var.is_prod ? var.region : "dev-local"
     },
     {
       name  = "configuration.backupStorageLocation[0].config.s3ForcePathStyle"
@@ -49,7 +53,7 @@ resource "helm_release" "velero" {
     },
     {
       name  = "configuration.backupStorageLocation[0].config.s3Url"
-      value = var.velero_s3_url
+      value = var.is_prod ? var.velero_s3_url : local.minio_s3_url
     },
     {
       name  = "credentials.existingSecret"

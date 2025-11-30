@@ -219,8 +219,20 @@ variable "doks_node_size" {
 # Velero (Spaces S3 pour backups)
 variable "velero_bucket" {
   type        = string
-  default     = ""
-  description = "Bucket Spaces pour Velero (ex: backups)"
+  default     = "velero-backups"
+  description = "Bucket Spaces pour Velero en prod (DO Spaces)"
+}
+
+variable "velero_dev_bucket" {
+  type        = string
+  default     = "velero-dev"
+  description = "Bucket Velero pour l'environnement dev (MinIO local)"
+}
+
+variable "velero_dev_host_path" {
+  type        = string
+  default     = "/tmp/velero-dev"
+  description = "Chemin hostPath pour stocker localement les backups Velero en dev"
 }
 
 variable "velero_s3_url" {

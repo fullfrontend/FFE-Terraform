@@ -10,6 +10,7 @@ locals {
   n8n_webhook_host = var.n8n_webhook_host != "" ? var.n8n_webhook_host : format("webhook.%s", local.root_domain)
   wp_host          = var.wp_host != "" ? var.wp_host : format("%s", local.root_domain)
   kubeconfig_path  = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
+  velero_s3_url    = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
 }
 
 module "doks-cluster" {
@@ -39,7 +40,9 @@ module "k8s-config" {
 
   enable_velero     = local.is_prod ? true : var.enable_velero
   velero_bucket     = var.velero_bucket
-  velero_s3_url     = var.velero_s3_url
+  velero_dev_bucket = var.velero_dev_bucket
+  velero_dev_host_path = var.velero_dev_host_path
+  velero_s3_url     = local.velero_s3_url
   velero_access_key = var.velero_access_key
   velero_secret_key = var.velero_secret_key
 
@@ -80,4 +83,10 @@ module "wordpress" {
   replicas        = var.wp_replicas
   storage_size    = var.wp_storage_size
   image           = var.wp_image
+}
+
+resource "digitalocean_spaces_bucket" "velero" {
+  count  = local.is_prod ? 1 : 0
+  name   = var.velero_bucket
+  region = var.doks_region
 }

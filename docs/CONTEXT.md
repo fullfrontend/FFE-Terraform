@@ -41,6 +41,7 @@ Organisation des modules
   - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
   - Overrides possibles via variables par app.
 - Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, kubeconfig généré dans `${path.root}/.kube/config` ; `dev` = minikube, pas de création DOKS ni cert-manager, kubeconfig local `~/.kube/config`).
+- Velero : toujours activé en prod (bucket DO Spaces créé automatiquement) ; en dev, activable via `enable_velero` avec MinIO/hostPath local (`/tmp/velero-dev` par défaut).
 - Velero : toujours activé en prod ; en dev, activable via `enable_velero`.
 
 Applications cibles
