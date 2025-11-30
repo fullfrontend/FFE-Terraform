@@ -30,6 +30,7 @@ module "doks-cluster" {
 module "k8s-config" {
   source          = "./modules/k8s-config"
   cluster_name    = local.cluster_name
+  region          = var.doks_region
   do_token        = var.do_token
   is_prod         = local.is_prod
   kubeconfig_path = var.kubeconfig_path
@@ -37,7 +38,6 @@ module "k8s-config" {
 
   enable_velero     = var.enable_velero
   velero_bucket     = var.velero_bucket
-  velero_region     = var.velero_region
   velero_s3_url     = var.velero_s3_url
   velero_access_key = var.velero_access_key
   velero_secret_key = var.velero_secret_key

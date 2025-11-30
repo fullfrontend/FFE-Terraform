@@ -1,5 +1,4 @@
 variable "do_token" {}
-#variable "pvt_key" {}
 
 variable "app_env" {
   type        = string
@@ -205,13 +204,6 @@ variable "mariadb_app_credentials" {
   description = "Liste des DB/users MariaDB par application"
 }
 
-variable "do_region" {
-  type        = string
-  default     = "fra1"
-  description = "Digital Ocean classic droplets region of creation"
-}
-
-
 # DigitalOcean Kubernetes Cluster
 variable "doks_region" {
   type        = string
@@ -236,12 +228,6 @@ variable "velero_bucket" {
   type        = string
   default     = ""
   description = "Bucket Spaces pour Velero (ex: backups)"
-}
-
-variable "velero_region" {
-  type        = string
-  default     = "fra1"
-  description = "Région Spaces"
 }
 
 variable "velero_s3_url" {

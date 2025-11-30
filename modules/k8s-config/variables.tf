@@ -3,6 +3,11 @@ variable "cluster_name" {
   description = "Nom du cluster (utilisé pour quelques annotations/nommage)"
 }
 
+variable "region" {
+  type        = string
+  description = "Région DigitalOcean (utilise doks_region)"
+}
+
 variable "kubeconfig_path" {
   type        = string
   description = "Chemin du kubeconfig (minikube ou DOKS écrit par Terraform)"
@@ -36,12 +41,6 @@ variable "velero_bucket" {
   type        = string
   default     = ""
   description = "Bucket Spaces pour Velero"
-}
-
-variable "velero_region" {
-  type        = string
-  default     = "fra1"
-  description = "Région Spaces"
 }
 
 variable "velero_s3_url" {

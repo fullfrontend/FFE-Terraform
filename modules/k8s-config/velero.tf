@@ -41,7 +41,7 @@ resource "helm_release" "velero" {
     },
     {
       name  = "configuration.backupStorageLocation[0].config.region"
-      value = var.velero_region
+      value = var.region
     },
     {
       name  = "configuration.backupStorageLocation[0].config.s3ForcePathStyle"
