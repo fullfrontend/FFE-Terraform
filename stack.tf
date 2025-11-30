@@ -37,7 +37,7 @@ module "k8s-config" {
   kubeconfig_path = local.kubeconfig_path
   enable_cert_manager = local.is_prod
 
-  enable_velero     = var.enable_velero
+  enable_velero     = local.is_prod ? true : var.enable_velero
   velero_bucket     = var.velero_bucket
   velero_s3_url     = var.velero_s3_url
   velero_access_key = var.velero_access_key
