@@ -33,4 +33,12 @@ module "k8s-config" {
   source = "./modules/k8s-config"
   cluster_id = module.doks-cluster.cluster_id
   cluster_name = module.doks-cluster.cluster_name
+  do_token = var.do_token
+
+  enable_velero   = var.enable_velero
+  velero_bucket   = var.velero_bucket
+  velero_region   = var.velero_region
+  velero_s3_url   = var.velero_s3_url
+  velero_access_key = var.velero_access_key
+  velero_secret_key = var.velero_secret_key
 }
