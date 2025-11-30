@@ -10,12 +10,12 @@ variable "region" {
 
 variable "kubeconfig_path" {
   type        = string
-  description = "Chemin du kubeconfig (minikube ou DOKS écrit par Terraform)"
+  description = "Chemin du kubeconfig (cluster local en dev, DOKS écrit par Terraform en prod)"
 }
 
 variable "is_prod" {
   type        = bool
-  description = "Prod = DOKS, Dev = minikube"
+  description = "Prod = DOKS, Dev = cluster local (ex: docker-desktop)"
 }
 
 variable "do_token" {
@@ -34,7 +34,7 @@ variable "enable_velero" {
 variable "enable_cert_manager" {
   type        = bool
   default     = true
-  description = "Déployer cert-manager (désactivé en dev/minikube)"
+  description = "Déployer cert-manager (désactivé en dev cluster local)"
 }
 
 variable "velero_dev_bucket" {

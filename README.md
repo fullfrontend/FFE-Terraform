@@ -3,14 +3,14 @@
 Infrastructure Terraform Full Front-End avec OpenTofu, pour provisionner un cluster Kubernetes DigitalOcean (DOKS) et déployer les apps via Helm.
 
 ## Ce que fait ce projet
-- Provision infra Kubernetes (DOKS en prod, minikube en dev) avec Traefik, external-dns, cert-manager (prod), Velero.
+- Provision infra Kubernetes (DOKS en prod, cluster local en dev, ex: docker-desktop) avec Traefik, external-dns, cert-manager (prod), Velero.
 - Sépare stockage bloc (PVC) et objet (Spaces/MinIO).
 - Déploie les apps : WordPress (MariaDB), n8n (Postgres), CRM futur, Nextcloud, Mailu.
 
 ## Démarrage rapide pour un dev
-1) Choisir l’env : `export APP_ENV=dev` (minikube via driver docker) ou `export APP_ENV=prod` (DOKS).  
+1) Choisir l’env : `export APP_ENV=dev` (cluster local/docker-desktop) ou `export APP_ENV=prod` (DOKS).  
 2) `terraform init && terraform apply`.  
-   - Dev : kubeconfig `~/.kube/config`, minikube créé via provider minikube + docker driver, Velero optionnel avec MinIO local dans `./data/<velero_dev_bucket>` (git-ignoré).  
+   - Dev : kubeconfig `~/.kube/config` pointant sur votre cluster local (docker-desktop), Velero optionnel avec MinIO local `./data/<velero_dev_bucket>` (git-ignoré).  
    - Prod : cluster DOKS créé, kubeconfig `${path.root}/.kube/config`, Velero activé automatiquement avec bucket DO Spaces auto-créé, cert-manager activé.
 3) Ajuster les variables (DNS `root_domain`, DB creds, hosts applicatifs) dans `variable.tf`/`terraform.tfvars` si nécessaire.
 

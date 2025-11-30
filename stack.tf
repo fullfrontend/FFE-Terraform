@@ -4,7 +4,7 @@ resource "random_id" "cluster_name" {
 
 locals {
   is_prod          = var.app_env == "prod"
-  cluster_name     = local.is_prod ? "${var.doks_name}-${random_id.cluster_name.hex}" : "minikube"
+  cluster_name     = local.is_prod ? "${var.doks_name}-${random_id.cluster_name.hex}" : "docker-desktop"
   root_domain      = var.root_domain
   n8n_host         = var.n8n_host != "" ? var.n8n_host : format("n8n.%s", local.root_domain)
   n8n_webhook_host = var.n8n_webhook_host != "" ? var.n8n_webhook_host : format("webhook.%s", local.root_domain)
@@ -28,11 +28,6 @@ module "doks-cluster" {
   project_description = "Web stack for Website and Automation"
   project_environment = "Production"
   project_purpose     = "Website or blog"
-}
-
-module "minikube" {
-  count = local.is_prod ? 0 : 1
-  source = "./modules/minikube"
 }
 
 module "k8s-config" {

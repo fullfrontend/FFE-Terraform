@@ -46,7 +46,7 @@ Kubernetes (DOKS)
   - Nextcloud : `cloud.<root_domain>`
   - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
   - Overrides possibles via variables spécifiques (wp_host, n8n_host, n8n_webhook_host, etc.).
-- Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, kubeconfig généré dans `${path.root}/.kube/config` ; `dev` = minikube, pas de cluster DOKS ni cert-manager, kubeconfig `~/.kube/config`).
+- Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, kubeconfig généré dans `${path.root}/.kube/config` ; `dev` = cluster local (ex: docker-desktop), pas de cluster DOKS ni cert-manager, kubeconfig `~/.kube/config`).
 - Velero : toujours déployé en prod (bucket DO Spaces créé automatiquement, planification quotidienne 03:00, rétention 30 jours) ; en dev, activable via `enable_velero` avec MinIO et stockage hostPath local (`./data/<velero_dev_bucket>`).
 - Velero : toujours déployé en prod ; en dev, activable via `enable_velero`.
 

@@ -1,11 +1,11 @@
 Objectif  
-Migrer l’infra vers Kubernetes (DOKS en prod, minikube en dev) géré via OpenTofu, en séparant bloc/objet et avec backups quotidiens.
+Migrer l’infra vers Kubernetes (DOKS en prod, cluster local en dev, ex: docker-desktop) géré via OpenTofu, en séparant bloc/objet et avec backups quotidiens.
 
 Références  
 - DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest  
 - Kubernetes : https://search.opentofu.org/provider/hashicorp/kubernetes/latest  
 - Helm : https://search.opentofu.org/provider/hashicorp/helm/latest  
-- Minikube : https://registry.terraform.io/providers/scott-the-programmer/minikube/latest/docs
+- Minikube : https://registry.terraform.io/providers/scott-the-programmer/minikube/latest/docs (non utilisé par défaut en dev si cluster local dispo)
 
 Plateforme  
 - Ingress : Traefik  
@@ -17,7 +17,7 @@ Plateforme
 
 Environnements  
 - prod (`APP_ENV=prod`) : cluster DOKS, kubeconfig `${path.root}/.kube/config`, cert-manager on, Velero vers DO Spaces (bucket auto-créé).  
-- dev (`APP_ENV=dev`) : minikube (driver docker) via provider minikube, kubeconfig `~/.kube/config`, cert-manager off, Velero optionnel via MinIO + hostPath `./data/<velero_dev_bucket>`.  
+- dev (`APP_ENV=dev`) : cluster local existant (ex: docker-desktop) via kubeconfig `~/.kube/config`, cert-manager off, Velero optionnel via MinIO + hostPath `./data/<velero_dev_bucket>`.  
 - Basculer : `export APP_ENV=dev; export TF_VAR_app_env=$APP_ENV`.
 
 Architecture cible  

@@ -3,7 +3,7 @@ variable "do_token" {}
 variable "app_env" {
   type        = string
   default     = "prod"
-  description = "Environnement (prod = DOKS, dev = minikube via kubeconfig)"
+  description = "Environnement (prod = DOKS, dev = cluster local via kubeconfig, ex: docker-desktop)"
   validation {
     condition     = contains(["prod", "dev"], var.app_env)
     error_message = "app_env doit être 'prod' ou 'dev'."
