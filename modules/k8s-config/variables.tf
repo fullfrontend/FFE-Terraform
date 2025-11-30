@@ -37,17 +37,6 @@ variable "enable_cert_manager" {
   description = "Déployer cert-manager (désactivé en dev cluster local)"
 }
 
-variable "velero_dev_bucket" {
-  type        = string
-  default     = "velero-dev"
-  description = "Bucket Velero en dev (MinIO)"
-}
-
-variable "velero_dev_host_path" {
-  type        = string
-  description = "Chemin hostPath pour stocker les backups Velero en dev"
-}
-
 variable "velero_bucket" {
   type        = string
   default     = ""
@@ -72,6 +61,12 @@ variable "velero_secret_key" {
   default     = ""
   description = "Secret key Spaces pour Velero"
   sensitive   = true
+}
+
+variable "storage_class_name" {
+  type        = string
+  default     = ""
+  description = "StorageClass pour les PVC (vide = valeur par défaut du cluster)"
 }
 
 # Postgres (data namespace)

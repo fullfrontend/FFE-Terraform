@@ -137,6 +137,8 @@ resource "kubernetes_stateful_set_v1" "postgres" {
             storage = var.postgres_storage_size
           }
         }
+
+        storage_class_name = var.storage_class_name != "" ? var.storage_class_name : null
       }
     }
   }

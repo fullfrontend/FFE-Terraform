@@ -1,0 +1,7 @@
+creation_rules:
+  - path_regex: ".*\\.tfvars\\.enc$"
+    encryption_method: age
+    age: ["$SOPS_AGE_RECIPIENTS"]
+  - path_regex: ".*\\.yaml\\.enc$"
+    encryption_method: age
+    age: ["$SOPS_AGE_RECIPIENTS"]

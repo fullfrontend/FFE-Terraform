@@ -37,7 +37,7 @@ resource "helm_release" "velero" {
     },
     {
       name  = "configuration.backupStorageLocation[0].bucket"
-      value = var.is_prod ? var.velero_bucket : var.velero_dev_bucket
+      value = var.is_prod ? var.velero_bucket : var.cluster_name
     },
     {
       name  = "configuration.backupStorageLocation[0].config.region"

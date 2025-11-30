@@ -67,6 +67,20 @@ variable "n8n_db_password" {
   sensitive   = true
 }
 
+variable "n8n_db_password_dev" {
+  type        = string
+  default     = ""
+  description = "Mot de passe n8n en dev (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "n8n_db_password_prod" {
+  type        = string
+  default     = ""
+  description = "Mot de passe n8n en prod (prioritaire si renseigné)"
+  sensitive   = true
+}
+
 variable "n8n_chart_version" {
   type        = string
   default     = ""
@@ -117,6 +131,20 @@ variable "wp_db_password" {
   sensitive   = true
 }
 
+variable "wp_db_password_dev" {
+  type        = string
+  default     = ""
+  description = "Mot de passe WordPress en dev (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "wp_db_password_prod" {
+  type        = string
+  default     = ""
+  description = "Mot de passe WordPress en prod (prioritaire si renseigné)"
+  sensitive   = true
+}
+
 variable "wp_replicas" {
   type        = number
   default     = 1
@@ -155,6 +183,20 @@ variable "postgres_root_password" {
   sensitive   = true
 }
 
+variable "postgres_root_password_dev" {
+  type        = string
+  default     = ""
+  description = "Mot de passe Postgres en dev (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "postgres_root_password_prod" {
+  type        = string
+  default     = ""
+  description = "Mot de passe Postgres en prod (prioritaire si renseigné)"
+  sensitive   = true
+}
+
 variable "postgres_app_credentials" {
   type = list(object({
     name     = string
@@ -183,6 +225,20 @@ variable "mariadb_root_password" {
   type        = string
   default     = ""
   description = "Mot de passe root MariaDB"
+  sensitive   = true
+}
+
+variable "mariadb_root_password_dev" {
+  type        = string
+  default     = ""
+  description = "Mot de passe MariaDB en dev (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "mariadb_root_password_prod" {
+  type        = string
+  default     = ""
+  description = "Mot de passe MariaDB en prod (prioritaire si renseigné)"
   sensitive   = true
 }
 
@@ -225,8 +281,8 @@ variable "velero_bucket" {
 
 variable "velero_dev_bucket" {
   type        = string
-  default     = "velero-dev"
-  description = "Bucket Velero pour l'environnement dev (MinIO local)"
+  default     = ""
+  description = "Bucket Velero pour l'environnement dev (MinIO local) - optionnel, construit automatiquement sinon"
 }
 
 variable "velero_s3_url" {
@@ -247,4 +303,11 @@ variable "velero_secret_key" {
   default     = ""
   description = "Secret key Spaces pour Velero"
   sensitive   = true
+}
+
+# Storage class pour les PVC (utile en dev docker-desktop)
+variable "storage_class_name" {
+  type        = string
+  default     = ""
+  description = "StorageClass pour les PVC (vide = utiliser la valeur par défaut du cluster)"
 }

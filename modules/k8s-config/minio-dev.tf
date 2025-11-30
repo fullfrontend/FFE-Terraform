@@ -17,7 +17,7 @@ resource "kubernetes_persistent_volume" "minio_dev" {
     persistent_volume_reclaim_policy = "Retain"
     persistent_volume_source {
       host_path {
-        path = var.velero_dev_host_path
+        path = "${path.root}/data/${var.cluster_name}"
       }
     }
   }

@@ -11,7 +11,13 @@ locals {
   wp_host          = var.wp_host != "" ? var.wp_host : format("%s", local.root_domain)
   kubeconfig_path  = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
   velero_s3_url    = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
-  velero_dev_host_path = "${path.root}/data/${var.velero_dev_bucket}"
+  velero_dev_bucket   = var.velero_dev_bucket != "" ? var.velero_dev_bucket : "${local.cluster_name}-velero"
+  velero_dev_host_path = "${path.root}/data/${local.velero_dev_bucket}"
+  storage_class_name  = local.is_prod ? "" : (var.storage_class_name != "" ? var.storage_class_name : "hostpath")
+  postgres_root_password = local.is_prod ? (var.postgres_root_password_prod != "" ? var.postgres_root_password_prod : var.postgres_root_password) : (var.postgres_root_password_dev != "" ? var.postgres_root_password_dev : var.postgres_root_password)
+  mariadb_root_password  = local.is_prod ? (var.mariadb_root_password_prod != "" ? var.mariadb_root_password_prod : var.mariadb_root_password) : (var.mariadb_root_password_dev != "" ? var.mariadb_root_password_dev : var.mariadb_root_password)
+  n8n_db_password        = local.is_prod ? (var.n8n_db_password_prod != "" ? var.n8n_db_password_prod : var.n8n_db_password) : (var.n8n_db_password_dev != "" ? var.n8n_db_password_dev : var.n8n_db_password)
+  wp_db_password         = local.is_prod ? (var.wp_db_password_prod != "" ? var.wp_db_password_prod : var.wp_db_password) : (var.wp_db_password_dev != "" ? var.wp_db_password_dev : var.wp_db_password)
 }
 
 module "doks-cluster" {
@@ -40,22 +46,22 @@ module "k8s-config" {
   kubeconfig_path = local.kubeconfig_path
   enable_cert_manager = local.is_prod
 
-  enable_velero     = local.is_prod ? true : var.enable_velero
+  enable_velero     = true
   velero_bucket     = var.velero_bucket
-  velero_dev_bucket = var.velero_dev_bucket
-  velero_dev_host_path = local.velero_dev_host_path
   velero_s3_url     = local.velero_s3_url
   velero_access_key = var.velero_access_key
   velero_secret_key = var.velero_secret_key
 
+  storage_class_name = local.storage_class_name
+
   postgres_image           = var.postgres_image
   postgres_storage_size    = var.postgres_storage_size
-  postgres_root_password   = var.postgres_root_password
+  postgres_root_password   = local.postgres_root_password
   postgres_app_credentials = var.postgres_app_credentials
 
   mariadb_image           = var.mariadb_image
   mariadb_storage_size    = var.mariadb_storage_size
-  mariadb_root_password   = var.mariadb_root_password
+  mariadb_root_password   = local.mariadb_root_password
   mariadb_app_credentials = var.mariadb_app_credentials
 }
 
@@ -69,7 +75,7 @@ module "n8n" {
   db_port       = var.n8n_db_port
   db_name       = var.n8n_db_name
   db_user       = var.n8n_db_user
-  db_password   = var.n8n_db_password
+  db_password   = local.n8n_db_password
   chart_version = var.n8n_chart_version
 }
 
@@ -83,7 +89,7 @@ module "wordpress" {
   db_port         = var.wp_db_port
   db_name         = var.wp_db_name
   db_user         = var.wp_db_user
-  db_password     = var.wp_db_password
+  db_password     = local.wp_db_password
   replicas        = var.wp_replicas
   storage_size    = var.wp_storage_size
   image           = var.wp_image
