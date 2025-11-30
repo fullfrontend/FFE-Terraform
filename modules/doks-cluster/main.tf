@@ -28,3 +28,8 @@ resource "digitalocean_project" "ffe_project" {
   purpose     = var.project_purpose
   resources   = [resource.digitalocean_kubernetes_cluster.k8s.urn]
 }
+
+resource "digitalocean_spaces_bucket" "velero" {
+  name   = var.velero_bucket
+  region = var.region
+}

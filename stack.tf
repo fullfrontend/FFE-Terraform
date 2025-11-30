@@ -28,6 +28,7 @@ module "doks-cluster" {
   project_description = "Web stack for Website and Automation"
   project_environment = "Production"
   project_purpose     = "Website or blog"
+  velero_bucket       = var.velero_bucket
 }
 
 module "k8s-config" {
@@ -60,6 +61,7 @@ module "k8s-config" {
 
 module "n8n" {
   source = "./modules/n8n"
+  depends_on = [module.k8s-config]
 
   host          = local.n8n_host
   webhook_host  = local.n8n_webhook_host
@@ -73,6 +75,7 @@ module "n8n" {
 
 module "wordpress" {
   source = "./modules/wordpress"
+  depends_on = [module.k8s-config]
 
   host            = local.wp_host
   tls_secret_name = var.wp_tls_secret_name
@@ -84,10 +87,4 @@ module "wordpress" {
   replicas        = var.wp_replicas
   storage_size    = var.wp_storage_size
   image           = var.wp_image
-}
-
-resource "digitalocean_spaces_bucket" "velero" {
-  count  = local.is_prod ? 1 : 0
-  name   = var.velero_bucket
-  region = var.doks_region
 }

@@ -29,6 +29,12 @@ variable "write_kubeconfig" {
   description = "Should we write the Kubeconfig on disk ?"
 }
 
+variable "velero_bucket" {
+  type        = string
+  default     = "velero-backups"
+  description = "Bucket Spaces pour Velero (prod)"
+}
+
 variable "project_name" {
   type        = string
   default     = "Full Front-End"
