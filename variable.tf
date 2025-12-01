@@ -371,6 +371,20 @@ variable "velero_secret_key" {
   sensitive   = true
 }
 
+variable "minio_access_key" {
+  type        = string
+  default     = ""
+  description = "Access key dédiée MinIO (dev)"
+  sensitive   = true
+}
+
+variable "minio_secret_key" {
+  type        = string
+  default     = ""
+  description = "Secret key dédiée MinIO (dev)"
+  sensitive   = true
+}
+
 # Storage class pour les PVC (utile en dev docker-desktop)
 variable "storage_class_name" {
   type        = string

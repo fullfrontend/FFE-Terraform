@@ -55,8 +55,15 @@ Provision et déploiement complet d’une stack Kubernetes sur DigitalOcean (pro
 
 ## Backups Velero
 - Prod : bucket DO Spaces auto-créé, backup quotidien 03:00, rétention 30 jours.
-- Dev : MinIO + hostPath `./data/<cluster_name>` (git-ignoré), même planification.
+- Dev : MinIO + hostPath `./data/<cluster_name>` (git-ignoré), même planification, avec clés dédiées MinIO (pas les clés Spaces).
 - TODO : générer une paire d’Access/Secret Keys Spaces dédiée à Velero via le panel DO (non gérable par Terraform), puis les mettre dans `secrets.tfvars` chiffré.
+
+## TLS en dev (cluster local)
+- cert-manager est désactivé en dev. Options :
+  1) Générer une CA locale immuable + wildcard : `mkcert -install` puis `mkcert "*.docker.internal"` (ou `*.<root_domain>` si résolu en local) ; créer un secret TLS par ingress, ex : `kubectl create secret tls wordpress-tls --cert=fullchain.pem --key=privkey.pem -n apps`.
+  2) Accepter du HTTP en dev (supprimer les blocs TLS des ingress).
+  3) Utiliser un proxy local qui termine TLS avec le certificat généré (traefik local).
+Choisis une approche et aligne les noms de secrets avec ceux attendus par les ingress (`wordpress-tls`, `nextcloud-tls`, `mailu-tls`, `analytics-tls`, `n8n-tls` si besoin).
 
 ## Documentation
 - DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest  

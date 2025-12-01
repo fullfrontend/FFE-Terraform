@@ -9,8 +9,8 @@ resource "kubernetes_secret" "velero" {
   data = {
     cloud = <<-EOT
       [default]
-      aws_access_key_id=${var.velero_access_key}
-      aws_secret_access_key=${var.velero_secret_key}
+      aws_access_key_id=${var.is_prod ? var.velero_access_key : var.minio_access_key}
+      aws_secret_access_key=${var.is_prod ? var.velero_secret_key : var.minio_secret_key}
     EOT
   }
 }

@@ -51,8 +51,8 @@ resource "kubernetes_secret" "minio_dev" {
   }
 
   data = {
-    accesskey = var.velero_access_key
-    secretkey = var.velero_secret_key
+    accesskey = var.minio_access_key
+    secretkey = var.minio_secret_key
   }
 }
 

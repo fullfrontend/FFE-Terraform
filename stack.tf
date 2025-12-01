@@ -43,6 +43,8 @@ module "k8s-config" {
   velero_s3_url     = local.velero_s3_url
   velero_access_key = var.velero_access_key
   velero_secret_key = var.velero_secret_key
+  minio_access_key  = var.minio_access_key
+  minio_secret_key  = var.minio_secret_key
 
   storage_class_name = local.storage_class_name
 
