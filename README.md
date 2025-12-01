@@ -23,7 +23,7 @@ Provision et déploiement complet d’une stack Kubernetes sur DigitalOcean (pro
 
 ## Process de démarrage
 1. Installer age/sops, générer la clé age (`bin/age-init.sh`), exporter `SOPS_AGE_KEY_FILE` et `SOPS_AGE_RECIPIENTS`.
-2. Créer/chiffrer `secrets.tfvars.enc` avec vos mots de passe (dev/prod).
+2. Créer/chiffrer `secrets.tfvars.enc` avec vos mots de passe (mêmes secrets pour dev/prod).
 3. Choisir l’environnement : `export APP_ENV=dev` ou `APP_ENV=prod`.
 4. `terraform init` puis `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`).
 5. Vérifier la StorageClass en dev (`hostpath` par défaut, configurable via `storage_class_name`).
@@ -41,7 +41,7 @@ Provision et déploiement complet d’une stack Kubernetes sur DigitalOcean (pro
 - Pas de charts/images Bitnami.
 - Ajout d’app : module dédié (namespace `apps/<app>`), ingress Traefik, entrée DB dans `postgres_app_credentials`/`mariadb_app_credentials` (créer DB+user manuellement si DB déjà en place).
 - Accès DB : `kubectl port-forward` ponctuel (Postgres `kubectl port-forward svc/postgres 5432:5432 -n data`, MariaDB `kubectl port-forward svc/mariadb 3306:3306 -n data`).
-- Secrets : jamais en clair dans git ; utiliser SOPS/age ou `TF_VAR_*_dev` / `TF_VAR_*_prod`.
+- Secrets : jamais en clair dans git ; utiliser SOPS/age ou variables d’environnement `TF_VAR_*` (secrets identiques en dev/prod).
 
 ### Mailu et multi-domaine
 - Un seul host exposé suffit (ex: `mail.<root_domain>`) si les MX des autres domaines pointent vers ce host. Dans Mailu admin : ajouter les domaines (`he8us.be`, `perinatalite.be`, etc.) puis comptes/alias.
@@ -51,11 +51,12 @@ Provision et déploiement complet d’une stack Kubernetes sur DigitalOcean (pro
 ### Analytics (Vince)
 - Sous-domaine par défaut : `insights.<root_domain>` (limite le blocage par les adblockers).
 - Chart Helm officiel `vince` (repo `https://vinceanalytics.com/charts`), `baseURL=https://<host>`, domaines pré-ajoutés (`analytics_domains`, par défaut root_domain).
-- Admin initial (user/pass) injecté via SOPS (dev/prod séparés).
+- Admin initial (user/pass) injecté via SOPS (secrets uniques pour dev/prod).
 
 ## Backups Velero
 - Prod : bucket DO Spaces auto-créé, backup quotidien 03:00, rétention 30 jours.
-- Dev : MinIO + hostPath `./data/<cluster_name>-velero` (git-ignoré), même planification.
+- Dev : MinIO + hostPath `./data/<cluster_name>` (git-ignoré), même planification.
+- TODO : générer une paire d’Access/Secret Keys Spaces dédiée à Velero via le panel DO (non gérable par Terraform), puis les mettre dans `secrets.tfvars` chiffré.
 
 ## Documentation
 - DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest  

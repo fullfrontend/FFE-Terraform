@@ -49,20 +49,6 @@ variable "n8n_db_password" {
   sensitive   = true
 }
 
-variable "n8n_db_password_dev" {
-  type        = string
-  default     = ""
-  description = "Mot de passe n8n en dev (prioritaire si renseigné)"
-  sensitive   = true
-}
-
-variable "n8n_db_password_prod" {
-  type        = string
-  default     = ""
-  description = "Mot de passe n8n en prod (prioritaire si renseigné)"
-  sensitive   = true
-}
-
 variable "n8n_chart_version" {
   type        = string
   default     = ""
@@ -104,20 +90,6 @@ variable "wp_db_password" {
   type        = string
   default     = ""
   description = "Mot de passe MariaDB pour WordPress (à définir)"
-  sensitive   = true
-}
-
-variable "wp_db_password_dev" {
-  type        = string
-  default     = ""
-  description = "Mot de passe WordPress en dev (prioritaire si renseigné)"
-  sensitive   = true
-}
-
-variable "wp_db_password_prod" {
-  type        = string
-  default     = ""
-  description = "Mot de passe WordPress en prod (prioritaire si renseigné)"
   sensitive   = true
 }
 
@@ -177,20 +149,6 @@ variable "nextcloud_db_password" {
   sensitive   = true
 }
 
-variable "nextcloud_db_password_dev" {
-  type        = string
-  default     = ""
-  description = "Mot de passe Nextcloud en dev (prioritaire si renseigné)"
-  sensitive   = true
-}
-
-variable "nextcloud_db_password_prod" {
-  type        = string
-  default     = ""
-  description = "Mot de passe Nextcloud en prod (prioritaire si renseigné)"
-  sensitive   = true
-}
-
 variable "nextcloud_replicas" {
   type        = number
   default     = 1
@@ -247,38 +205,10 @@ variable "mailu_db_password" {
   sensitive   = true
 }
 
-variable "mailu_db_password_dev" {
-  type        = string
-  default     = ""
-  description = "Mot de passe Mailu en dev (prioritaire si renseigné)"
-  sensitive   = true
-}
-
-variable "mailu_db_password_prod" {
-  type        = string
-  default     = ""
-  description = "Mot de passe Mailu en prod (prioritaire si renseigné)"
-  sensitive   = true
-}
-
 variable "mailu_secret_key" {
   type        = string
   default     = ""
   description = "Clé secrète Mailu (16+ chars)"
-  sensitive   = true
-}
-
-variable "mailu_secret_key_dev" {
-  type        = string
-  default     = ""
-  description = "Clé secrète Mailu en dev (prioritaire si renseigné)"
-  sensitive   = true
-}
-
-variable "mailu_secret_key_prod" {
-  type        = string
-  default     = ""
-  description = "Clé secrète Mailu en prod (prioritaire si renseigné)"
   sensitive   = true
 }
 
@@ -292,20 +222,6 @@ variable "mailu_admin_password" {
   type        = string
   default     = ""
   description = "Mot de passe admin initial Mailu"
-  sensitive   = true
-}
-
-variable "mailu_admin_password_dev" {
-  type        = string
-  default     = ""
-  description = "Mot de passe admin Mailu en dev (prioritaire si renseigné)"
-  sensitive   = true
-}
-
-variable "mailu_admin_password_prod" {
-  type        = string
-  default     = ""
-  description = "Mot de passe admin Mailu en prod (prioritaire si renseigné)"
   sensitive   = true
 }
 
@@ -341,20 +257,6 @@ variable "analytics_admin_password" {
   sensitive   = true
 }
 
-variable "analytics_admin_password_dev" {
-  type        = string
-  default     = ""
-  description = "Mot de passe admin Vince en dev (prioritaire si renseigné)"
-  sensitive   = true
-}
-
-variable "analytics_admin_password_prod" {
-  type        = string
-  default     = ""
-  description = "Mot de passe admin Vince en prod (prioritaire si renseigné)"
-  sensitive   = true
-}
-
 variable "analytics_chart_version" {
   type        = string
   default     = ""
@@ -378,20 +280,6 @@ variable "postgres_root_password" {
   type        = string
   default     = ""
   description = "Mot de passe superuser Postgres"
-  sensitive   = true
-}
-
-variable "postgres_root_password_dev" {
-  type        = string
-  default     = ""
-  description = "Mot de passe Postgres en dev (prioritaire si renseigné)"
-  sensitive   = true
-}
-
-variable "postgres_root_password_prod" {
-  type        = string
-  default     = ""
-  description = "Mot de passe Postgres en prod (prioritaire si renseigné)"
   sensitive   = true
 }
 
@@ -423,20 +311,6 @@ variable "mariadb_root_password" {
   type        = string
   default     = ""
   description = "Mot de passe root MariaDB"
-  sensitive   = true
-}
-
-variable "mariadb_root_password_dev" {
-  type        = string
-  default     = ""
-  description = "Mot de passe MariaDB en dev (prioritaire si renseigné)"
-  sensitive   = true
-}
-
-variable "mariadb_root_password_prod" {
-  type        = string
-  default     = ""
-  description = "Mot de passe MariaDB en prod (prioritaire si renseigné)"
   sensitive   = true
 }
 
@@ -475,12 +349,6 @@ variable "velero_bucket" {
   type        = string
   default     = "velero-backups"
   description = "Bucket Spaces pour Velero en prod (DO Spaces)"
-}
-
-variable "velero_dev_bucket" {
-  type        = string
-  default     = ""
-  description = "Bucket Velero pour l'environnement dev (MinIO local) - optionnel, construit automatiquement sinon"
 }
 
 variable "velero_s3_url" {

@@ -1,3 +1,13 @@
+locals {
+  analytics_sets = concat(
+    [for idx, d in var.domains : { name = "domains[${idx}]", value = d }],
+    [
+      { name = "baseURL", value = "https://${var.host}" },
+      { name = "secret.adminName", value = var.admin_username }
+    ]
+  )
+}
+
 resource "kubernetes_namespace" "analytics" {
   metadata {
     name = var.namespace
@@ -18,28 +28,13 @@ resource "helm_release" "vince" {
   cleanup_on_fail = true
   atomic          = true
 
-  dynamic "set" {
-    for_each = length(var.domains) > 0 ? var.domains : []
-    content {
-      name  = "domains[${set.key}]"
-      value = set.value
+  set           = local.analytics_sets
+  set_sensitive = [
+    {
+      name  = "secret.adminPassword"
+      value = var.admin_password
     }
-  }
-
-  set {
-    name  = "baseURL"
-    value = "https://${var.host}"
-  }
-
-  set {
-    name  = "secret.adminName"
-    value = var.admin_username
-  }
-
-  set_sensitive {
-    name  = "secret.adminPassword"
-    value = var.admin_password
-  }
+  ]
 }
 
 resource "kubernetes_ingress_v1" "analytics" {
