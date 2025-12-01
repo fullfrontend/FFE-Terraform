@@ -74,7 +74,23 @@ resource "helm_release" "n8n" {
     {
       name  = "webhook.url"
       value = "https://${var.webhook_host}"
-    }
+    },
+    {
+      name  = "extraEnv[0].name"
+      value = "GENERIC_TIMEZONE"
+    },
+    {
+      name  = "extraEnv[0].value"
+      value = "Europe/Brussels"
+    },
+    {
+      name  = "extraEnv[1].name"
+      value = "N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE"
+    },
+    {
+      name  = "extraEnv[1].value"
+      value = "true"
+    },
   ]
 
   set_sensitive = [
