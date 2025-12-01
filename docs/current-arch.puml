@@ -1,0 +1,44 @@
+@startuml
+title FFE – État actuel (root_domain = fullfrontend.be)
+
+skinparam shadowing false
+skinparam rectangle {
+  BackgroundColor #f7f7f7
+  BorderColor #555
+}
+
+rectangle "Internet" as internet {
+  rectangle "DNS / Web\nfullfrontend.be" as dns
+  rectangle "Mail (MX/IMAP/SMTP)\nmail.fullfrontend.be" as mail_public
+}
+
+rectangle "Serveur Mailinabox\n(Cloud – Ubuntu 22.04)" as miab {
+  rectangle "DNS zone\nfullfrontend.be" as miab_dns
+  rectangle "Mail (SMTP/IMAP)\nmail.fullfrontend.be" as miab_mail
+  rectangle "Nextcloud\ncloud.fullfrontend.be" as miab_nc
+}
+
+rectangle "Serveur Docker prod\n(Cloud – Ubuntu 24.04)" as docker {
+  rectangle "Traefik\n(reverse proxy)" as traefik
+  rectangle "WordPress\nfullfrontend.be" as wp
+  rectangle "Mautic\nmautic.fullfrontend.be" as mautic
+}
+
+internet --> traefik : HTTP(S)
+internet --> miab_mail : MX/IMAP/SMTP
+
+traefik --> wp
+traefik --> mautic
+
+miab_dns --> dns : zone + records
+dns --> traefik : A/AAAA
+dns --> mail_public : MX
+
+legend right
+  État actuel (avant migration Kubernetes)
+  - Serveur Mailinabox : DNS, mail, Nextcloud
+  - Serveur Docker : Traefik, WordPress, Mautic
+  - Domaine racine : fullfrontend.be
+endlegend
+
+@enduml
