@@ -21,14 +21,14 @@ Secrets (SOPS/age)
 - Jamais de secrets en clair dans git (tfvars clairs exclus, `.secrets.auto.tfvars` ignoré).
 
 Architecture cible  
-Namespaces : infra (traefik, cert-manager, external-dns, velero), data (postgres, mariadb), apps (wordpress, n8n, crm, nextcloud, mailu).  
+Namespaces : infra (traefik, cert-manager, external-dns, velero), data (postgres, mariadb), apps (wordpress, n8n, crm, nextcloud, mailu, analytics).  
 Stockage : PVC pour stateful (Postgres/MariaDB, Nextcloud data, wp-content, Mailu), objet pour médias/backups/S3 externes Nextcloud.  
-Domaines par défaut (`root_domain`) :  
+Domaines par défaut (`root_domain`) — non override :  
 - wordpress `<root_domain>`  
 - n8n `n8n.<root_domain>` + `webhook.<root_domain>`  
 - nextcloud `cloud.<root_domain>`  
 - mailu `mail.<root_domain>` + MX/SPF/DKIM/DMARC  
-Overrides via variables app.
+- analytics (Vince) `insights.<root_domain>`
 
 Applications  
 - WordPress : MariaDB, PVC wp-content, plugin S3 optionnel, ingress cert-manager (prod), FQDN `<root_domain>`.  

@@ -6,11 +6,6 @@ locals {
   is_prod          = var.app_env == "prod"
   cluster_name     = local.is_prod ? "${var.doks_name}-${random_id.cluster_name.hex}" : "docker-desktop"
   root_domain      = var.root_domain
-  n8n_host         = var.n8n_host != "" ? var.n8n_host : format("n8n.%s", local.root_domain)
-  n8n_webhook_host = var.n8n_webhook_host != "" ? var.n8n_webhook_host : format("webhook.%s", local.root_domain)
-  wp_host          = var.wp_host != "" ? var.wp_host : format("%s", local.root_domain)
-  nextcloud_host   = var.nextcloud_host != "" ? var.nextcloud_host : format("cloud.%s", local.root_domain)
-  mail_host        = var.mail_host != "" ? var.mail_host : format("mail.%s", local.root_domain)
   kubeconfig_path  = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
   velero_s3_url    = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
   velero_dev_bucket   = var.velero_dev_bucket != "" ? var.velero_dev_bucket : "${local.cluster_name}-velero"
@@ -24,6 +19,8 @@ locals {
   mailu_db_password      = local.is_prod ? (var.mailu_db_password_prod != "" ? var.mailu_db_password_prod : var.mailu_db_password) : (var.mailu_db_password_dev != "" ? var.mailu_db_password_dev : var.mailu_db_password)
   mailu_secret_key       = local.is_prod ? (var.mailu_secret_key_prod != "" ? var.mailu_secret_key_prod : var.mailu_secret_key) : (var.mailu_secret_key_dev != "" ? var.mailu_secret_key_dev : var.mailu_secret_key)
   mailu_admin_password   = local.is_prod ? (var.mailu_admin_password_prod != "" ? var.mailu_admin_password_prod : var.mailu_admin_password) : (var.mailu_admin_password_dev != "" ? var.mailu_admin_password_dev : var.mailu_admin_password)
+  analytics_admin_password = local.is_prod ? (var.analytics_admin_password_prod != "" ? var.analytics_admin_password_prod : var.analytics_admin_password) : (var.analytics_admin_password_dev != "" ? var.analytics_admin_password_dev : var.analytics_admin_password)
+  analytics_domains        = length(var.analytics_domains) > 0 ? var.analytics_domains : [local.root_domain]
 }
 
 module "doks-cluster" {
@@ -75,8 +72,8 @@ module "n8n" {
   source = "./modules/n8n"
   depends_on = [module.k8s-config]
 
-  host          = local.n8n_host
-  webhook_host  = local.n8n_webhook_host
+  host          = format("n8n.%s", local.root_domain)
+  webhook_host  = format("webhook.%s", local.root_domain)
   db_host       = var.n8n_db_host
   db_port       = var.n8n_db_port
   db_name       = var.n8n_db_name
@@ -89,7 +86,7 @@ module "wordpress" {
   source = "./modules/wordpress"
   depends_on = [module.k8s-config]
 
-  host            = local.wp_host
+  host            = local.root_domain
   tls_secret_name = var.wp_tls_secret_name
   db_host         = var.wp_db_host
   db_port         = var.wp_db_port
@@ -105,7 +102,7 @@ module "nextcloud" {
   source     = "./modules/nextcloud"
   depends_on = [module.k8s-config]
 
-  host            = local.nextcloud_host
+  host            = format("cloud.%s", local.root_domain)
   tls_secret_name = var.nextcloud_tls_secret_name
   db_host         = var.nextcloud_db_host
   db_port         = var.nextcloud_db_port
@@ -121,7 +118,7 @@ module "mailu" {
   source     = "./modules/mailu"
   depends_on = [module.k8s-config]
 
-  host              = local.mail_host
+  host              = format("mail.%s", local.root_domain)
   domain            = local.root_domain
   tls_secret_name   = var.mailu_tls_secret_name
   db_host           = var.mailu_db_host
@@ -133,4 +130,16 @@ module "mailu" {
   admin_username    = var.mailu_admin_username
   admin_password    = local.mailu_admin_password
   chart_version     = var.mailu_chart_version
+}
+
+module "analytics" {
+  source     = "./modules/analytics"
+  depends_on = [module.k8s-config]
+
+  host            = format("insights.%s", local.root_domain)
+  tls_secret_name = var.analytics_tls_secret_name
+  domains         = local.analytics_domains
+  admin_username  = var.analytics_admin_username
+  admin_password  = local.analytics_admin_password
+  chart_version   = var.analytics_chart_version
 }

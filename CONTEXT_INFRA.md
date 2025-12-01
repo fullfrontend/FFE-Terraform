@@ -45,16 +45,17 @@ Kubernetes (DOKS)
   - n8n : `n8n.<root_domain>` ; webhooks : `webhook.<root_domain>`
   - Nextcloud : `cloud.<root_domain>`
   - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
-  - Overrides possibles via variables spécifiques (wp_host, n8n_host, n8n_webhook_host, etc.).
+  - Analytics : `insights.<root_domain>`
+  - FQDN non override : dérivés uniquement de `root_domain`.
 - Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, kubeconfig généré dans `${path.root}/.kube/config` ; `dev` = cluster local (ex: docker-desktop), pas de cluster DOKS ni cert-manager, kubeconfig `~/.kube/config`).
-- Velero : toujours déployé en prod (bucket DO Spaces créé automatiquement, planification quotidienne 03:00, rétention 30 jours) ; en dev, activable via `enable_velero` avec MinIO et stockage hostPath local (`./data/<velero_dev_bucket>`).
-- Velero : toujours déployé en prod ; en dev, activable via `enable_velero`.
+- Velero : toujours déployé (prod → Spaces, dev → MinIO hostPath), planification quotidienne 03:00, rétention 30 jours.
+- Velero : toujours déployé en prod ; en dev, activé avec MinIO hostPath.
 
 ## Applications (règles et domaines)
 - WordPress : MariaDB uniquement ; wp-content sur PVC ; plugin S3 optionnel ; ingress cert-manager ; FQDN par défaut `<root_domain>`.
 - n8n : Postgres partagé ; stockage fichiers → S3 si besoin ; ingress ; FQDN par défaut `n8n.<root_domain>` + webhooks `webhook.<root_domain>`.
-- CRM (à choisir) : Postgres prioritaire (MariaDB si incompatibilité) ; fichiers éventuels → S3 ; FQDN dérivé de `root_domain` ou override.
-- Nextcloud : Postgres ; data sur PVC ; S3 en stockage externe optionnel ; FQDN par défaut `cloud.<root_domain>`.
+- CRM (à choisir) : Postgres prioritaire (MariaDB si incompatibilité) ; fichiers éventuels → S3 ; FQDN dérivé de `root_domain`.
+- Nextcloud : Postgres ; data sur PVC ; S3 en stockage externe optionnel ; FQDN `cloud.<root_domain>`.
 - Mailu : chart officiel ; PV block ; DNS (DKIM/SPF/DMARC) via external-dns ; backups Spaces ; FQDN `mail.<root_domain>` + enregistrements MX/SPF/DKIM/DMARC.
 
 ## DNS
@@ -64,7 +65,7 @@ Kubernetes (DOKS)
 
 ## Ajout d’une nouvelle application (cluster live)
 - Créer un module dédié (namespace dans `apps`, ingress Traefik, chart non-Bitnami).
-- Définir le FQDN via `root_domain` ou override.
+- Définir le FQDN via `root_domain` (pas d’override par app).
 - Ajouter les credentials DB dans `postgres_app_credentials` ou `mariadb_app_credentials` pour générer le secret applicatif.
 - Important : les scripts d’init DB ne s’exécutent qu’au premier bootstrap des StatefulSets. Si Postgres/MariaDB tournent déjà, créer la DB et l’utilisateur manuellement (kubectl exec ou Job) avant de déployer l’app, avec les mêmes credentials que le secret.
 - external-dns et cert-manager gèrent DNS/ACME dès que l’ingress est appliqué.

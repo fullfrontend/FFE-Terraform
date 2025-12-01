@@ -10,12 +10,6 @@ variable "app_env" {
   }
 }
 
-variable "enable_velero" {
-  type        = bool
-  default     = false
-  description = "Activer le déploiement Velero (backups vers Spaces)"
-}
-
 # Domaine racine commun (ex: fullfrontend.test)
 variable "root_domain" {
   type        = string
@@ -24,18 +18,6 @@ variable "root_domain" {
 }
 
 # N8N (base de données Postgres externe)
-variable "n8n_host" {
-  type        = string
-  default     = ""
-  description = "FQDN ingress pour n8n (laisser vide pour utiliser root_domain)"
-}
-
-variable "n8n_webhook_host" {
-  type        = string
-  default     = ""
-  description = "FQDN ingress pour les webhooks n8n (laisser vide pour utiliser root_domain)"
-}
-
 variable "n8n_db_host" {
   type        = string
   default     = "postgres.data.svc.cluster.local"
@@ -88,12 +70,6 @@ variable "n8n_chart_version" {
 }
 
 # WordPress (MariaDB externe)
-variable "wp_host" {
-  type        = string
-  default     = ""
-  description = "FQDN ingress pour WordPress (laisser vide pour utiliser root_domain)"
-}
-
 variable "wp_tls_secret_name" {
   type        = string
   default     = "wordpress-tls"
@@ -164,12 +140,6 @@ variable "wp_image" {
 }
 
 # Nextcloud (Postgres externe)
-variable "nextcloud_host" {
-  type        = string
-  default     = ""
-  description = "FQDN ingress pour Nextcloud (laisser vide pour utiliser root_domain)"
-}
-
 variable "nextcloud_tls_secret_name" {
   type        = string
   default     = "nextcloud-tls"
@@ -240,12 +210,6 @@ variable "nextcloud_chart_version" {
 }
 
 # Mailu (Postgres externe)
-variable "mail_host" {
-  type        = string
-  default     = ""
-  description = "FQDN ingress pour Mailu (laisser vide pour utiliser mail.<root_domain>)"
-}
-
 variable "mailu_tls_secret_name" {
   type        = string
   default     = "mailu-tls"
@@ -349,6 +313,52 @@ variable "mailu_chart_version" {
   type        = string
   default     = ""
   description = "Version du chart Mailu (vide = dernière)"
+}
+
+# Analytics (vince – https://www.vinceanalytics.com)
+variable "analytics_tls_secret_name" {
+  type        = string
+  default     = "analytics-tls"
+  description = "Secret TLS pour l’ingress analytics"
+}
+
+variable "analytics_domains" {
+  type        = list(string)
+  default     = []
+  description = "Liste des domaines à ajouter par défaut dans Vince (traqués). Vide = root_domain."
+}
+
+variable "analytics_admin_username" {
+  type        = string
+  default     = "admin"
+  description = "Compte admin initial pour Vince"
+}
+
+variable "analytics_admin_password" {
+  type        = string
+  default     = ""
+  description = "Mot de passe admin Vince"
+  sensitive   = true
+}
+
+variable "analytics_admin_password_dev" {
+  type        = string
+  default     = ""
+  description = "Mot de passe admin Vince en dev (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "analytics_admin_password_prod" {
+  type        = string
+  default     = ""
+  description = "Mot de passe admin Vince en prod (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "analytics_chart_version" {
+  type        = string
+  default     = ""
+  description = "Version du chart Helm Vince (vide = dernière)"
 }
 
 # Postgres (data)

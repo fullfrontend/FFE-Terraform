@@ -34,6 +34,8 @@ Provision et déploiement complet d’une stack Kubernetes sur DigitalOcean (pro
 - n8n : `n8n.<root_domain>` + `webhook.<root_domain>`
 - Nextcloud : `cloud.<root_domain>`
 - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
+- Analytics (Vince) : `insights.<root_domain>` (choisi pour éviter les bloqueurs)
+- Les FQDN sont dérivés uniquement de `root_domain` (pas d’override app par app).
 
 ## Bonnes pratiques
 - Pas de charts/images Bitnami.
@@ -45,6 +47,11 @@ Provision et déploiement complet d’une stack Kubernetes sur DigitalOcean (pro
 - Un seul host exposé suffit (ex: `mail.<root_domain>`) si les MX des autres domaines pointent vers ce host. Dans Mailu admin : ajouter les domaines (`he8us.be`, `perinatalite.be`, etc.) puis comptes/alias.
 - DNS : MX des domaines supplémentaires vers `mail.<root_domain>`, SPF/DKIM/DMARC alignés sur ce host.
 - Si tu veux exposer plusieurs FQDN (ex: `mail.he8us.be`), ajoute ces hosts dans l’ingress Mailu et assure-toi que le certificat TLS couvre ces SAN.
+
+### Analytics (Vince)
+- Sous-domaine par défaut : `insights.<root_domain>` (limite le blocage par les adblockers).
+- Chart Helm officiel `vince` (repo `https://vinceanalytics.com/charts`), `baseURL=https://<host>`, domaines pré-ajoutés (`analytics_domains`, par défaut root_domain).
+- Admin initial (user/pass) injecté via SOPS (dev/prod séparés).
 
 ## Backups Velero
 - Prod : bucket DO Spaces auto-créé, backup quotidien 03:00, rétention 30 jours.
