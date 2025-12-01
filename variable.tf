@@ -163,6 +163,194 @@ variable "wp_image" {
   description = "Image WordPress (officielle, non Bitnami)"
 }
 
+# Nextcloud (Postgres externe)
+variable "nextcloud_host" {
+  type        = string
+  default     = ""
+  description = "FQDN ingress pour Nextcloud (laisser vide pour utiliser root_domain)"
+}
+
+variable "nextcloud_tls_secret_name" {
+  type        = string
+  default     = "nextcloud-tls"
+  description = "Secret TLS pour l’ingress Nextcloud"
+}
+
+variable "nextcloud_db_host" {
+  type        = string
+  default     = "postgres.data.svc.cluster.local"
+  description = "Hôte Postgres pour Nextcloud"
+}
+
+variable "nextcloud_db_port" {
+  type        = number
+  default     = 5432
+  description = "Port Postgres pour Nextcloud"
+}
+
+variable "nextcloud_db_name" {
+  type        = string
+  default     = "nextcloud"
+  description = "Nom de base Postgres pour Nextcloud"
+}
+
+variable "nextcloud_db_user" {
+  type        = string
+  default     = "nextcloud"
+  description = "Utilisateur Postgres pour Nextcloud"
+}
+
+variable "nextcloud_db_password" {
+  type        = string
+  default     = ""
+  description = "Mot de passe Postgres pour Nextcloud"
+  sensitive   = true
+}
+
+variable "nextcloud_db_password_dev" {
+  type        = string
+  default     = ""
+  description = "Mot de passe Nextcloud en dev (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "nextcloud_db_password_prod" {
+  type        = string
+  default     = ""
+  description = "Mot de passe Nextcloud en prod (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "nextcloud_replicas" {
+  type        = number
+  default     = 1
+  description = "Réplicas Nextcloud"
+}
+
+variable "nextcloud_storage_size" {
+  type        = string
+  default     = "50Gi"
+  description = "Taille du PVC Nextcloud"
+}
+
+variable "nextcloud_chart_version" {
+  type        = string
+  default     = ""
+  description = "Version du chart Nextcloud (vide = dernière)"
+}
+
+# Mailu (Postgres externe)
+variable "mail_host" {
+  type        = string
+  default     = ""
+  description = "FQDN ingress pour Mailu (laisser vide pour utiliser mail.<root_domain>)"
+}
+
+variable "mailu_tls_secret_name" {
+  type        = string
+  default     = "mailu-tls"
+  description = "Secret TLS pour l’ingress Mailu"
+}
+
+variable "mailu_db_host" {
+  type        = string
+  default     = "postgres.data.svc.cluster.local"
+  description = "Hôte Postgres pour Mailu"
+}
+
+variable "mailu_db_port" {
+  type        = number
+  default     = 5432
+  description = "Port Postgres pour Mailu"
+}
+
+variable "mailu_db_name" {
+  type        = string
+  default     = "mailu"
+  description = "Nom de base Postgres pour Mailu"
+}
+
+variable "mailu_db_user" {
+  type        = string
+  default     = "mailu"
+  description = "Utilisateur Postgres pour Mailu"
+}
+
+variable "mailu_db_password" {
+  type        = string
+  default     = ""
+  description = "Mot de passe Postgres pour Mailu"
+  sensitive   = true
+}
+
+variable "mailu_db_password_dev" {
+  type        = string
+  default     = ""
+  description = "Mot de passe Mailu en dev (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "mailu_db_password_prod" {
+  type        = string
+  default     = ""
+  description = "Mot de passe Mailu en prod (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "mailu_secret_key" {
+  type        = string
+  default     = ""
+  description = "Clé secrète Mailu (16+ chars)"
+  sensitive   = true
+}
+
+variable "mailu_secret_key_dev" {
+  type        = string
+  default     = ""
+  description = "Clé secrète Mailu en dev (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "mailu_secret_key_prod" {
+  type        = string
+  default     = ""
+  description = "Clé secrète Mailu en prod (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "mailu_admin_username" {
+  type        = string
+  default     = "admin"
+  description = "Utilisateur admin initial Mailu"
+}
+
+variable "mailu_admin_password" {
+  type        = string
+  default     = ""
+  description = "Mot de passe admin initial Mailu"
+  sensitive   = true
+}
+
+variable "mailu_admin_password_dev" {
+  type        = string
+  default     = ""
+  description = "Mot de passe admin Mailu en dev (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "mailu_admin_password_prod" {
+  type        = string
+  default     = ""
+  description = "Mot de passe admin Mailu en prod (prioritaire si renseigné)"
+  sensitive   = true
+}
+
+variable "mailu_chart_version" {
+  type        = string
+  default     = ""
+  description = "Version du chart Mailu (vide = dernière)"
+}
+
 # Postgres (data)
 variable "postgres_image" {
   type        = string

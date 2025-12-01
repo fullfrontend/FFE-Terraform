@@ -9,6 +9,8 @@ locals {
   n8n_host         = var.n8n_host != "" ? var.n8n_host : format("n8n.%s", local.root_domain)
   n8n_webhook_host = var.n8n_webhook_host != "" ? var.n8n_webhook_host : format("webhook.%s", local.root_domain)
   wp_host          = var.wp_host != "" ? var.wp_host : format("%s", local.root_domain)
+  nextcloud_host   = var.nextcloud_host != "" ? var.nextcloud_host : format("cloud.%s", local.root_domain)
+  mail_host        = var.mail_host != "" ? var.mail_host : format("mail.%s", local.root_domain)
   kubeconfig_path  = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
   velero_s3_url    = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
   velero_dev_bucket   = var.velero_dev_bucket != "" ? var.velero_dev_bucket : "${local.cluster_name}-velero"
@@ -18,6 +20,10 @@ locals {
   mariadb_root_password  = local.is_prod ? (var.mariadb_root_password_prod != "" ? var.mariadb_root_password_prod : var.mariadb_root_password) : (var.mariadb_root_password_dev != "" ? var.mariadb_root_password_dev : var.mariadb_root_password)
   n8n_db_password        = local.is_prod ? (var.n8n_db_password_prod != "" ? var.n8n_db_password_prod : var.n8n_db_password) : (var.n8n_db_password_dev != "" ? var.n8n_db_password_dev : var.n8n_db_password)
   wp_db_password         = local.is_prod ? (var.wp_db_password_prod != "" ? var.wp_db_password_prod : var.wp_db_password) : (var.wp_db_password_dev != "" ? var.wp_db_password_dev : var.wp_db_password)
+  nextcloud_db_password  = local.is_prod ? (var.nextcloud_db_password_prod != "" ? var.nextcloud_db_password_prod : var.nextcloud_db_password) : (var.nextcloud_db_password_dev != "" ? var.nextcloud_db_password_dev : var.nextcloud_db_password)
+  mailu_db_password      = local.is_prod ? (var.mailu_db_password_prod != "" ? var.mailu_db_password_prod : var.mailu_db_password) : (var.mailu_db_password_dev != "" ? var.mailu_db_password_dev : var.mailu_db_password)
+  mailu_secret_key       = local.is_prod ? (var.mailu_secret_key_prod != "" ? var.mailu_secret_key_prod : var.mailu_secret_key) : (var.mailu_secret_key_dev != "" ? var.mailu_secret_key_dev : var.mailu_secret_key)
+  mailu_admin_password   = local.is_prod ? (var.mailu_admin_password_prod != "" ? var.mailu_admin_password_prod : var.mailu_admin_password) : (var.mailu_admin_password_dev != "" ? var.mailu_admin_password_dev : var.mailu_admin_password)
 }
 
 module "doks-cluster" {
@@ -93,4 +99,38 @@ module "wordpress" {
   replicas        = var.wp_replicas
   storage_size    = var.wp_storage_size
   image           = var.wp_image
+}
+
+module "nextcloud" {
+  source     = "./modules/nextcloud"
+  depends_on = [module.k8s-config]
+
+  host            = local.nextcloud_host
+  tls_secret_name = var.nextcloud_tls_secret_name
+  db_host         = var.nextcloud_db_host
+  db_port         = var.nextcloud_db_port
+  db_name         = var.nextcloud_db_name
+  db_user         = var.nextcloud_db_user
+  db_password     = local.nextcloud_db_password
+  replicas        = var.nextcloud_replicas
+  storage_size    = var.nextcloud_storage_size
+  chart_version   = var.nextcloud_chart_version
+}
+
+module "mailu" {
+  source     = "./modules/mailu"
+  depends_on = [module.k8s-config]
+
+  host              = local.mail_host
+  domain            = local.root_domain
+  tls_secret_name   = var.mailu_tls_secret_name
+  db_host           = var.mailu_db_host
+  db_port           = var.mailu_db_port
+  db_name           = var.mailu_db_name
+  db_user           = var.mailu_db_user
+  db_password       = local.mailu_db_password
+  secret_key        = local.mailu_secret_key
+  admin_username    = var.mailu_admin_username
+  admin_password    = local.mailu_admin_password
+  chart_version     = var.mailu_chart_version
 }

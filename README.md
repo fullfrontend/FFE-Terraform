@@ -41,6 +41,11 @@ Provision et déploiement complet d’une stack Kubernetes sur DigitalOcean (pro
 - Accès DB : `kubectl port-forward` ponctuel (Postgres `kubectl port-forward svc/postgres 5432:5432 -n data`, MariaDB `kubectl port-forward svc/mariadb 3306:3306 -n data`).
 - Secrets : jamais en clair dans git ; utiliser SOPS/age ou `TF_VAR_*_dev` / `TF_VAR_*_prod`.
 
+### Mailu et multi-domaine
+- Un seul host exposé suffit (ex: `mail.<root_domain>`) si les MX des autres domaines pointent vers ce host. Dans Mailu admin : ajouter les domaines (`he8us.be`, `perinatalite.be`, etc.) puis comptes/alias.
+- DNS : MX des domaines supplémentaires vers `mail.<root_domain>`, SPF/DKIM/DMARC alignés sur ce host.
+- Si tu veux exposer plusieurs FQDN (ex: `mail.he8us.be`), ajoute ces hosts dans l’ingress Mailu et assure-toi que le certificat TLS couvre ces SAN.
+
 ## Backups Velero
 - Prod : bucket DO Spaces auto-créé, backup quotidien 03:00, rétention 30 jours.
 - Dev : MinIO + hostPath `./data/<cluster_name>-velero` (git-ignoré), même planification.
