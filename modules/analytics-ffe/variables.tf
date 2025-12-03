@@ -11,19 +11,16 @@ variable "host" {
 
 variable "tls_secret_name" {
   type        = string
-  default     = "analytics-tls"
   description = "Secret TLS pour l’ingress analytics"
 }
 
 variable "domains" {
   type        = list(string)
-  default     = []
   description = "Liste des domaines à pré-créer dans Vince"
 }
 
 variable "admin_username" {
   type        = string
-  default     = "admin"
   description = "Compte admin initial Vince"
 }
 
@@ -41,6 +38,5 @@ variable "chart_version" {
 
 variable "ingress_class_name" {
   type        = string
-  default     = "traefik"
   description = "IngressClassName (ex: traefik en prod, nginx en dev)"
 }

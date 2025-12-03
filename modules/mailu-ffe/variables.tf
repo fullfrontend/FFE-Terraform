@@ -12,7 +12,6 @@ variable "chart_version" {
 
 variable "ingress_class_name" {
   type        = string
-  default     = "traefik"
   description = "IngressClassName (ex: traefik en prod, nginx en dev)"
 }
 
@@ -28,7 +27,6 @@ variable "domain" {
 
 variable "tls_secret_name" {
   type        = string
-  default     = "mailu-tls"
   description = "Secret TLS pour l’ingress Mailu"
 }
 
@@ -45,13 +43,11 @@ variable "db_port" {
 
 variable "db_name" {
   type        = string
-  default     = "mailu"
   description = "Nom de base Postgres pour Mailu"
 }
 
 variable "db_user" {
   type        = string
-  default     = "mailu"
   description = "Utilisateur Postgres pour Mailu"
 }
 
@@ -69,7 +65,6 @@ variable "secret_key" {
 
 variable "admin_username" {
   type        = string
-  default     = "admin"
   description = "Utilisateur admin initial"
 }
 

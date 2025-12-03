@@ -17,7 +17,6 @@ variable "host" {
 
 variable "tls_secret_name" {
   type        = string
-  default     = "nextcloud-tls"
   description = "Secret TLS pour l’ingress Nextcloud"
 }
 
@@ -34,13 +33,11 @@ variable "db_port" {
 
 variable "db_name" {
   type        = string
-  default     = "nextcloud"
   description = "Nom de base Postgres pour Nextcloud"
 }
 
 variable "db_user" {
   type        = string
-  default     = "nextcloud"
   description = "Utilisateur Postgres pour Nextcloud"
 }
 
@@ -52,7 +49,6 @@ variable "db_password" {
 
 variable "storage_size" {
   type        = string
-  default     = "50Gi"
   description = "Taille du PVC Nextcloud"
 }
 
@@ -64,6 +60,5 @@ variable "replicas" {
 
 variable "ingress_class_name" {
   type        = string
-  default     = "traefik"
   description = "IngressClassName (ex: traefik en prod, nginx en dev)"
 }

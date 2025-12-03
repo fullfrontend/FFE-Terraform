@@ -33,13 +33,11 @@ variable "db_port" {
 
 variable "db_name" {
   type        = string
-  default     = "n8n"
   description = "Nom de base pour n8n"
 }
 
 variable "db_user" {
   type        = string
-  default     = "n8n"
   description = "Utilisateur Postgres pour n8n"
 }
 
@@ -51,6 +49,5 @@ variable "db_password" {
 
 variable "ingress_class_name" {
   type        = string
-  default     = "traefik"
   description = "IngressClassName (ex: traefik en prod, nginx en dev)"
 }

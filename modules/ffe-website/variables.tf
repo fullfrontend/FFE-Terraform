@@ -11,13 +11,11 @@ variable "host" {
 
 variable "tls_secret_name" {
   type        = string
-  default     = "wordpress-tls"
   description = "Secret TLS pour l’ingress WordPress"
 }
 
 variable "ingress_class_name" {
   type        = string
-  default     = "traefik"
   description = "IngressClassName (ex: traefik en prod, nginx en dev)"
 }
 
@@ -34,13 +32,11 @@ variable "db_port" {
 
 variable "db_name" {
   type        = string
-  default     = "wordpress"
   description = "Nom de base MariaDB"
 }
 
 variable "db_user" {
   type        = string
-  default     = "wordpress"
   description = "Utilisateur MariaDB"
 }
 
@@ -58,13 +54,11 @@ variable "replicas" {
 
 variable "storage_size" {
   type        = string
-  default     = "10Gi"
   description = "Taille du PVC pour WordPress"
 }
 
 variable "image" {
   type        = string
-  default     = "wordpress:6.5-php8.2-apache"
   description = "Image WordPress (officielle, non Bitnami)"
 }
 
