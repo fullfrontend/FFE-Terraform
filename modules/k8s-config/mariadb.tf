@@ -1,6 +1,5 @@
 locals {
   mariadb_init_creds = length(var.mariadb_app_credentials) > 0 ? merge(
-    { app_count = tostring(length(var.mariadb_app_credentials)) },
     { for idx, app in var.mariadb_app_credentials : "DB_${idx}" => app.db_name },
     { for idx, app in var.mariadb_app_credentials : "DB_USER_${idx}" => app.user },
     { for idx, app in var.mariadb_app_credentials : "DB_PASSWORD_${idx}" => app.password }
@@ -272,13 +271,8 @@ SQL
           }
 
           env {
-            name = "APP_COUNT"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.mariadb_init[0].metadata[0].name
-                key  = "app_count"
-              }
-            }
+            name  = "APP_COUNT"
+            value = tostring(length(var.mariadb_app_credentials))
           }
 
           env_from {
