@@ -90,6 +90,8 @@ module "wordpress" {
 }
 
 module "nextcloud" {
+  # Nextcloud désactivé (sera remis en ligne plus tard)
+  count      = 0
   source     = "./modules/nextcloud"
   depends_on = [module.k8s-config]
 
@@ -106,6 +108,8 @@ module "nextcloud" {
 }
 
 module "mailu" {
+  # Mailu désactivé (sera remis en ligne plus tard)
+  count      = 0
   source     = "./modules/mailu"
   depends_on = [module.k8s-config]
 

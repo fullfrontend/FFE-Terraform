@@ -52,6 +52,18 @@ resource "helm_release" "velero" {
       value = var.is_prod ? var.velero_s3_url : local.minio_s3_url
     },
     {
+      name  = "configuration.volumeSnapshotLocation[0].name"
+      value = "default"
+    },
+    {
+      name  = "configuration.volumeSnapshotLocation[0].provider"
+      value = "aws"
+    },
+    {
+      name  = "configuration.volumeSnapshotLocation[0].config.region"
+      value = var.is_prod ? var.region : "dev-local"
+    },
+    {
       name  = "deployNodeAgent"
       value = true
     },
@@ -62,6 +74,10 @@ resource "helm_release" "velero" {
     {
       name  = "credentials.existingSecret"
       value = kubernetes_secret.velero[0].metadata[0].name
+    },
+    {
+      name  = "upgradeCRDs"
+      value = false
     },
     {
       name  = "schedules.db.schedule"

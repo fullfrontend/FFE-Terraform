@@ -101,7 +101,7 @@ variable "wp_replicas" {
 
 variable "wp_storage_size" {
   type        = string
-  default     = "10Gi"
+  default     = "2Gi"
   description = "Taille du PVC WordPress"
 }
 
