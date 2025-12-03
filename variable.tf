@@ -10,7 +10,19 @@ variable "app_env" {
   }
 }
 
-# Domaine racine commun (ex: fullfrontend.test)
+/* Root domains per environment */
+variable "root_domain_prod" {
+  type        = string
+  default     = "fullfrontend.be"
+  description = "Root domain in prod"
+}
+
+variable "root_domain_dev" {
+  type        = string
+  default     = "fullfrontend.kube"
+  description = "Root domain in dev"
+}
+
 # N8N (base de données Postgres externe)
 variable "n8n_db_host" {
   type        = string

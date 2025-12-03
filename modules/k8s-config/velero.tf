@@ -24,8 +24,8 @@ resource "kubernetes_secret" "velero" {
 resource "helm_release" "velero" {
   count = var.enable_velero ? 1 : 0
 
-  name       = "velero"
-  namespace  = kubernetes_namespace.infra.metadata[0].name
+  name      = "velero"
+  namespace = kubernetes_namespace.infra.metadata[0].name
 
   repository      = "https://vmware-tanzu.github.io/helm-charts"
   chart           = "velero"

@@ -18,9 +18,9 @@ locals {
 }
 
 resource "helm_release" "traefik" {
-  count      = var.is_prod ? 1 : 0
-  name       = "traefik"
-  namespace  = kubernetes_namespace.infra.metadata[0].name
+  count     = var.is_prod ? 1 : 0
+  name      = "traefik"
+  namespace = kubernetes_namespace.infra.metadata[0].name
 
   repository      = "https://traefik.github.io/charts"
   chart           = "traefik"

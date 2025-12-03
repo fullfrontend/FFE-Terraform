@@ -19,8 +19,8 @@ resource "kubernetes_namespace" "analytics" {
 }
 
 resource "helm_release" "vince" {
-  name       = "vince"
-  namespace  = kubernetes_namespace.analytics.metadata[0].name
+  name      = "vince"
+  namespace = kubernetes_namespace.analytics.metadata[0].name
 
   /*
       Vince analytics helm chart with:
@@ -33,7 +33,7 @@ resource "helm_release" "vince" {
   cleanup_on_fail = true
   atomic          = true
 
-  set           = local.analytics_sets
+  set = local.analytics_sets
   set_sensitive = [
     {
       name  = "secret.adminPassword"
@@ -55,7 +55,7 @@ resource "kubernetes_ingress_v1" "analytics" {
       host = var.host
       http {
         path {
-          path = "/"
+          path      = "/"
           path_type = "Prefix"
           backend {
             service {

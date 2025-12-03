@@ -2,15 +2,15 @@ resource "kubernetes_namespace" "mailu" {
   metadata {
     name = var.namespace
     labels = {
-      "app.kubernetes.io/name" = "mailu"
+      "app.kubernetes.io/name"    = "mailu"
       "app.kubernetes.io/part-of" = "apps"
     }
   }
 }
 
 resource "helm_release" "mailu" {
-  name       = "mailu"
-  namespace  = kubernetes_namespace.mailu.metadata[0].name
+  name      = "mailu"
+  namespace = kubernetes_namespace.mailu.metadata[0].name
 
   /*
       Mailu helm chart wired to:

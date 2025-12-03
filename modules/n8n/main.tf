@@ -2,15 +2,15 @@ resource "kubernetes_namespace" "n8n" {
   metadata {
     name = var.namespace
     labels = {
-      "app.kubernetes.io/name" = "n8n"
+      "app.kubernetes.io/name"    = "n8n"
       "app.kubernetes.io/part-of" = "apps"
     }
   }
 }
 
 resource "helm_release" "n8n" {
-  name       = "n8n"
-  namespace  = kubernetes_namespace.n8n.metadata[0].name
+  name      = "n8n"
+  namespace = kubernetes_namespace.n8n.metadata[0].name
 
   /*
       n8n Helm chart configured for:
@@ -29,7 +29,7 @@ resource "helm_release" "n8n" {
       value = "postgresdb"
     },
     {
-      name = "postgresql.enabled"
+      name  = "postgresql.enabled"
       value = false
     },
     {

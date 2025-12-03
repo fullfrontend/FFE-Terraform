@@ -34,8 +34,8 @@ Pour le cadre global et les règles :
 6. Ajuster domaines/creds dans `variable.tf` / tfvars chiffré.
 
 ## Domaines par défaut (`root_domain`)
-- Prod : `fullfrontend.be`
-- Dev : `fullfrontend.kube`
+- Prod : `fullfrontend.be` (variable `root_domain_prod`)
+- Dev : `fullfrontend.kube` (variable `root_domain_dev`)
 - WordPress : `<root_domain>`
 - n8n : `n8n.<root_domain>` + `webhook.<root_domain>`
 - Nextcloud : `cloud.<root_domain>`

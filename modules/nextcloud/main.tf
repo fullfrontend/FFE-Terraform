@@ -2,15 +2,15 @@ resource "kubernetes_namespace" "nextcloud" {
   metadata {
     name = var.namespace
     labels = {
-      "app.kubernetes.io/name" = "nextcloud"
+      "app.kubernetes.io/name"    = "nextcloud"
       "app.kubernetes.io/part-of" = "apps"
     }
   }
 }
 
 resource "helm_release" "nextcloud" {
-  name       = "nextcloud"
-  namespace  = kubernetes_namespace.nextcloud.metadata[0].name
+  name      = "nextcloud"
+  namespace = kubernetes_namespace.nextcloud.metadata[0].name
 
   /*
       Nextcloud chart configured for:

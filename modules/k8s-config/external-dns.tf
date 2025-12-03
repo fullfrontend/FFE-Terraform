@@ -3,9 +3,9 @@
     sync ingress hosts to DigitalOcean DNS
 */
 resource "helm_release" "external_dns" {
-  count      = var.is_prod ? 1 : 0
-  name       = "external-dns"
-  namespace  = kubernetes_namespace.infra.metadata[0].name
+  count     = var.is_prod ? 1 : 0
+  name      = "external-dns"
+  namespace = kubernetes_namespace.infra.metadata[0].name
 
   repository      = "https://kubernetes-sigs.github.io/external-dns/"
   chart           = "external-dns"

@@ -92,7 +92,7 @@ resource "kubernetes_deployment" "wordpress" {
           }
 
           env {
-            name  = "WORDPRESS_DB_HOST"
+            name = "WORDPRESS_DB_HOST"
             value_from {
               secret_key_ref {
                 name = kubernetes_secret.db.metadata[0].name
@@ -101,7 +101,7 @@ resource "kubernetes_deployment" "wordpress" {
             }
           }
           env {
-            name  = "WORDPRESS_DB_PORT"
+            name = "WORDPRESS_DB_PORT"
             value_from {
               secret_key_ref {
                 name = kubernetes_secret.db.metadata[0].name
@@ -110,7 +110,7 @@ resource "kubernetes_deployment" "wordpress" {
             }
           }
           env {
-            name  = "WORDPRESS_DB_NAME"
+            name = "WORDPRESS_DB_NAME"
             value_from {
               secret_key_ref {
                 name = kubernetes_secret.db.metadata[0].name
@@ -119,7 +119,7 @@ resource "kubernetes_deployment" "wordpress" {
             }
           }
           env {
-            name  = "WORDPRESS_DB_USER"
+            name = "WORDPRESS_DB_USER"
             value_from {
               secret_key_ref {
                 name = kubernetes_secret.db.metadata[0].name
@@ -128,7 +128,7 @@ resource "kubernetes_deployment" "wordpress" {
             }
           }
           env {
-            name  = "WORDPRESS_DB_PASSWORD"
+            name = "WORDPRESS_DB_PASSWORD"
             value_from {
               secret_key_ref {
                 name = kubernetes_secret.db.metadata[0].name
@@ -205,7 +205,7 @@ resource "kubernetes_ingress_v1" "wordpress" {
       host = var.host
       http {
         path {
-          path = "/"
+          path      = "/"
           path_type = "Prefix"
           backend {
             service {
