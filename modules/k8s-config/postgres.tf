@@ -26,6 +26,96 @@ resource "kubernetes_config_map" "postgres_init" {
   }
 }
 
+resource "kubernetes_job" "postgres_init" {
+  count = local.postgres_init_sql != "" ? 1 : 0
+
+  metadata {
+    name      = "postgres-init"
+    namespace = kubernetes_namespace.data.metadata[0].name
+    labels = {
+      app = "postgres"
+      job = "postgres-init"
+    }
+  }
+
+  spec {
+    backoff_limit = 3
+
+    template {
+      metadata {
+        labels = {
+          app = "postgres"
+          job = "postgres-init"
+        }
+      }
+
+      spec {
+        restart_policy = "OnFailure"
+
+        container {
+          name  = "init"
+          image = var.postgres_image
+
+          command = [
+            "/bin/sh",
+            "-c",
+            <<-EOF
+              set -e
+              export PGPASSWORD="$POSTGRES_PASSWORD"
+              until pg_isready -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER"; do
+                echo "Waiting for postgres at $POSTGRES_HOST:$POSTGRES_PORT"
+                sleep 2
+              done
+              psql -v ON_ERROR_STOP=1 -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d postgres -f /scripts/init.sql
+            EOF
+          ]
+
+          volume_mount {
+            name       = "init-sql"
+            mount_path = "/scripts"
+            read_only  = true
+          }
+
+          env {
+            name = "POSTGRES_HOST"
+            value = kubernetes_service.postgres.metadata[0].name
+          }
+          env {
+            name = "POSTGRES_PORT"
+            value = "5432"
+          }
+          env {
+            name = "POSTGRES_USER"
+            value = "postgres"
+          }
+          env {
+            name = "POSTGRES_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.postgres.metadata[0].name
+                key  = "POSTGRES_PASSWORD"
+              }
+            }
+          }
+        }
+
+        volume {
+          name = "init-sql"
+
+          config_map {
+            name = kubernetes_config_map.postgres_init[0].metadata[0].name
+          }
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    kubernetes_service.postgres,
+    kubernetes_config_map.postgres_init,
+  ]
+}
+
 resource "kubernetes_service" "postgres" {
   metadata {
     name      = "postgres"
