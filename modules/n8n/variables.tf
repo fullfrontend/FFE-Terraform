@@ -48,3 +48,9 @@ variable "db_password" {
   sensitive   = true
   description = "Mot de passe Postgres pour n8n"
 }
+
+variable "ingress_class_name" {
+  type        = string
+  default     = "traefik"
+  description = "IngressClassName (ex: traefik en prod, nginx en dev)"
+}

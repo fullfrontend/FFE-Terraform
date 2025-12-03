@@ -61,3 +61,9 @@ variable "replicas" {
   default     = 1
   description = "Réplicas Nextcloud"
 }
+
+variable "ingress_class_name" {
+  type        = string
+  default     = "traefik"
+  description = "IngressClassName (ex: traefik en prod, nginx en dev)"
+}

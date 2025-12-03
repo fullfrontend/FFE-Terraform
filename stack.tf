@@ -15,6 +15,7 @@ locals {
   velero_s3_url      = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
   storage_class_name = var.storage_class_name
   analytics_domains  = length(var.analytics_domains) > 0 ? var.analytics_domains : [local.root_domain]
+  ingress_class_name = local.is_prod ? "traefik" : "nginx"
 }
 
 module "doks-cluster" {
@@ -90,6 +91,7 @@ module "n8n" {
   db_user       = var.n8n_db_user
   db_password   = var.n8n_db_password
   chart_version = var.n8n_chart_version
+  ingress_class_name = local.ingress_class_name
 }
 
 module "wordpress" {
@@ -109,6 +111,7 @@ module "wordpress" {
   replicas        = var.wp_replicas
   storage_size    = var.wp_storage_size
   image           = var.wp_image
+  ingress_class_name = local.ingress_class_name
 }
 
 module "nextcloud" {
@@ -130,6 +133,7 @@ module "nextcloud" {
   replicas        = var.nextcloud_replicas
   storage_size    = var.nextcloud_storage_size
   chart_version   = var.nextcloud_chart_version
+  ingress_class_name = local.ingress_class_name
 }
 
 module "mailu" {
@@ -153,6 +157,7 @@ module "mailu" {
   admin_username  = var.mailu_admin_username
   admin_password  = var.mailu_admin_password
   chart_version   = var.mailu_chart_version
+  ingress_class_name = local.ingress_class_name
 }
 
 module "analytics" {
@@ -168,4 +173,5 @@ module "analytics" {
   admin_username  = var.analytics_admin_username
   admin_password  = var.analytics_admin_password
   chart_version   = var.analytics_chart_version
+  ingress_class_name = local.ingress_class_name
 }

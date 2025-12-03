@@ -15,6 +15,12 @@ variable "tls_secret_name" {
   description = "Secret TLS pour l’ingress WordPress"
 }
 
+variable "ingress_class_name" {
+  type        = string
+  default     = "traefik"
+  description = "IngressClassName (ex: traefik en prod, nginx en dev)"
+}
+
 variable "db_host" {
   type        = string
   description = "Hôte MariaDB externe pour WordPress"

@@ -66,7 +66,7 @@ resource "helm_release" "n8n" {
     },
     {
       name  = "ingress.className"
-      value = "traefik"
+      value = var.ingress_class_name
     },
     {
       name  = "redis.enabled"

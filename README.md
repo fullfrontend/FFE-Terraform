@@ -86,3 +86,7 @@ Choisis une approche et aligne les noms de secrets avec ceux attendus par les in
 - Helm : https://search.opentofu.org/provider/hashicorp/helm/latest  
 - age : https://github.com/FiloSottile/age  
 - sops : https://github.com/getsops/sops
+
+## Dev (minikube)
+- Commande de création minikube utilisée en dev :  
+  `minikube delete && minikube start --driver=docker && minikube addons enable ingress && minikube addons enable ingress-dns && minikube addons enable metrics-server && minikube dashboard`

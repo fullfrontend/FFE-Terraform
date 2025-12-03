@@ -38,3 +38,9 @@ variable "chart_version" {
   default     = ""
   description = "Version du chart Helm Vince (vide = dernière)"
 }
+
+variable "ingress_class_name" {
+  type        = string
+  default     = "traefik"
+  description = "IngressClassName (ex: traefik en prod, nginx en dev)"
+}

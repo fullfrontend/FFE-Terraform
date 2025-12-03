@@ -199,7 +199,7 @@ resource "kubernetes_ingress_v1" "wordpress" {
   }
 
   spec {
-    ingress_class_name = "traefik"
+    ingress_class_name = var.ingress_class_name
 
     rule {
       host = var.host

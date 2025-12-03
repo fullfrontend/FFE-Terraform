@@ -10,6 +10,12 @@ variable "chart_version" {
   description = "Version du chart Mailu (laisser vide pour dernière)"
 }
 
+variable "ingress_class_name" {
+  type        = string
+  default     = "traefik"
+  description = "IngressClassName (ex: traefik en prod, nginx en dev)"
+}
+
 variable "host" {
   type        = string
   description = "FQDN ingress pour Mailu (webmail/admin)"

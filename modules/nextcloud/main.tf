@@ -30,7 +30,7 @@ resource "helm_release" "nextcloud" {
     },
     {
       name  = "ingress.className"
-      value = "traefik"
+      value = var.ingress_class_name
     },
     {
       name  = "ingress.hosts[0].host"
