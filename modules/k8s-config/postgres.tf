@@ -1,5 +1,10 @@
 locals {
-  postgres_init_creds = length(var.postgres_app_credentials) > 0 ? join("\n", [for app in var.postgres_app_credentials : "${app.db_name}:${app.user}:${app.password}"]) : ""
+  postgres_init_creds = length(var.postgres_app_credentials) > 0 ? merge(
+    { app_count = tostring(length(var.postgres_app_credentials)) },
+    { for idx, app in var.postgres_app_credentials : "db_${idx}" => app.db_name },
+    { for idx, app in var.postgres_app_credentials : "user_${idx}" => app.user },
+    { for idx, app in var.postgres_app_credentials : "password_${idx}" => app.password }
+  ) : {}
 }
 
 resource "kubernetes_secret" "postgres" {
@@ -14,20 +19,18 @@ resource "kubernetes_secret" "postgres" {
 }
 
 resource "kubernetes_secret" "postgres_init" {
-  count = local.postgres_init_creds != "" ? 1 : 0
+  count = length(var.postgres_app_credentials) > 0 ? 1 : 0
 
   metadata {
     name      = "postgres-initdb"
     namespace = kubernetes_namespace.data.metadata[0].name
   }
 
-  data = {
-    creds = local.postgres_init_creds
-  }
+  data = local.postgres_init_creds
 }
 
 resource "kubernetes_job" "postgres_init" {
-  count = local.postgres_init_creds != "" ? 1 : 0
+  count = length(var.postgres_app_credentials) > 0 ? 1 : 0
 
   metadata {
     name      = "postgres-init"
@@ -39,7 +42,7 @@ resource "kubernetes_job" "postgres_init" {
   }
 
   spec {
-    backoff_limit = 3
+    backoff_limit              = 3
     ttl_seconds_after_finished = 120
 
     template {
@@ -53,7 +56,7 @@ resource "kubernetes_job" "postgres_init" {
       spec {
         restart_policy = "OnFailure"
 
-/*
+        /*
     One-shot init:
     - reads app creds from secret
     - waits for Postgres
@@ -74,45 +77,54 @@ resource "kubernetes_job" "postgres_init" {
                 echo "Waiting for postgres at $POSTGRES_HOST:$POSTGRES_PORT"
                 sleep 2
               done
-              while IFS=: read -r DB_NAME DB_USER DB_PASSWORD; do
+              escape_sql() { printf "%s" "$1" | sed "s/'/''/g"; }
+              for i in $(seq 0 $((APP_COUNT-1))); do
+                db_var="DB_$${i}"
+                user_var="DB_USER_$${i}"
+                pass_var="DB_PASSWORD_$${i}"
+                db_name="$${!db_var}"
+                db_user="$${!user_var}"
+                db_password="$${!pass_var}"
+
+                db_q="$(escape_sql "$${db_name}")"
+                user_q="$(escape_sql "$${db_user}")"
+                pass_q="$(escape_sql "$${db_password}")"
+
                 cat >/tmp/init.sql <<SQL
+\\set db '$${db_q}'
+\\set db_user '$${user_q}'
+\\set db_pass '$${pass_q}'
 \\set ON_ERROR_STOP on
 DO
 $$
 BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$${DB_USER}') THEN
-    CREATE ROLE $${DB_USER} LOGIN PASSWORD '$${DB_PASSWORD}';
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = :'db_user') THEN
+    EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', :'db_user', :'db_pass');
   END IF;
 END
 $$;
 
-SELECT format('CREATE DATABASE %I OWNER %I', '$${DB_NAME}', '$${DB_USER}')
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$${DB_NAME}')
+SELECT format('CREATE DATABASE %I OWNER %I', :'db', :'db_user')
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = :'db')
 \\gexec
 
-GRANT ALL PRIVILEGES ON DATABASE $${DB_NAME} TO $${DB_USER};
+GRANT ALL PRIVILEGES ON DATABASE :db TO :db_user;
 SQL
                 psql -v ON_ERROR_STOP=1 -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d postgres -f /tmp/init.sql
-              done </secrets/creds
+              done
             EOF
           ]
 
-          volume_mount {
-            name       = "init-creds"
-            mount_path = "/secrets"
-            read_only  = true
-          }
-
           env {
-            name = "POSTGRES_HOST"
+            name  = "POSTGRES_HOST"
             value = kubernetes_service.postgres.metadata[0].name
           }
           env {
-            name = "POSTGRES_PORT"
+            name  = "POSTGRES_PORT"
             value = "5432"
           }
           env {
-            name = "POSTGRES_USER"
+            name  = "POSTGRES_USER"
             value = "postgres"
           }
           env {
@@ -124,15 +136,57 @@ SQL
               }
             }
           }
-        }
 
-        volume {
-          name = "init-creds"
+          env {
+            name = "APP_COUNT"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.postgres_init[0].metadata[0].name
+                key  = "app_count"
+              }
+            }
+          }
 
-          secret {
-            secret_name = kubernetes_secret.postgres_init[0].metadata[0].name
+          dynamic "env" {
+            for_each = { for idx in range(length(var.postgres_app_credentials)) : idx => idx }
+            content {
+              name = "DB_${env.key}"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.postgres_init[0].metadata[0].name
+                  key  = "db_${env.key}"
+                }
+              }
+            }
+          }
+
+          dynamic "env" {
+            for_each = { for idx in range(length(var.postgres_app_credentials)) : idx => idx }
+            content {
+              name = "DB_USER_${env.key}"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.postgres_init[0].metadata[0].name
+                  key  = "user_${env.key}"
+                }
+              }
+            }
+          }
+
+          dynamic "env" {
+            for_each = { for idx in range(length(var.postgres_app_credentials)) : idx => idx }
+            content {
+              name = "DB_PASSWORD_${env.key}"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.postgres_init[0].metadata[0].name
+                  key  = "password_${env.key}"
+                }
+              }
+            }
           }
         }
+
       }
     }
   }
@@ -202,7 +256,7 @@ resource "kubernetes_stateful_set_v1" "postgres" {
           }
 
           env {
-            name  = "POSTGRES_PASSWORD"
+            name = "POSTGRES_PASSWORD"
             value_from {
               secret_key_ref {
                 name = kubernetes_secret.postgres.metadata[0].name

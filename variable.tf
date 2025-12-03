@@ -287,6 +287,10 @@ variable "postgres_root_password" {
   default     = ""
   description = "Mot de passe superuser Postgres"
   sensitive   = true
+  validation {
+    condition     = length(var.postgres_root_password) > 0
+    error_message = "postgres_root_password must be set (non-empty)."
+  }
 }
 
 variable "postgres_app_credentials" {
@@ -318,6 +322,10 @@ variable "mariadb_root_password" {
   default     = ""
   description = "Mot de passe root MariaDB"
   sensitive   = true
+  validation {
+    condition     = length(var.mariadb_root_password) > 0
+    error_message = "mariadb_root_password must be set (non-empty)."
+  }
 }
 
 variable "mariadb_app_credentials" {
@@ -368,6 +376,10 @@ variable "velero_access_key" {
   default     = ""
   description = "Access key Spaces pour Velero"
   sensitive   = true
+  validation {
+    condition     = var.app_env != "prod" || length(var.velero_access_key) > 0
+    error_message = "velero_access_key must be set in prod."
+  }
 }
 
 variable "velero_secret_key" {
@@ -375,6 +387,10 @@ variable "velero_secret_key" {
   default     = ""
   description = "Secret key Spaces pour Velero"
   sensitive   = true
+  validation {
+    condition     = var.app_env != "prod" || length(var.velero_secret_key) > 0
+    error_message = "velero_secret_key must be set in prod."
+  }
 }
 
 variable "minio_access_key" {
@@ -382,6 +398,10 @@ variable "minio_access_key" {
   default     = ""
   description = "Access key dédiée MinIO (dev)"
   sensitive   = true
+  validation {
+    condition     = var.app_env != "dev" || length(var.minio_access_key) > 0
+    error_message = "minio_access_key must be set in dev."
+  }
 }
 
 variable "minio_secret_key" {
@@ -389,6 +409,10 @@ variable "minio_secret_key" {
   default     = ""
   description = "Secret key dédiée MinIO (dev)"
   sensitive   = true
+  validation {
+    condition     = var.app_env != "dev" || length(var.minio_secret_key) > 0
+    error_message = "minio_secret_key must be set in dev."
+  }
 }
 
 # Storage class pour les PVC (utile en dev docker-desktop)

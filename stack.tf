@@ -8,13 +8,13 @@ resource "random_id" "cluster_name" {
     - dev  = local kube (ex: docker-desktop)
 */
 locals {
-  is_prod             = var.app_env == "prod"
-  cluster_name        = local.is_prod ? "${var.doks_name}-${random_id.cluster_name.hex}" : "docker-desktop"
-  root_domain         = local.is_prod ? "fullfrontend.be" : "fullfrontend.kube"
-  kubeconfig_path     = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
-  velero_s3_url       = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
-  storage_class_name  = var.storage_class_name
-  analytics_domains   = length(var.analytics_domains) > 0 ? var.analytics_domains : [local.root_domain]
+  is_prod            = var.app_env == "prod"
+  cluster_name       = local.is_prod ? "${var.doks_name}-${random_id.cluster_name.hex}" : "docker-desktop"
+  root_domain        = local.is_prod ? var.root_domain_prod : var.root_domain_dev
+  kubeconfig_path    = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
+  velero_s3_url      = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
+  storage_class_name = var.storage_class_name
+  analytics_domains  = length(var.analytics_domains) > 0 ? var.analytics_domains : [local.root_domain]
 }
 
 module "doks-cluster" {
@@ -46,12 +46,12 @@ module "k8s-config" {
       - Namespaces infra/data
       - Postgres/MariaDB stateful sets
   */
-  source          = "./modules/k8s-config"
-  cluster_name    = local.cluster_name
-  region          = var.doks_region
-  do_token        = var.do_token
-  is_prod         = local.is_prod
-  kubeconfig_path = local.kubeconfig_path
+  source              = "./modules/k8s-config"
+  cluster_name        = local.cluster_name
+  region              = var.doks_region
+  do_token            = var.do_token
+  is_prod             = local.is_prod
+  kubeconfig_path     = local.kubeconfig_path
   enable_cert_manager = local.is_prod
 
   enable_velero     = true
@@ -79,7 +79,7 @@ module "n8n" {
   /*
       App: n8n (external Postgres)
   */
-  source = "./modules/n8n"
+  source     = "./modules/n8n"
   depends_on = [module.k8s-config]
 
   host          = format("n8n.%s", local.root_domain)
@@ -96,7 +96,7 @@ module "wordpress" {
   /*
       App: WordPress (external MariaDB, PVC wp-content)
   */
-  source = "./modules/wordpress"
+  source     = "./modules/wordpress"
   depends_on = [module.k8s-config]
 
   host            = local.root_domain
@@ -141,18 +141,18 @@ module "mailu" {
   source     = "./modules/mailu"
   depends_on = [module.k8s-config]
 
-  host              = format("mail.%s", local.root_domain)
-  domain            = local.root_domain
-  tls_secret_name   = var.mailu_tls_secret_name
-  db_host           = var.mailu_db_host
-  db_port           = var.mailu_db_port
-  db_name           = var.mailu_db_name
-  db_user           = var.mailu_db_user
-  db_password       = var.mailu_db_password
-  secret_key        = var.mailu_secret_key
-  admin_username    = var.mailu_admin_username
-  admin_password    = var.mailu_admin_password
-  chart_version     = var.mailu_chart_version
+  host            = format("mail.%s", local.root_domain)
+  domain          = local.root_domain
+  tls_secret_name = var.mailu_tls_secret_name
+  db_host         = var.mailu_db_host
+  db_port         = var.mailu_db_port
+  db_name         = var.mailu_db_name
+  db_user         = var.mailu_db_user
+  db_password     = var.mailu_db_password
+  secret_key      = var.mailu_secret_key
+  admin_username  = var.mailu_admin_username
+  admin_password  = var.mailu_admin_password
+  chart_version   = var.mailu_chart_version
 }
 
 module "analytics" {

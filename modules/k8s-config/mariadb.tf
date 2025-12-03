@@ -1,5 +1,10 @@
 locals {
-  mariadb_init_creds = length(var.mariadb_app_credentials) > 0 ? join("\n", [for app in var.mariadb_app_credentials : "${app.db_name}:${app.user}:${app.password}"]) : ""
+  mariadb_init_creds = length(var.mariadb_app_credentials) > 0 ? merge(
+    { app_count = tostring(length(var.mariadb_app_credentials)) },
+    { for idx, app in var.mariadb_app_credentials : "db_${idx}" => app.db_name },
+    { for idx, app in var.mariadb_app_credentials : "user_${idx}" => app.user },
+    { for idx, app in var.mariadb_app_credentials : "password_${idx}" => app.password }
+  ) : {}
 }
 
 resource "kubernetes_secret" "mariadb" {
@@ -14,16 +19,14 @@ resource "kubernetes_secret" "mariadb" {
 }
 
 resource "kubernetes_secret" "mariadb_init" {
-  count = local.mariadb_init_creds != "" ? 1 : 0
+  count = length(var.mariadb_app_credentials) > 0 ? 1 : 0
 
   metadata {
     name      = "mariadb-initdb"
     namespace = kubernetes_namespace.data.metadata[0].name
   }
 
-  data = {
-    creds = local.mariadb_init_creds
-  }
+  data = local.mariadb_init_creds
 }
 
 resource "kubernetes_service" "mariadb" {
@@ -90,7 +93,7 @@ resource "kubernetes_stateful_set_v1" "mariadb" {
           }
 
           env {
-            name  = "MARIADB_ROOT_PASSWORD"
+            name = "MARIADB_ROOT_PASSWORD"
             value_from {
               secret_key_ref {
                 name = kubernetes_secret.mariadb.metadata[0].name
@@ -162,7 +165,7 @@ resource "kubernetes_secret" "mariadb_apps" {
 }
 
 resource "kubernetes_job" "mariadb_init" {
-  count = local.mariadb_init_creds != "" ? 1 : 0
+  count = length(var.mariadb_app_credentials) > 0 ? 1 : 0
 
   metadata {
     name      = "mariadb-init"
@@ -194,6 +197,12 @@ resource "kubernetes_job" "mariadb_init" {
             - creates DB/user per app from secret
             - TTL cleans up the Job
         */
+        /*
+            One-shot init:
+            - waits for MariaDB
+            - creates DB/user per app from secret
+            - TTL cleans up the Job
+        */
         container {
           name  = "init"
           image = var.mariadb_image
@@ -203,19 +212,34 @@ resource "kubernetes_job" "mariadb_init" {
             "-c",
             <<-EOF
               set -e
+              escape_ident() { printf "%s" "$1" | sed 's/`/``/g'; }
+              escape_literal() { printf "%s" "$1" | sed "s/'/''/g"; }
+
               export MYSQL_PWD="$MARIADB_ROOT_PASSWORD"
               until mysqladmin ping -h "$MARIADB_HOST" -P "$MARIADB_PORT" -u "$MARIADB_ROOT_USER" --silent; do
                 echo "Waiting for mariadb at $MARIADB_HOST:$MARIADB_PORT"
                 sleep 2
               done
-              while IFS=: read -r DB_NAME DB_USER DB_PASSWORD; do
+
+              for i in $(seq 0 $((APP_COUNT-1))); do
+                db_var="DB_$${i}"
+                user_var="DB_USER_$${i}"
+                pass_var="DB_PASSWORD_$${i}"
+                DB_NAME="$${!db_var}"
+                DB_USER="$${!user_var}"
+                DB_PASSWORD="$${!pass_var}"
+
+                DB_NAME_ESC="$(escape_ident "$${DB_NAME}")"
+                DB_USER_ESC="$(escape_literal "$${DB_USER}")"
+                DB_PASSWORD_ESC="$(escape_literal "$${DB_PASSWORD}")"
+
                 mysql -h "$MARIADB_HOST" -P "$MARIADB_PORT" -u "$MARIADB_ROOT_USER" <<SQL
-CREATE DATABASE IF NOT EXISTS \`$DB_NAME\`;
-CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';
-GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'%';
+CREATE DATABASE IF NOT EXISTS \`$DB_NAME_ESC\`;
+CREATE USER IF NOT EXISTS '$DB_USER_ESC'@'%' IDENTIFIED BY '$DB_PASSWORD_ESC';
+GRANT ALL PRIVILEGES ON \`$DB_NAME_ESC\`.* TO '$DB_USER_ESC'@'%';
 FLUSH PRIVILEGES;
 SQL
-              done </secrets/creds
+              done
             EOF
           ]
 
@@ -241,18 +265,53 @@ SQL
             }
           }
 
-          volume_mount {
-            name       = "init-creds"
-            mount_path = "/secrets"
-            read_only  = true
+          env {
+            name = "APP_COUNT"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.mariadb_init[0].metadata[0].name
+                key  = "app_count"
+              }
+            }
           }
-        }
 
-        volume {
-          name = "init-creds"
+          dynamic "env" {
+            for_each = { for idx in range(length(var.mariadb_app_credentials)) : idx => idx }
+            content {
+              name = "DB_${env.key}"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.mariadb_init[0].metadata[0].name
+                  key  = "db_${env.key}"
+                }
+              }
+            }
+          }
 
-          secret {
-            secret_name = kubernetes_secret.mariadb_init[0].metadata[0].name
+          dynamic "env" {
+            for_each = { for idx in range(length(var.mariadb_app_credentials)) : idx => idx }
+            content {
+              name = "DB_USER_${env.key}"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.mariadb_init[0].metadata[0].name
+                  key  = "user_${env.key}"
+                }
+              }
+            }
+          }
+
+          dynamic "env" {
+            for_each = { for idx in range(length(var.mariadb_app_credentials)) : idx => idx }
+            content {
+              name = "DB_PASSWORD_${env.key}"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.mariadb_init[0].metadata[0].name
+                  key  = "password_${env.key}"
+                }
+              }
+            }
           }
         }
       }
