@@ -126,9 +126,6 @@ resource "kubernetes_deployment" "registry" {
           name  = "zot"
           image = "ghcr.io/project-zot/zot-linux-amd64:latest"
 
-          args = [
-            "/etc/zot/config.json",
-          ]
 
           port {
             name           = "http"

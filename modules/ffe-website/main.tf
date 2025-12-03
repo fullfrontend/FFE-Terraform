@@ -45,7 +45,7 @@ resource "kubernetes_secret" "dockerhub" {
   type = "kubernetes.io/dockerconfigjson"
 
   data = {
-    ".dockerconfigjson" = base64encode(jsonencode({
+    ".dockerconfigjson" = jsonencode({
       auths = {
         "https://index.docker.io/v1/" = {
           username = var.dockerhub_user
@@ -54,7 +54,7 @@ resource "kubernetes_secret" "dockerhub" {
           auth     = base64encode("${var.dockerhub_user}:${var.dockerhub_pat}")
         }
       }
-    }))
+    })
   }
 }
 
