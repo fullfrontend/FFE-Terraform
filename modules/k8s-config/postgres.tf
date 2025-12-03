@@ -40,6 +40,7 @@ resource "kubernetes_job" "postgres_init" {
 
   spec {
     backoff_limit = 3
+    ttl_seconds_after_finished = 120
 
     template {
       metadata {
