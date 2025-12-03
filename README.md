@@ -2,6 +2,10 @@
 
 Provision et déploiement complet d’une stack Kubernetes sur DigitalOcean (prod) ou sur un cluster local (dev, ex: docker-desktop) avec OpenTofu/Helm.
 
+Pour le cadre global et les règles :
+- Contexte humain : `CONTEXT_INFRA.md`
+- Contexte IA : `docs/CONTEXT.md`
+
 ## Vue d’ensemble
 - Infra : Traefik, external-dns (prod), cert-manager (prod), Velero (prod: Spaces, dev: MinIO).
 - Données : Postgres, MariaDB (PVC bloc).
