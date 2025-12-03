@@ -14,10 +14,11 @@ resource "kubernetes_persistent_volume" "minio_dev" {
       storage = "10Gi"
     }
     access_modes = ["ReadWriteOnce"]
+    storage_class_name = "standard"
     persistent_volume_reclaim_policy = "Retain"
     persistent_volume_source {
       host_path {
-        path = "${path.root}/data/${var.cluster_name}"
+        path = abspath("${path.root}/data/${var.cluster_name}")
       }
     }
   }
@@ -33,7 +34,7 @@ resource "kubernetes_persistent_volume_claim" "minio_dev" {
 
   spec {
     access_modes = ["ReadWriteOnce"]
-    storage_class_name = ""
+    storage_class_name = "standard"
     resources {
       requests = {
         storage = "10Gi"
