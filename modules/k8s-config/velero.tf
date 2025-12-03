@@ -93,11 +93,7 @@ resource "helm_release" "velero" {
     },
     {
       name  = "kubectl.image.repository"
-      value = "bitnami/kubectl"
-    },
-    {
-      name  = "kubectl.image.tag"
-      value = "latest"
+      value = "registry.k8s.io/kubectl"
     }
   ]
 
