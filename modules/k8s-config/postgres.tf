@@ -1,5 +1,5 @@
 locals {
-  postgres_init_sql = length(var.postgres_app_credentials) > 0 ? templatefile("${path.module}/templates/postgres-init.sql.tmpl", { apps = var.postgres_app_credentials }) : ""
+  postgres_init_creds = length(var.postgres_app_credentials) > 0 ? join("\n", [for app in var.postgres_app_credentials : "${app.db_name}:${app.user}:${app.password}"]) : ""
 }
 
 resource "kubernetes_secret" "postgres" {
@@ -13,8 +13,8 @@ resource "kubernetes_secret" "postgres" {
   }
 }
 
-resource "kubernetes_config_map" "postgres_init" {
-  count = local.postgres_init_sql != "" ? 1 : 0
+resource "kubernetes_secret" "postgres_init" {
+  count = local.postgres_init_creds != "" ? 1 : 0
 
   metadata {
     name      = "postgres-initdb"
@@ -22,12 +22,12 @@ resource "kubernetes_config_map" "postgres_init" {
   }
 
   data = {
-    "init.sql" = local.postgres_init_sql
+    creds = local.postgres_init_creds
   }
 }
 
 resource "kubernetes_job" "postgres_init" {
-  count = local.postgres_init_sql != "" ? 1 : 0
+  count = local.postgres_init_creds != "" ? 1 : 0
 
   metadata {
     name      = "postgres-init"
@@ -67,13 +67,32 @@ resource "kubernetes_job" "postgres_init" {
                 echo "Waiting for postgres at $POSTGRES_HOST:$POSTGRES_PORT"
                 sleep 2
               done
-              psql -v ON_ERROR_STOP=1 -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d postgres -f /scripts/init.sql
+              while IFS=: read -r DB_NAME DB_USER DB_PASSWORD; do
+                cat >/tmp/init.sql <<SQL
+\\set ON_ERROR_STOP on
+DO
+$$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$${DB_USER}') THEN
+    CREATE ROLE $${DB_USER} LOGIN PASSWORD '$${DB_PASSWORD}';
+  END IF;
+END
+$$;
+
+SELECT format('CREATE DATABASE %I OWNER %I', '$${DB_NAME}', '$${DB_USER}')
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$${DB_NAME}')
+\\gexec
+
+GRANT ALL PRIVILEGES ON DATABASE $${DB_NAME} TO $${DB_USER};
+SQL
+                psql -v ON_ERROR_STOP=1 -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d postgres -f /tmp/init.sql
+              done </secrets/creds
             EOF
           ]
 
           volume_mount {
-            name       = "init-sql"
-            mount_path = "/scripts"
+            name       = "init-creds"
+            mount_path = "/secrets"
             read_only  = true
           }
 
@@ -101,10 +120,10 @@ resource "kubernetes_job" "postgres_init" {
         }
 
         volume {
-          name = "init-sql"
+          name = "init-creds"
 
-          config_map {
-            name = kubernetes_config_map.postgres_init[0].metadata[0].name
+          secret {
+            secret_name = kubernetes_secret.postgres_init[0].metadata[0].name
           }
         }
       }
@@ -113,7 +132,7 @@ resource "kubernetes_job" "postgres_init" {
 
   depends_on = [
     kubernetes_service.postgres,
-    kubernetes_config_map.postgres_init,
+    kubernetes_secret.postgres_init,
   ]
 }
 
@@ -189,14 +208,6 @@ resource "kubernetes_stateful_set_v1" "postgres" {
             name       = "postgres-data"
             mount_path = "/var/lib/postgresql/data"
           }
-
-          dynamic "volume_mount" {
-            for_each = local.postgres_init_sql != "" ? [1] : []
-            content {
-              name       = "init-sql"
-              mount_path = "/docker-entrypoint-initdb.d"
-            }
-          }
         }
 
         volume {
@@ -204,17 +215,6 @@ resource "kubernetes_stateful_set_v1" "postgres" {
 
           persistent_volume_claim {
             claim_name = "postgres-data"
-          }
-        }
-
-        dynamic "volume" {
-          for_each = local.postgres_init_sql != "" ? [1] : []
-          content {
-            name = "init-sql"
-
-            config_map {
-              name = kubernetes_config_map.postgres_init[0].metadata[0].name
-            }
           }
         }
       }
