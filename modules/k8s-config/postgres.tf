@@ -42,7 +42,7 @@ resource "kubernetes_job" "postgres_init" {
   }
 
   spec {
-    backoff_limit              = 3
+    backoff_limit              = 15
     ttl_seconds_after_finished = 120
 
     template {
@@ -79,38 +79,32 @@ resource "kubernetes_job" "postgres_init" {
               done
               escape_sql() { printf "%s" "$1" | sed "s/'/''/g"; }
               for i in $(seq 0 $((APP_COUNT-1))); do
-                db_var="DB_$${i}"
-                user_var="DB_USER_$${i}"
-                pass_var="DB_PASSWORD_$${i}"
-                db_name="$${!db_var}"
-                db_user="$${!user_var}"
-                db_password="$${!pass_var}"
+                db_name="$(eval echo "\\$DB_$i")"
+                db_user="$(eval echo "\\$DB_USER_$i")"
+                db_password="$(eval echo "\\$DB_PASSWORD_$i")"
 
-                db_q="$(escape_sql "$${db_name}")"
-                user_q="$(escape_sql "$${db_user}")"
-                pass_q="$(escape_sql "$${db_password}")"
+                db_q="$(escape_sql "$db_name")"
+                user_q="$(escape_sql "$db_user")"
+                pass_q="$(escape_sql "$db_password")"
 
-                cat >/tmp/init.sql <<SQL
-\\set db '$${db_q}'
-\\set db_user '$${user_q}'
-\\set db_pass '$${pass_q}'
-\\set ON_ERROR_STOP on
-DO
-$$
-BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = :'db_user') THEN
-    EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', :'db_user', :'db_pass');
-  END IF;
-END
-$$;
+                psql -v ON_ERROR_STOP=1 \
+                  -v db="$db_q" \
+                  -v db_user="$user_q" \
+                  -v db_pass="$pass_q" \
+                  -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d postgres <<'SQL'
+\set ON_ERROR_STOP on
+
+SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', :'db_user', :'db_pass')
+WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = :'db_user')
+\gexec
 
 SELECT format('CREATE DATABASE %I OWNER %I', :'db', :'db_user')
 WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = :'db')
-\\gexec
+\gexec
 
-GRANT ALL PRIVILEGES ON DATABASE :db TO :db_user;
+SELECT format('GRANT ALL PRIVILEGES ON DATABASE %I TO %I', :'db', :'db_user')
+\gexec
 SQL
-                psql -v ON_ERROR_STOP=1 -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d postgres -f /tmp/init.sql
               done
             EOF
           ]
@@ -190,6 +184,9 @@ SQL
       }
     }
   }
+
+  /* Do not block Terraform on job completion (logs inspected separately) */
+  wait_for_completion = false
 
   depends_on = [
     kubernetes_service.postgres,

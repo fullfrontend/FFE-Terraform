@@ -177,7 +177,7 @@ resource "kubernetes_job" "mariadb_init" {
   }
 
   spec {
-    backoff_limit              = 3
+    backoff_limit              = 15
     ttl_seconds_after_finished = 120
 
     template {
@@ -314,6 +314,9 @@ SQL
       }
     }
   }
+
+  /* Do not block Terraform on job completion (logs inspected separately) */
+  wait_for_completion = false
 
   depends_on = [
     kubernetes_service.mariadb,
