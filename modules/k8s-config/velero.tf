@@ -62,32 +62,19 @@ resource "helm_release" "velero" {
     {
       name  = "credentials.existingSecret"
       value = kubernetes_secret.velero[0].metadata[0].name
+    },
+    {
+      name  = "schedules.db.schedule"
+      value = "0 3 * * *"
+    },
+    {
+      name  = "schedules.db.template.ttl"
+      value = "720h"
+    },
+    {
+      name  = "schedules.db.template.includedNamespaces[0]"
+      value = "data"
     }
   ]
 
-}
-
-resource "kubernetes_manifest" "velero_schedule_db" {
-  count = var.enable_velero ? 1 : 0
-
-  manifest = {
-    apiVersion = "velero.io/v1"
-    kind       = "Schedule"
-    metadata = {
-      name      = "db-daily"
-      namespace = kubernetes_namespace.infra.metadata[0].name
-    }
-    spec = {
-      schedule = "0 3 * * *"
-      template = {
-        defaultVolumesToFsBackup = true
-        includedNamespaces       = ["data"]
-        ttl                      = "720h"
-      }
-    }
-  }
-
-  depends_on = [
-    helm_release.velero
-  ]
 }
