@@ -77,11 +77,11 @@ resource "helm_release" "velero" {
     },
     {
       name  = "kubectl.image.repository"
-      value = "ghcr.io/dtzar/helm-kubectl"
+      value = "bitnami/kubectl"
     },
     {
       name  = "kubectl.image.tag"
-      value = "3.13.1"
+      value = "latest"
     }
   ]
 
