@@ -74,6 +74,14 @@ resource "helm_release" "velero" {
     {
       name  = "schedules.db.template.includedNamespaces[0]"
       value = "data"
+    },
+    {
+      name  = "kubectl.image.repository"
+      value = "ghcr.io/dtzar/helm-kubectl"
+    },
+    {
+      name  = "kubectl.image.tag"
+      value = "3.13.1"
     }
   ]
 
