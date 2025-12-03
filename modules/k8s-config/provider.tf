@@ -12,8 +12,11 @@ terraform {
   }
 }
 
-
-
+/*
+    Providers read kubeconfig_path:
+    - prod writes ${path.root}/.kube/config
+    - dev uses ~/.kube/config (ex: docker-desktop)
+*/
 provider "kubernetes" {
   config_path = var.kubeconfig_path
 }

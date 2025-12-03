@@ -9,6 +9,10 @@ locals {
 resource "kubernetes_persistent_volume" "minio_dev" {
   count = var.is_prod || !var.enable_velero ? 0 : 1
 
+  /*
+      HostPath PV for MinIO dev data
+      Stored under ./data/<cluster_name> (git-ignored)
+  */
   metadata {
     name = "minio-dev-pv"
   }

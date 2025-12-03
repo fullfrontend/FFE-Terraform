@@ -18,6 +18,10 @@ locals {
 }
 
 module "doks-cluster" {
+  /*
+      Prod cluster: DOKS + project attachment + Spaces bucket for Velero
+      Disabled in dev (local cluster)
+  */
   count            = local.is_prod ? 1 : 0
   source           = "./modules/doks-cluster"
   name             = local.cluster_name
@@ -35,6 +39,13 @@ module "doks-cluster" {
 }
 
 module "k8s-config" {
+  /*
+      Cluster services and data plane:
+      - Traefik, cert-manager, external-dns (prod)
+      - Velero (Spaces/MinIO)
+      - Namespaces infra/data
+      - Postgres/MariaDB stateful sets
+  */
   source          = "./modules/k8s-config"
   cluster_name    = local.cluster_name
   region          = var.doks_region
@@ -65,6 +76,9 @@ module "k8s-config" {
 }
 
 module "n8n" {
+  /*
+      App: n8n (external Postgres)
+  */
   source = "./modules/n8n"
   depends_on = [module.k8s-config]
 
@@ -79,6 +93,9 @@ module "n8n" {
 }
 
 module "wordpress" {
+  /*
+      App: WordPress (external MariaDB, PVC wp-content)
+  */
   source = "./modules/wordpress"
   depends_on = [module.k8s-config]
 
@@ -96,6 +113,9 @@ module "wordpress" {
 
 module "nextcloud" {
   # Nextcloud désactivé (sera remis en ligne plus tard)
+  /*
+      App: Nextcloud (external Postgres, PVC data)
+  */
   count      = 0
   source     = "./modules/nextcloud"
   depends_on = [module.k8s-config]
@@ -114,6 +134,9 @@ module "nextcloud" {
 
 module "mailu" {
   # Mailu désactivé (sera remis en ligne plus tard)
+  /*
+      App: Mailu (external Postgres, PVC maildir/config)
+  */
   count      = 0
   source     = "./modules/mailu"
   depends_on = [module.k8s-config]
@@ -133,6 +156,9 @@ module "mailu" {
 }
 
 module "analytics" {
+  /*
+      App: Vince analytics (ingress + admin bootstrap)
+  */
   source     = "./modules/analytics"
   depends_on = [module.k8s-config]
 

@@ -247,6 +247,10 @@ resource "kubernetes_stateful_set_v1" "postgres" {
   }
 }
 
+/*
+    App-facing secrets: consumed by apps (host/port/db/user/password).
+    Init secrets live in data namespace (postgres-initdb) and are admin-only.
+*/
 resource "kubernetes_secret" "postgres_apps" {
   for_each = { for app in var.postgres_app_credentials : app.name => app }
 
