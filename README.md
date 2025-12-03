@@ -80,6 +80,7 @@ Pour le cadre global et les règles :
 Choisis une approche et aligne les noms de secrets avec ceux attendus par les ingress (`wordpress-tls`, `nextcloud-tls`, `mailu-tls`, `analytics-tls`, `n8n-tls` si besoin).
 
 ## Documentation
+- Schéma prod : `docs/architecture-prod.png`
 - DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest  
 - Kubernetes : https://search.opentofu.org/provider/hashicorp/kubernetes/latest  
 - Helm : https://search.opentofu.org/provider/hashicorp/helm/latest  

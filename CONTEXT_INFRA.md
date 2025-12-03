@@ -7,6 +7,7 @@ Migrer l’infrastructure existante vers un cluster Kubernetes DigitalOcean (DOK
 - Provider DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest  
 - Provider Kubernetes : https://search.opentofu.org/provider/hashicorp/kubernetes/latest  
 - Provider Helm : https://search.opentofu.org/provider/hashicorp/helm/latest
+- Schéma prod : `docs/architecture-prod.png`
 
 ## Stack actuelle (avant migration)
 - Serveur cloud (Ubuntu 22.04) : Mailinabox (mail + DNS + CalDAV + CardDAV via Nextcloud).

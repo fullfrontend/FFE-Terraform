@@ -1,0 +1,65 @@
+@startuml
+title FFE – Prod architecture (root_domain = fullfrontend.be)
+
+skinparam backgroundColor #ffffff
+skinparam componentStyle rectangle
+
+actor User
+
+node "DigitalOcean\nKubernetes (DOKS)" {
+  frame "infra namespace" {
+    component Traefik
+    component "cert-manager"
+    component "external-dns"
+    component "Velero\n(Spaces backup)"
+  }
+
+  frame "data namespace" {
+    database "Postgres\n(postgres.data)" as Postgres
+    database "MariaDB\n(mariadb.data)" as MariaDB
+  }
+
+  frame "apps namespace" {
+    component "WordPress\nhost: fullfrontend.be" as WP
+    component "n8n\nhosts: n8n.fullfrontend.be\nwebhook.fullfrontend.be" as N8N
+    component "Analytics (Vince)\nhost: insights.fullfrontend.be" as Vince
+    component "Mailu (disabled)" as Mailu
+    component "Nextcloud (disabled)" as Nextcloud
+  }
+}
+
+User --> Traefik
+Traefik --> WP
+Traefik --> N8N
+Traefik --> Vince
+Traefik --> Mailu
+Traefik --> Nextcloud
+
+WP --> MariaDB
+N8N --> Postgres
+Vince --> Postgres
+Mailu --> Postgres
+Nextcloud --> Postgres
+
+note right of Traefik
+IngressController (LoadBalancer)
+routes to apps namespace
+end note
+
+note bottom of Postgres
+DB init via init job (admin secret)
+end note
+
+note bottom of MariaDB
+DB init via init job (admin secret)
+end note
+
+legend left
+Prod settings:
+- root_domain_prod = fullfrontend.be
+- Velero -> Spaces bucket
+- external-dns -> DO DNS
+- cert-manager enabled
+endlegend
+
+@enduml
