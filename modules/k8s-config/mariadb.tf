@@ -222,18 +222,15 @@ resource "kubernetes_job" "mariadb_init" {
               done
 
               for i in $(seq 0 $((APP_COUNT-1))); do
-                db_var="DB_$${i}"
-                user_var="DB_USER_$${i}"
-                pass_var="DB_PASSWORD_$${i}"
-                DB_NAME="$${!db_var}"
-                DB_USER="$${!user_var}"
-                DB_PASSWORD="$${!pass_var}"
+                DB_NAME="$(eval echo "\\$DB_$i")"
+                DB_USER="$(eval echo "\\$DB_USER_$i")"
+                DB_PASSWORD="$(eval echo "\\$DB_PASSWORD_$i")"
 
-                DB_NAME_ESC="$(escape_ident "$${DB_NAME}")"
-                DB_USER_ESC="$(escape_literal "$${DB_USER}")"
-                DB_PASSWORD_ESC="$(escape_literal "$${DB_PASSWORD}")"
+                DB_NAME_ESC="$(escape_ident "$DB_NAME")"
+                DB_USER_ESC="$(escape_literal "$DB_USER")"
+                DB_PASSWORD_ESC="$(escape_literal "$DB_PASSWORD")"
 
-                mysql -h "$MARIADB_HOST" -P "$MARIADB_PORT" -u "$MARIADB_ROOT_USER" <<SQL
+                mariadb -h "$MARIADB_HOST" -P "$MARIADB_PORT" -u "$MARIADB_ROOT_USER" <<SQL
 CREATE DATABASE IF NOT EXISTS \`$DB_NAME_ESC\`;
 CREATE USER IF NOT EXISTS '$DB_USER_ESC'@'%' IDENTIFIED BY '$DB_PASSWORD_ESC';
 GRANT ALL PRIVILEGES ON \`$DB_NAME_ESC\`.* TO '$DB_USER_ESC'@'%';
