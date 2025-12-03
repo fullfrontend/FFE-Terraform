@@ -1,6 +1,0 @@
-%{ for app in apps ~}
-CREATE USER IF NOT EXISTS '${app.user}'@'%' IDENTIFIED BY '${app.password}';
-CREATE DATABASE IF NOT EXISTS `${app.db_name}`;
-GRANT ALL PRIVILEGES ON `${app.db_name}`.* TO '${app.user}'@'%';
-FLUSH PRIVILEGES;
-%{ endfor ~}
