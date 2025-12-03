@@ -33,6 +33,7 @@ resource "kubernetes_persistent_volume_claim" "minio_dev" {
 
   spec {
     access_modes = ["ReadWriteOnce"]
+    storage_class_name = ""
     resources {
       requests = {
         storage = "10Gi"

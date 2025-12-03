@@ -94,6 +94,11 @@ resource "kubernetes_stateful_set_v1" "mariadb" {
             }
           }
 
+          volume_mount {
+            name       = "mariadb-data"
+            mount_path = "/var/lib/mysql"
+          }
+
           dynamic "volume_mount" {
             for_each = local.mariadb_init_sql != "" ? [1] : []
             content {
@@ -104,7 +109,7 @@ resource "kubernetes_stateful_set_v1" "mariadb" {
         }
 
         volume {
-          name = "data"
+          name = "mariadb-data"
 
           persistent_volume_claim {
             claim_name = "mariadb-data"

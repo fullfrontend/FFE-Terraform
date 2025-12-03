@@ -28,12 +28,12 @@ resource "helm_release" "velero" {
 
   set = [
     {
-      name  = "configuration.provider"
-      value = "aws"
-    },
-    {
       name  = "configuration.backupStorageLocation[0].name"
       value = "default"
+    },
+    {
+      name  = "configuration.backupStorageLocation[0].provider"
+      value = "aws"
     },
     {
       name  = "configuration.backupStorageLocation[0].bucket"

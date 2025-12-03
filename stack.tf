@@ -8,7 +8,7 @@ locals {
   root_domain      = var.root_domain
   kubeconfig_path  = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
   velero_s3_url    = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
-  storage_class_name  = local.is_prod ? "" : (var.storage_class_name != "" ? var.storage_class_name : "hostpath")
+  storage_class_name  = var.storage_class_name
   analytics_domains        = length(var.analytics_domains) > 0 ? var.analytics_domains : [local.root_domain]
 }
 

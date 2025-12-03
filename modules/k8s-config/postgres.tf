@@ -94,6 +94,11 @@ resource "kubernetes_stateful_set_v1" "postgres" {
             }
           }
 
+          volume_mount {
+            name       = "postgres-data"
+            mount_path = "/var/lib/postgresql/data"
+          }
+
           dynamic "volume_mount" {
             for_each = local.postgres_init_sql != "" ? [1] : []
             content {
@@ -104,7 +109,7 @@ resource "kubernetes_stateful_set_v1" "postgres" {
         }
 
         volume {
-          name = "data"
+          name = "postgres-data"
 
           persistent_volume_claim {
             claim_name = "postgres-data"

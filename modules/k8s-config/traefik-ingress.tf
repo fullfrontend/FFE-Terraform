@@ -13,6 +13,7 @@ locals {
 }
 
 resource "helm_release" "traefik" {
+  count      = var.is_prod ? 1 : 0
   name       = "traefik"
   namespace  = kubernetes_namespace.infra.metadata[0].name
 
