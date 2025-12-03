@@ -421,3 +421,23 @@ variable "storage_class_name" {
   default     = ""
   description = "StorageClass pour les PVC (vide = utiliser la valeur par défaut du cluster)"
 }
+
+# Docker Hub (pull images privées)
+variable "dockerhub_user" {
+  type        = string
+  default     = ""
+  description = "Utilisateur Docker Hub (pour images privées)"
+}
+
+variable "dockerhub_pat" {
+  type        = string
+  default     = ""
+  description = "Token/pat Docker Hub (pour images privées)"
+  sensitive   = true
+}
+
+variable "dockerhub_email" {
+  type        = string
+  default     = ""
+  description = "Email Docker Hub (optionnel, pour le secret dockerconfigjson)"
+}

@@ -83,14 +83,14 @@ module "n8n" {
   source     = "./modules/n8n"
   depends_on = [module.k8s-config]
 
-  host          = format("n8n.%s", local.root_domain)
-  webhook_host  = format("webhook.%s", local.root_domain)
-  db_host       = var.n8n_db_host
-  db_port       = var.n8n_db_port
-  db_name       = var.n8n_db_name
-  db_user       = var.n8n_db_user
-  db_password   = var.n8n_db_password
-  chart_version = var.n8n_chart_version
+  host               = format("n8n.%s", local.root_domain)
+  webhook_host       = format("webhook.%s", local.root_domain)
+  db_host            = var.n8n_db_host
+  db_port            = var.n8n_db_port
+  db_name            = var.n8n_db_name
+  db_user            = var.n8n_db_user
+  db_password        = var.n8n_db_password
+  chart_version      = var.n8n_chart_version
   ingress_class_name = local.ingress_class_name
 }
 
@@ -101,17 +101,20 @@ module "wordpress" {
   source     = "./modules/wordpress"
   depends_on = [module.k8s-config]
 
-  host            = local.root_domain
-  tls_secret_name = var.wp_tls_secret_name
-  db_host         = var.wp_db_host
-  db_port         = var.wp_db_port
-  db_name         = var.wp_db_name
-  db_user         = var.wp_db_user
-  db_password     = var.wp_db_password
-  replicas        = var.wp_replicas
-  storage_size    = var.wp_storage_size
-  image           = var.wp_image
+  host               = local.root_domain
+  tls_secret_name    = var.wp_tls_secret_name
+  db_host            = var.wp_db_host
+  db_port            = var.wp_db_port
+  db_name            = var.wp_db_name
+  db_user            = var.wp_db_user
+  db_password        = var.wp_db_password
+  replicas           = var.wp_replicas
+  storage_size       = var.wp_storage_size
+  image              = var.wp_image
   ingress_class_name = local.ingress_class_name
+  dockerhub_user     = var.dockerhub_user
+  dockerhub_pat      = var.dockerhub_pat
+  dockerhub_email    = var.dockerhub_email
 }
 
 module "nextcloud" {
@@ -123,16 +126,16 @@ module "nextcloud" {
   source     = "./modules/nextcloud"
   depends_on = [module.k8s-config]
 
-  host            = format("cloud.%s", local.root_domain)
-  tls_secret_name = var.nextcloud_tls_secret_name
-  db_host         = var.nextcloud_db_host
-  db_port         = var.nextcloud_db_port
-  db_name         = var.nextcloud_db_name
-  db_user         = var.nextcloud_db_user
-  db_password     = var.nextcloud_db_password
-  replicas        = var.nextcloud_replicas
-  storage_size    = var.nextcloud_storage_size
-  chart_version   = var.nextcloud_chart_version
+  host               = format("cloud.%s", local.root_domain)
+  tls_secret_name    = var.nextcloud_tls_secret_name
+  db_host            = var.nextcloud_db_host
+  db_port            = var.nextcloud_db_port
+  db_name            = var.nextcloud_db_name
+  db_user            = var.nextcloud_db_user
+  db_password        = var.nextcloud_db_password
+  replicas           = var.nextcloud_replicas
+  storage_size       = var.nextcloud_storage_size
+  chart_version      = var.nextcloud_chart_version
   ingress_class_name = local.ingress_class_name
 }
 
@@ -145,18 +148,18 @@ module "mailu" {
   source     = "./modules/mailu"
   depends_on = [module.k8s-config]
 
-  host            = format("mail.%s", local.root_domain)
-  domain          = local.root_domain
-  tls_secret_name = var.mailu_tls_secret_name
-  db_host         = var.mailu_db_host
-  db_port         = var.mailu_db_port
-  db_name         = var.mailu_db_name
-  db_user         = var.mailu_db_user
-  db_password     = var.mailu_db_password
-  secret_key      = var.mailu_secret_key
-  admin_username  = var.mailu_admin_username
-  admin_password  = var.mailu_admin_password
-  chart_version   = var.mailu_chart_version
+  host               = format("mail.%s", local.root_domain)
+  domain             = local.root_domain
+  tls_secret_name    = var.mailu_tls_secret_name
+  db_host            = var.mailu_db_host
+  db_port            = var.mailu_db_port
+  db_name            = var.mailu_db_name
+  db_user            = var.mailu_db_user
+  db_password        = var.mailu_db_password
+  secret_key         = var.mailu_secret_key
+  admin_username     = var.mailu_admin_username
+  admin_password     = var.mailu_admin_password
+  chart_version      = var.mailu_chart_version
   ingress_class_name = local.ingress_class_name
 }
 
@@ -167,11 +170,11 @@ module "analytics" {
   source     = "./modules/analytics"
   depends_on = [module.k8s-config]
 
-  host            = format("insights.%s", local.root_domain)
-  tls_secret_name = var.analytics_tls_secret_name
-  domains         = local.analytics_domains
-  admin_username  = var.analytics_admin_username
-  admin_password  = var.analytics_admin_password
-  chart_version   = var.analytics_chart_version
+  host               = format("insights.%s", local.root_domain)
+  tls_secret_name    = var.analytics_tls_secret_name
+  domains            = local.analytics_domains
+  admin_username     = var.analytics_admin_username
+  admin_password     = var.analytics_admin_password
+  chart_version      = var.analytics_chart_version
   ingress_class_name = local.ingress_class_name
 }

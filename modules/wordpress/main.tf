@@ -34,6 +34,30 @@ resource "kubernetes_config_map" "apache_servername" {
   }
 }
 
+resource "kubernetes_secret" "dockerhub" {
+  count = var.dockerhub_user != "" ? 1 : 0
+
+  metadata {
+    name      = "dockerhub-credentials"
+    namespace = kubernetes_namespace.wordpress.metadata[0].name
+  }
+
+  type = "kubernetes.io/dockerconfigjson"
+
+  data = {
+    ".dockerconfigjson" = base64encode(jsonencode({
+      auths = {
+        "https://index.docker.io/v1/" = {
+          username = var.dockerhub_user
+          password = var.dockerhub_pat
+          email    = var.dockerhub_email
+          auth     = base64encode("${var.dockerhub_user}:${var.dockerhub_pat}")
+        }
+      }
+    }))
+  }
+}
+
 resource "kubernetes_persistent_volume_claim" "wp_content" {
   metadata {
     name      = "wordpress-content"
@@ -82,7 +106,7 @@ resource "kubernetes_deployment" "wordpress" {
       }
 
       spec {
-        container {
+       container {
           name  = "wordpress"
           image = var.image
 
@@ -142,13 +166,13 @@ resource "kubernetes_deployment" "wordpress" {
             mount_path = "/var/www/html"
           }
 
-          volume_mount {
-            name       = "apache-servername"
-            mount_path = "/etc/apache2/conf-enabled/servername.conf"
-            sub_path   = "servername.conf"
-            read_only  = true
-          }
-        }
+         volume_mount {
+           name       = "apache-servername"
+           mount_path = "/etc/apache2/conf-enabled/servername.conf"
+           sub_path   = "servername.conf"
+           read_only  = true
+         }
+       }
 
         volume {
           name = "wordpress-content"
@@ -158,14 +182,21 @@ resource "kubernetes_deployment" "wordpress" {
           }
         }
 
-        volume {
-          name = "apache-servername"
+       volume {
+         name = "apache-servername"
 
-          config_map {
-            name = kubernetes_config_map.apache_servername.metadata[0].name
+         config_map {
+           name = kubernetes_config_map.apache_servername.metadata[0].name
+         }
+       }
+
+        dynamic "image_pull_secrets" {
+          for_each = var.dockerhub_user != "" ? [1] : []
+          content {
+            name = kubernetes_secret.dockerhub[0].metadata[0].name
           }
         }
-      }
+     }
     }
   }
 }

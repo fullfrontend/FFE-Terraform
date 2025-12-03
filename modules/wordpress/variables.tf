@@ -67,3 +67,28 @@ variable "image" {
   default     = "wordpress:6.5-php8.2-apache"
   description = "Image WordPress (officielle, non Bitnami)"
 }
+
+variable "ingress_class_name" {
+  type        = string
+  default     = "traefik"
+  description = "IngressClassName (ex: traefik en prod, nginx en dev)"
+}
+
+variable "dockerhub_user" {
+  type        = string
+  default     = ""
+  description = "Utilisateur Docker Hub (pull image privée)"
+}
+
+variable "dockerhub_pat" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Token/pat Docker Hub (pull image privée)"
+}
+
+variable "dockerhub_email" {
+  type        = string
+  default     = ""
+  description = "Email Docker Hub (optionnel pour le secret dockerconfigjson)"
+}
