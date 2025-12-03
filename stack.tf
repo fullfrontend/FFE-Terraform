@@ -16,6 +16,8 @@ locals {
   storage_class_name = var.storage_class_name
   analytics_domains  = length(var.analytics_domains) > 0 ? var.analytics_domains : [local.root_domain]
   ingress_class_name = local.is_prod ? "traefik" : "nginx"
+  postgres_app_map   = { for app in var.postgres_app_credentials : app.name => app }
+  mariadb_app_map    = { for app in var.mariadb_app_credentials : app.name => app }
 }
 
 module "doks-cluster" {
@@ -80,16 +82,16 @@ module "n8n" {
   /*
       App: n8n (external Postgres)
   */
-  source     = "./modules/n8n"
+  source     = "./modules/n8n-ffe"
   depends_on = [module.k8s-config]
 
   host               = format("n8n.%s", local.root_domain)
   webhook_host       = format("webhook.%s", local.root_domain)
   db_host            = var.n8n_db_host
   db_port            = var.n8n_db_port
-  db_name            = var.n8n_db_name
-  db_user            = var.n8n_db_user
-  db_password        = var.n8n_db_password
+  db_name            = local.postgres_app_map["n8n-ffe"].db_name
+  db_user            = local.postgres_app_map["n8n-ffe"].user
+  db_password        = local.postgres_app_map["n8n-ffe"].password
   chart_version      = var.n8n_chart_version
   ingress_class_name = local.ingress_class_name
 }
@@ -98,16 +100,16 @@ module "wordpress" {
   /*
       App: WordPress (external MariaDB, PVC wp-content)
   */
-  source     = "./modules/wordpress"
+  source     = "./modules/ffe-website"
   depends_on = [module.k8s-config]
 
   host               = local.root_domain
   tls_secret_name    = var.wp_tls_secret_name
   db_host            = var.wp_db_host
   db_port            = var.wp_db_port
-  db_name            = var.wp_db_name
-  db_user            = var.wp_db_user
-  db_password        = var.wp_db_password
+  db_name            = local.mariadb_app_map["ffe-website"].db_name
+  db_user            = local.mariadb_app_map["ffe-website"].user
+  db_password        = local.mariadb_app_map["ffe-website"].password
   replicas           = var.wp_replicas
   storage_size       = var.wp_storage_size
   image              = var.wp_image
@@ -123,16 +125,16 @@ module "nextcloud" {
       App: Nextcloud (external Postgres, PVC data)
   */
   count      = 0
-  source     = "./modules/nextcloud"
+  source     = "./modules/nextcloud-ffe"
   depends_on = [module.k8s-config]
 
   host               = format("cloud.%s", local.root_domain)
   tls_secret_name    = var.nextcloud_tls_secret_name
   db_host            = var.nextcloud_db_host
   db_port            = var.nextcloud_db_port
-  db_name            = var.nextcloud_db_name
-  db_user            = var.nextcloud_db_user
-  db_password        = var.nextcloud_db_password
+  db_name            = local.postgres_app_map["nextcloud-ffe"].db_name
+  db_user            = local.postgres_app_map["nextcloud-ffe"].user
+  db_password        = local.postgres_app_map["nextcloud-ffe"].password
   replicas           = var.nextcloud_replicas
   storage_size       = var.nextcloud_storage_size
   chart_version      = var.nextcloud_chart_version
@@ -145,7 +147,7 @@ module "mailu" {
       App: Mailu (external Postgres, PVC maildir/config)
   */
   count      = 0
-  source     = "./modules/mailu"
+  source     = "./modules/mailu-ffe"
   depends_on = [module.k8s-config]
 
   host               = format("mail.%s", local.root_domain)
@@ -153,9 +155,9 @@ module "mailu" {
   tls_secret_name    = var.mailu_tls_secret_name
   db_host            = var.mailu_db_host
   db_port            = var.mailu_db_port
-  db_name            = var.mailu_db_name
-  db_user            = var.mailu_db_user
-  db_password        = var.mailu_db_password
+  db_name            = local.postgres_app_map["mailu-ffe"].db_name
+  db_user            = local.postgres_app_map["mailu-ffe"].user
+  db_password        = local.postgres_app_map["mailu-ffe"].password
   secret_key         = var.mailu_secret_key
   admin_username     = var.mailu_admin_username
   admin_password     = var.mailu_admin_password
@@ -167,7 +169,7 @@ module "analytics" {
   /*
       App: Vince analytics (ingress + admin bootstrap)
   */
-  source     = "./modules/analytics"
+  source     = "./modules/analytics-ffe"
   depends_on = [module.k8s-config]
 
   host               = format("insights.%s", local.root_domain)

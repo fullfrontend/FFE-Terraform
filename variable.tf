@@ -36,25 +36,6 @@ variable "n8n_db_port" {
   description = "Port Postgres partagé pour n8n"
 }
 
-variable "n8n_db_name" {
-  type        = string
-  default     = "n8n"
-  description = "Nom de base pour n8n"
-}
-
-variable "n8n_db_user" {
-  type        = string
-  default     = "n8n"
-  description = "Utilisateur Postgres pour n8n"
-}
-
-variable "n8n_db_password" {
-  type        = string
-  default     = ""
-  description = "Mot de passe Postgres pour n8n (à définir)"
-  sensitive   = true
-}
-
 variable "n8n_chart_version" {
   type        = string
   default     = ""
@@ -78,25 +59,6 @@ variable "wp_db_port" {
   type        = number
   default     = 3306
   description = "Port MariaDB pour WordPress"
-}
-
-variable "wp_db_name" {
-  type        = string
-  default     = "wordpress"
-  description = "Nom de base pour WordPress"
-}
-
-variable "wp_db_user" {
-  type        = string
-  default     = "wordpress"
-  description = "Utilisateur MariaDB pour WordPress"
-}
-
-variable "wp_db_password" {
-  type        = string
-  default     = ""
-  description = "Mot de passe MariaDB pour WordPress (à définir)"
-  sensitive   = true
 }
 
 variable "wp_replicas" {
@@ -136,25 +98,6 @@ variable "nextcloud_db_port" {
   description = "Port Postgres pour Nextcloud"
 }
 
-variable "nextcloud_db_name" {
-  type        = string
-  default     = "nextcloud"
-  description = "Nom de base Postgres pour Nextcloud"
-}
-
-variable "nextcloud_db_user" {
-  type        = string
-  default     = "nextcloud"
-  description = "Utilisateur Postgres pour Nextcloud"
-}
-
-variable "nextcloud_db_password" {
-  type        = string
-  default     = ""
-  description = "Mot de passe Postgres pour Nextcloud"
-  sensitive   = true
-}
-
 variable "nextcloud_replicas" {
   type        = number
   default     = 1
@@ -190,25 +133,6 @@ variable "mailu_db_port" {
   type        = number
   default     = 5432
   description = "Port Postgres pour Mailu"
-}
-
-variable "mailu_db_name" {
-  type        = string
-  default     = "mailu"
-  description = "Nom de base Postgres pour Mailu"
-}
-
-variable "mailu_db_user" {
-  type        = string
-  default     = "mailu"
-  description = "Utilisateur Postgres pour Mailu"
-}
-
-variable "mailu_db_password" {
-  type        = string
-  default     = ""
-  description = "Mot de passe Postgres pour Mailu"
-  sensitive   = true
 }
 
 variable "mailu_secret_key" {
