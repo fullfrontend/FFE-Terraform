@@ -1,3 +1,8 @@
+/*
+    Core namespaces:
+    - infra (ingress/ops)
+    - data (databases)
+*/
 resource "kubernetes_namespace" "infra" {
   metadata {
     name = "infra"

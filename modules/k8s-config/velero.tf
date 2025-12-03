@@ -1,3 +1,9 @@
+/*
+    Velero backups:
+    - Spaces in prod
+    - MinIO in dev
+    Credentials injected via secret
+*/
 resource "kubernetes_secret" "velero" {
   count = var.enable_velero ? 1 : 0
 

@@ -12,6 +12,11 @@ resource "helm_release" "mailu" {
   name       = "mailu"
   namespace  = kubernetes_namespace.mailu.metadata[0].name
 
+  /*
+      Mailu helm chart wired to:
+      - external Postgres
+      - Traefik ingress
+  */
   repository      = "https://mailu.github.io/helm-charts/"
   chart           = "mailu"
   version         = var.chart_version != "" ? var.chart_version : null

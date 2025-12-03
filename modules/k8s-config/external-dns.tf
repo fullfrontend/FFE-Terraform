@@ -1,3 +1,7 @@
+/*
+    external-dns only in prod:
+    sync ingress hosts to DigitalOcean DNS
+*/
 resource "helm_release" "external_dns" {
   count      = var.is_prod ? 1 : 0
   name       = "external-dns"

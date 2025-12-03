@@ -59,6 +59,14 @@ Pour le cadre global et les règles :
 - Chart Helm officiel `vince` (repo `https://vinceanalytics.com/charts`), `baseURL=https://<host>`, domaines pré-ajoutés (`analytics_domains`, par défaut root_domain).
 - Admin initial (user/pass) injecté via SOPS (secrets uniques pour dev/prod).
 
+## Commentaire code
+- Favoriser les commentaires multi-lignes au format :
+  ```
+  /*
+      Your comment here
+  */
+  ```
+
 ## Backups Velero
 - Prod : bucket DO Spaces auto-créé, backup quotidien 03:00, rétention 30 jours.
 - Dev : MinIO + hostPath `./data/<cluster_name>` (git-ignoré), même planification, avec clés dédiées MinIO (pas les clés Spaces).

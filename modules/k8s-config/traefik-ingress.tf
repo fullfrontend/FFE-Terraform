@@ -1,3 +1,8 @@
+/*
+    Traefik ingress controller via Helm
+    - LoadBalancer in prod
+    - NodePort in dev
+*/
 locals {
   traefik_service_type = var.is_prod ? "LoadBalancer" : "NodePort"
   traefik_sets_prod = [

@@ -12,6 +12,11 @@ resource "helm_release" "nextcloud" {
   name       = "nextcloud"
   namespace  = kubernetes_namespace.nextcloud.metadata[0].name
 
+  /*
+      Nextcloud chart configured for:
+      - external Postgres
+      - Traefik ingress
+  */
   repository      = "https://nextcloud.github.io/helm/"
   chart           = "nextcloud"
   version         = var.chart_version != "" ? var.chart_version : null

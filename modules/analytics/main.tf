@@ -22,6 +22,11 @@ resource "helm_release" "vince" {
   name       = "vince"
   namespace  = kubernetes_namespace.analytics.metadata[0].name
 
+  /*
+      Vince analytics helm chart with:
+      - pre-seeded domains
+      - admin credentials
+  */
   repository      = "https://vinceanalytics.com/charts"
   chart           = "vince"
   version         = var.chart_version != "" ? var.chart_version : null

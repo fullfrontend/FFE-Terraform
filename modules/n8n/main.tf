@@ -12,6 +12,11 @@ resource "helm_release" "n8n" {
   name       = "n8n"
   namespace  = kubernetes_namespace.n8n.metadata[0].name
 
+  /*
+      n8n Helm chart configured for:
+      - external Postgres
+      - Redis queue mode
+  */
   repository      = "https://community-charts.github.io/helm-charts"
   chart           = "n8n"
   version         = var.chart_version != "" ? var.chart_version : null

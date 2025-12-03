@@ -1,6 +1,9 @@
 data "digitalocean_kubernetes_versions" "current" {}
 
-
+/*
+    DOKS cluster with autoscaling node pool
+    Attached to DO project, Spaces bucket for Velero
+*/
 resource "digitalocean_kubernetes_cluster" "k8s" {
   name    = var.name
   region  = var.region

@@ -53,6 +53,13 @@ resource "kubernetes_job" "postgres_init" {
       spec {
         restart_policy = "OnFailure"
 
+/*
+    One-shot init:
+    - reads app creds from secret
+    - waits for Postgres
+    - creates roles + databases
+    - TTL removes the Job when done
+*/
         container {
           name  = "init"
           image = var.postgres_image

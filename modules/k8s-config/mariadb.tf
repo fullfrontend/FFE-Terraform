@@ -75,6 +75,11 @@ resource "kubernetes_stateful_set_v1" "mariadb" {
       }
 
       spec {
+        /*
+            StatefulSet for MariaDB
+            - only root password here
+            - app DB/users handled by init Job
+        */
         container {
           name  = "mariadb"
           image = var.mariadb_image
@@ -179,6 +184,12 @@ resource "kubernetes_job" "mariadb_init" {
       spec {
         restart_policy = "OnFailure"
 
+        /*
+            One-shot init:
+            - waits for MariaDB
+            - creates DB/user per app from secret
+            - TTL cleans up the Job
+        */
         container {
           name  = "init"
           image = var.mariadb_image

@@ -60,6 +60,11 @@ resource "kubernetes_deployment" "wordpress" {
     }
   }
 
+  /*
+      Vanilla WordPress deployment:
+      - external MariaDB
+      - PVC for wp-content
+  */
   spec {
     replicas = var.replicas
 

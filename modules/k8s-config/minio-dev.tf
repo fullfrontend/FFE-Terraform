@@ -1,3 +1,7 @@
+/*
+    MinIO dev target for Velero (hostPath PVC)
+    Disabled when prod or Velero is off
+*/
 locals {
   minio_s3_url = "http://minio-dev.${kubernetes_namespace.infra.metadata[0].name}.svc.cluster.local:9000"
 }
