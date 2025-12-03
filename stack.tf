@@ -178,3 +178,17 @@ module "analytics" {
   chart_version      = var.analytics_chart_version
   ingress_class_name = local.ingress_class_name
 }
+
+module "registry" {
+  /*
+      Private OCI/Docker registry (zot)
+  */
+  source     = "./modules/registry"
+  depends_on = [module.k8s-config]
+
+  host               = format("registry.%s", local.root_domain)
+  tls_secret_name    = "registry-tls"
+  storage_size       = "20Gi"
+  htpasswd_entry     = var.registry_htpasswd
+  ingress_class_name = local.ingress_class_name
+}

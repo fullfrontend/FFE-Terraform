@@ -441,3 +441,11 @@ variable "dockerhub_email" {
   default     = ""
   description = "Email Docker Hub (optionnel, pour le secret dockerconfigjson)"
 }
+
+# Registry (zot) privé
+variable "registry_htpasswd" {
+  type        = string
+  default     = ""
+  description = "Entrée htpasswd (ex: user:$2y$... bcrypted) pour l'accès au registre privé"
+  sensitive   = true
+}

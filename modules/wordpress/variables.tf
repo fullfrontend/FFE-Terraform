@@ -68,12 +68,6 @@ variable "image" {
   description = "Image WordPress (officielle, non Bitnami)"
 }
 
-variable "ingress_class_name" {
-  type        = string
-  default     = "traefik"
-  description = "IngressClassName (ex: traefik en prod, nginx en dev)"
-}
-
 variable "dockerhub_user" {
   type        = string
   default     = ""
