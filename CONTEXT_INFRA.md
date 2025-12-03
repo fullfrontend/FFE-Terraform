@@ -40,7 +40,7 @@ Kubernetes (DOKS)
 ## Organisation des modules
 - `k8s-config` : uniquement infra/data (Traefik, cert-manager, external-dns, Velero, namespaces infra/data).
 - Chaque application : module dédié qui crée son namespace dans `apps`.
-- Domaine principal : variable unique `root_domain` (ex: fullfrontend.test) pour dériver les FQDN par défaut :
+- Domaine principal : dérivé automatiquement de l’environnement (prod: `fullfrontend.be`, dev: `fullfrontend.kube`) pour les FQDN par défaut :
   - WordPress : `<root_domain>`
   - n8n : `n8n.<root_domain>` ; webhooks : `webhook.<root_domain>`
   - Nextcloud : `cloud.<root_domain>`

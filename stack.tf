@@ -5,7 +5,7 @@ resource "random_id" "cluster_name" {
 locals {
   is_prod          = var.app_env == "prod"
   cluster_name     = local.is_prod ? "${var.doks_name}-${random_id.cluster_name.hex}" : "docker-desktop"
-  root_domain      = var.root_domain
+  root_domain      = local.is_prod ? "fullfrontend.be" : "fullfrontend.kube"
   kubeconfig_path  = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
   velero_s3_url    = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
   storage_class_name  = var.storage_class_name

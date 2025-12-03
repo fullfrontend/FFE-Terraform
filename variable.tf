@@ -11,12 +11,6 @@ variable "app_env" {
 }
 
 # Domaine racine commun (ex: fullfrontend.test)
-variable "root_domain" {
-  type        = string
-  default     = "fullfrontend.test"
-  description = "Domaine principal pour les hosts des apps"
-}
-
 # N8N (base de données Postgres externe)
 variable "n8n_db_host" {
   type        = string
