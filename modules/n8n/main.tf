@@ -28,19 +28,19 @@ resource "helm_release" "n8n" {
       value = false
     },
     {
-      name  = "externalDatabase.host"
+      name  = "externalPostgresql.host"
       value = var.db_host
     },
     {
-      name  = "externalDatabase.port"
+      name  = "externalPostgresql.port"
       value = var.db_port
     },
     {
-      name  = "externalDatabase.database"
+      name  = "externalPostgresql.database"
       value = var.db_name
     },
     {
-      name  = "externalDatabase.user"
+      name  = "externalPostgresql.username"
       value = var.db_user
     },
     {
@@ -52,7 +52,15 @@ resource "helm_release" "n8n" {
       value = var.host
     },
     {
-      name = "ingress.ingressClassName"
+      name  = "ingress.hosts[0].paths[0].path"
+      value = "/"
+    },
+    {
+      name  = "ingress.hosts[0].paths[0].pathType"
+      value = "Prefix"
+    },
+    {
+      name  = "ingress.className"
       value = "traefik"
     },
     {
@@ -76,26 +84,18 @@ resource "helm_release" "n8n" {
       value = "https://${var.webhook_host}"
     },
     {
-      name  = "extraEnv[0].name"
-      value = "GENERIC_TIMEZONE"
-    },
-    {
-      name  = "extraEnv[0].value"
+      name  = "main.extraEnvVars.GENERIC_TIMEZONE"
       value = "Europe/Brussels"
     },
     {
-      name  = "extraEnv[1].name"
-      value = "N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE"
-    },
-    {
-      name  = "extraEnv[1].value"
+      name  = "main.extraEnvVars.N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE"
       value = "true"
     },
   ]
 
   set_sensitive = [
     {
-      name  = "externalDatabase.password"
+      name  = "externalPostgresql.password"
       value = var.db_password
     }
   ]
