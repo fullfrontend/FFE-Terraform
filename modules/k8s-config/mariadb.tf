@@ -216,7 +216,7 @@ resource "kubernetes_job" "mariadb_init" {
               escape_literal() { printf "%s" "$1" | sed "s/'/''/g"; }
 
               export MYSQL_PWD="$MARIADB_ROOT_PASSWORD"
-              until mysqladmin ping -h "$MARIADB_HOST" -P "$MARIADB_PORT" -u "$MARIADB_ROOT_USER" --silent; do
+              until mariadb -h "$MARIADB_HOST" -P "$MARIADB_PORT" -u "$MARIADB_ROOT_USER" -e "SELECT 1" >/dev/null 2>&1; do
                 echo "Waiting for mariadb at $MARIADB_HOST:$MARIADB_PORT"
                 sleep 2
               done
