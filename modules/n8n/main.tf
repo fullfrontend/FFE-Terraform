@@ -95,7 +95,7 @@ resource "helm_release" "n8n" {
     {
       name  = "main.extraEnvVars.N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE"
       value = "true"
-    },
+    }
   ]
 
   set_sensitive = [

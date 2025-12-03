@@ -1,9 +1,8 @@
 locals {
   postgres_init_creds = length(var.postgres_app_credentials) > 0 ? merge(
-    { app_count = tostring(length(var.postgres_app_credentials)) },
-    { for idx, app in var.postgres_app_credentials : "db_${idx}" => app.db_name },
-    { for idx, app in var.postgres_app_credentials : "user_${idx}" => app.user },
-    { for idx, app in var.postgres_app_credentials : "password_${idx}" => app.password }
+    { for idx, app in var.postgres_app_credentials : "DB_${idx}" => app.db_name },
+    { for idx, app in var.postgres_app_credentials : "DB_USER_${idx}" => app.user },
+    { for idx, app in var.postgres_app_credentials : "DB_PASSWORD_${idx}" => app.password }
   ) : {}
 }
 
@@ -79,9 +78,18 @@ resource "kubernetes_job" "postgres_init" {
               done
               escape_sql() { printf "%s" "$1" | sed "s/'/''/g"; }
               for i in $(seq 0 $((APP_COUNT-1))); do
-                db_name="$(eval echo "\\$DB_$i")"
-                db_user="$(eval echo "\\$DB_USER_$i")"
-                db_password="$(eval echo "\\$DB_PASSWORD_$i")"
+                db_var=$(printf 'DB_%s' "$i")
+                user_var=$(printf 'DB_USER_%s' "$i")
+                pass_var=$(printf 'DB_PASSWORD_%s' "$i")
+
+                db_name="$(printenv "$db_var")"
+                db_user="$(printenv "$user_var")"
+                db_password="$(printenv "$pass_var")"
+
+                if [ -z "$db_name" ] || [ -z "$db_user" ] || [ -z "$db_password" ]; then
+                  echo "Missing creds for index $i (db=$db_name user=$db_user), skipping"
+                  continue
+                fi
 
                 db_q="$(escape_sql "$db_name")"
                 user_q="$(escape_sql "$db_user")"
@@ -132,51 +140,13 @@ SQL
           }
 
           env {
-            name = "APP_COUNT"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.postgres_init[0].metadata[0].name
-                key  = "app_count"
-              }
-            }
+            name  = "APP_COUNT"
+            value = tostring(length(var.postgres_app_credentials))
           }
 
-          dynamic "env" {
-            for_each = { for idx in range(length(var.postgres_app_credentials)) : idx => idx }
-            content {
-              name = "DB_${env.key}"
-              value_from {
-                secret_key_ref {
-                  name = kubernetes_secret.postgres_init[0].metadata[0].name
-                  key  = "db_${env.key}"
-                }
-              }
-            }
-          }
-
-          dynamic "env" {
-            for_each = { for idx in range(length(var.postgres_app_credentials)) : idx => idx }
-            content {
-              name = "DB_USER_${env.key}"
-              value_from {
-                secret_key_ref {
-                  name = kubernetes_secret.postgres_init[0].metadata[0].name
-                  key  = "user_${env.key}"
-                }
-              }
-            }
-          }
-
-          dynamic "env" {
-            for_each = { for idx in range(length(var.postgres_app_credentials)) : idx => idx }
-            content {
-              name = "DB_PASSWORD_${env.key}"
-              value_from {
-                secret_key_ref {
-                  name = kubernetes_secret.postgres_init[0].metadata[0].name
-                  key  = "password_${env.key}"
-                }
-              }
+          env_from {
+            secret_ref {
+              name = kubernetes_secret.postgres_init[0].metadata[0].name
             }
           }
         }
