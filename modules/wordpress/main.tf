@@ -23,6 +23,17 @@ resource "kubernetes_secret" "db" {
   }
 }
 
+resource "kubernetes_config_map" "apache_servername" {
+  metadata {
+    name      = "wordpress-apache-servername"
+    namespace = kubernetes_namespace.wordpress.metadata[0].name
+  }
+
+  data = {
+    "servername.conf" = "ServerName ${var.host}"
+  }
+}
+
 resource "kubernetes_persistent_volume_claim" "wp_content" {
   metadata {
     name      = "wordpress-content"
@@ -125,6 +136,13 @@ resource "kubernetes_deployment" "wordpress" {
             name       = "wordpress-content"
             mount_path = "/var/www/html"
           }
+
+          volume_mount {
+            name       = "apache-servername"
+            mount_path = "/etc/apache2/conf-enabled/servername.conf"
+            sub_path   = "servername.conf"
+            read_only  = true
+          }
         }
 
         volume {
@@ -132,6 +150,14 @@ resource "kubernetes_deployment" "wordpress" {
 
           persistent_volume_claim {
             claim_name = kubernetes_persistent_volume_claim.wp_content.metadata[0].name
+          }
+        }
+
+        volume {
+          name = "apache-servername"
+
+          config_map {
+            name = kubernetes_config_map.apache_servername.metadata[0].name
           }
         }
       }
