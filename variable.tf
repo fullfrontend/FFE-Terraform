@@ -373,3 +373,47 @@ variable "registry_htpasswd" {
   description = "Entrée htpasswd (ex: user:$2y$... bcrypted) pour l'accès au registre privé"
   sensitive   = true
 }
+
+variable "registry_storage_backend" {
+  type        = string
+  default     = "local"
+  description = "Backend du registre: local (PVC) ou s3 (Spaces/MinIO)"
+}
+
+variable "registry_s3_endpoint" {
+  type        = string
+  default     = ""
+  description = "Endpoint S3 pour le registre (ex: https://nyc3.digitaloceanspaces.com ou http://minio.data.svc.cluster.local:9000)"
+}
+
+variable "registry_s3_region" {
+  type        = string
+  default     = ""
+  description = "Région S3 (ex: nyc3)"
+}
+
+variable "registry_s3_bucket" {
+  type        = string
+  default     = ""
+  description = "Bucket S3 utilisé par le registre"
+}
+
+variable "registry_s3_access_key" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Access key S3 (Spaces/MinIO)"
+}
+
+variable "registry_s3_secret_key" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Secret key S3 (Spaces/MinIO)"
+}
+
+variable "registry_s3_secure" {
+  type        = bool
+  default     = true
+  description = "true si endpoint HTTPS, false si MinIO HTTP"
+}

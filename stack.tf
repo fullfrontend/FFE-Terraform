@@ -193,4 +193,11 @@ module "registry" {
   storage_size       = "20Gi"
   htpasswd_entry     = var.registry_htpasswd
   ingress_class_name = local.ingress_class_name
+  storage_backend    = var.registry_storage_backend
+  s3_endpoint        = var.registry_s3_endpoint
+  s3_region          = var.registry_s3_region
+  s3_bucket          = var.registry_s3_bucket
+  s3_access_key      = var.registry_s3_access_key
+  s3_secret_key      = var.registry_s3_secret_key
+  s3_secure          = var.registry_s3_secure
 }

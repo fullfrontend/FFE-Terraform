@@ -1,3 +1,25 @@
+locals {
+  use_s3                = var.storage_backend == "s3"
+  s3_endpoint_effective = var.s3_endpoint != "" ? var.s3_endpoint : (var.s3_region != "" ? format("https://%s.digitaloceanspaces.com", var.s3_region) : "")
+  storage_block = local.use_s3 ? {
+    rootDirectory = "/var/lib/registry"
+    driver        = "s3"
+    s3 = {
+      bucket    = var.s3_bucket
+      region    = var.s3_region
+      endpoint  = local.s3_endpoint_effective
+      accessKey = var.s3_access_key
+      secretKey = var.s3_secret_key
+      secure    = var.s3_secure
+    }
+  } : {
+    rootDirectory = "/var/lib/registry"
+    driver        = "local"
+    s3            = null
+  }
+  registry_auth_enabled = var.htpasswd_entry != ""
+}
+
 resource "kubernetes_namespace" "registry" {
   metadata {
     name = var.namespace
@@ -21,7 +43,7 @@ resource "kubernetes_secret" "htpasswd" {
   }
 }
 
-resource "kubernetes_config_map" "config" {
+resource "kubernetes_secret" "config" {
   metadata {
     name      = "registry-config"
     namespace = kubernetes_namespace.registry.metadata[0].name
@@ -29,9 +51,7 @@ resource "kubernetes_config_map" "config" {
 
   data = {
     "config.json" = jsonencode({
-      storage = {
-        rootDirectory = "/var/lib/registry"
-      }
+      storage = local.storage_block
       http = {
         address = "0.0.0.0"
         port    = "5000"
@@ -39,9 +59,9 @@ resource "kubernetes_config_map" "config" {
       log = {
         level = "info"
       }
-      auth = var.htpasswd_entry != "" ? {
+      auth = local.registry_auth_enabled ? {
         htpasswd = {
-          path = "/etc/zot/htpasswd"
+          path = "/etc/zot-auth/htpasswd"
         }
       } : null
     })
@@ -49,6 +69,8 @@ resource "kubernetes_config_map" "config" {
 }
 
 resource "kubernetes_persistent_volume_claim" "data" {
+  count = local.use_s3 ? 0 : 1
+
   metadata {
     name      = "registry-data"
     namespace = kubernetes_namespace.registry.metadata[0].name
@@ -68,6 +90,13 @@ resource "kubernetes_persistent_volume_claim" "data" {
 }
 
 resource "kubernetes_deployment" "registry" {
+  lifecycle {
+    precondition {
+      condition = !(local.use_s3 && (var.s3_bucket == "" || local.s3_endpoint_effective == "" || var.s3_access_key == "" || var.s3_secret_key == ""))
+      error_message = "S3 backend requires s3_endpoint/region (or endpoint override), s3_bucket, s3_access_key, s3_secret_key."
+    }
+  }
+
   metadata {
     name      = "registry"
     namespace = kubernetes_namespace.registry.metadata[0].name
@@ -111,17 +140,19 @@ resource "kubernetes_deployment" "registry" {
             mount_path = "/etc/zot"
           }
 
-          volume_mount {
-            name       = "data"
-            mount_path = "/var/lib/registry"
+          dynamic "volume_mount" {
+            for_each = local.use_s3 ? [] : [1]
+            content {
+              name       = "data"
+              mount_path = "/var/lib/registry"
+            }
           }
 
           dynamic "volume_mount" {
             for_each = var.htpasswd_entry != "" ? [1] : []
             content {
               name       = "htpasswd"
-              mount_path = "/etc/zot/htpasswd"
-              sub_path   = "htpasswd"
+              mount_path = "/etc/zot-auth"
               read_only  = true
             }
           }
@@ -130,16 +161,19 @@ resource "kubernetes_deployment" "registry" {
         volume {
           name = "config"
 
-          config_map {
-            name = kubernetes_config_map.config.metadata[0].name
+          secret {
+            secret_name = kubernetes_secret.config.metadata[0].name
           }
         }
 
-        volume {
-          name = "data"
+        dynamic "volume" {
+          for_each = local.use_s3 ? [] : [1]
+          content {
+            name = "data"
 
-          persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim.data.metadata[0].name
+            persistent_volume_claim {
+              claim_name = kubernetes_persistent_volume_claim.data[0].metadata[0].name
+            }
           }
         }
 
