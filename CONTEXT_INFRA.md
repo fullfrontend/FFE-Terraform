@@ -43,6 +43,7 @@ Ne pas utiliser Spaces comme volume POSIX principal pour DB/Nextcloud.
 Kubernetes (DOKS)  
 ├── Namespace infra : ingress-controller, cert-manager, external-dns, monitoring/logging, velero/backups  
 ├── Namespace data : postgres (statefulset + pvc), mariadb (statefulset + pvc)  
+├── Namespace metrics : monitoring/alerting (kube-prometheus-stack)  
 └── Namespace apps : wordpress, n8n, crm, nextcloud, mailu, registry
 
 ## Organisation des modules

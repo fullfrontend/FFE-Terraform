@@ -50,6 +50,9 @@ Pour le cadre global et les règles :
   - Analytics : `insights.<root_domain>` → prod `insights.fullfrontend.be`, dev `insights.fullfrontend.kube`
   - Registry (Zot) : `registry.<root_domain>` → prod `registry.fullfrontend.be`, dev `registry.fullfrontend.kube`
 
+## Monitoring
+- `kube-prometheus-stack` déployé (prod) dans le namespace `metrics` (toggle : `enable_kube_prometheus_stack=true`).
+
 ## Bonnes pratiques
 - Pas de charts/images Bitnami.
 - Ajout d’app : module dédié (namespace `apps/<app>`), ingress Traefik, entrée DB dans `postgres_app_credentials`/`mariadb_app_credentials` (créer DB+user manuellement si DB déjà en place).

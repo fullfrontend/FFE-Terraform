@@ -23,6 +23,7 @@ Secrets (SOPS/age)
 
 Architecture cible  
 Namespaces : infra (traefik, cert-manager, external-dns, velero), data (postgres, mariadb), apps (wordpress, n8n, crm, nextcloud, mailu, analytics).  
+Namespace metrics : kube-prometheus-stack (monitoring/alerting).  
 Stockage : PVC pour stateful (Postgres/MariaDB, Nextcloud data, wp-content, Mailu), objet pour médias/backups/S3 externes Nextcloud.  
 Domaines par défaut (`root_domain`) — non override : prod `root_domain_prod` (défaut `fullfrontend.be`), dev `root_domain_dev` (défaut `fullfrontend.kube`)  
 - wordpress `<root_domain>`  

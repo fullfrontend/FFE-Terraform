@@ -58,6 +58,7 @@ module "k8s-config" {
   is_prod             = local.is_prod
   kubeconfig_path     = local.kubeconfig_path
   enable_cert_manager = local.is_prod
+  enable_kube_prometheus_stack = true
 
   enable_velero     = true
   velero_bucket     = var.velero_bucket
