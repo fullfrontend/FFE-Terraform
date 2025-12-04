@@ -25,7 +25,7 @@ locals {
     Disabled in dev (local cluster)
 */
 module "doks-cluster" {
-  count            = local.is_prod && var.create_doks_cluster ? 1 : 0
+  count            = local.is_prod ? 1 : 0
   source           = "./modules/doks-cluster"
   name             = local.cluster_name
   region           = var.doks_region

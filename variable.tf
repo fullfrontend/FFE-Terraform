@@ -252,12 +252,6 @@ variable "doks_name" {
   description = "K8S Cluster name"
 }
 
-variable "create_doks_cluster" {
-  type        = bool
-  default     = false
-  description = "Créer le cluster DOKS (false si déjà existant pour ne provisionner que K8s)"
-}
-
 variable "doks_node_size" {
   type        = string
   default     = "s-1vcpu-2gb"
