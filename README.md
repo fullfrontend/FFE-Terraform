@@ -70,8 +70,6 @@ Pour le cadre global et les règles :
   ```
 
 ## Backups Velero
-- Prod : bucket DO Spaces auto-créé, backup quotidien 03:00, rétention 30 jours (exporter `SPACES_ACCESS_KEY_ID` / `SPACES_SECRET_ACCESS_KEY`).
-- Dev : MinIO + hostPath `./data/<cluster_name>` (git-ignoré), même planification, avec clés dédiées MinIO (pas les clés Spaces).
 - TODO : générer une paire d’Access/Secret Keys Spaces dédiée à Velero via le panel DO (non gérable par Terraform), puis les mettre dans `secrets.tfvars` chiffré.
 
 ## TLS en dev (cluster local)
