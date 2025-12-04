@@ -6,12 +6,15 @@ skinparam componentStyle rectangle
 
 actor User
 
-node "DigitalOcean\nKubernetes (DOKS)" {
+rectangle "DigitalOcean DNS" as DODNS
+database "DO Spaces\n(Velero backups)" as Spaces
+
+node "Kubernetes (DOKS)\nnode pool autoscaling" {
   frame "infra namespace" {
-    component Traefik
+    component "Traefik\n(LoadBalancer ingress)" as Traefik
     component "cert-manager"
     component "external-dns"
-    component "Velero\n(Spaces backup)"
+    component "Velero"
   }
 
   frame "data namespace" {
@@ -23,8 +26,9 @@ node "DigitalOcean\nKubernetes (DOKS)" {
     component "WordPress\nhost: fullfrontend.be" as WP
     component "n8n\nhosts: n8n.fullfrontend.be\nwebhook.fullfrontend.be" as N8N
     component "Analytics (Vince)\nhost: insights.fullfrontend.be" as Vince
-    component "Mailu (disabled)" as Mailu
-    component "Nextcloud (disabled)" as Nextcloud
+    component "Registry (Zot)\nhost: registry.fullfrontend.be" as Zot
+    component "Mailu (planned)" as Mailu
+    component "Nextcloud (planned)" as Nextcloud
   }
 }
 
@@ -32,6 +36,7 @@ User --> Traefik
 Traefik --> WP
 Traefik --> N8N
 Traefik --> Vince
+Traefik --> Zot
 Traefik --> Mailu
 Traefik --> Nextcloud
 
@@ -40,6 +45,10 @@ N8N --> Postgres
 Vince --> Postgres
 Mailu --> Postgres
 Nextcloud --> Postgres
+Zot --> Postgres
+
+"external-dns" --> DODNS
+Velero --> Spaces
 
 note right of Traefik
 IngressController (LoadBalancer)
@@ -60,6 +69,7 @@ Prod settings:
 - Velero -> Spaces bucket
 - external-dns -> DO DNS
 - cert-manager enabled
+- Registry exposed via ingress
 endlegend
 
 @enduml
