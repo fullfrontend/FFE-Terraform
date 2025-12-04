@@ -47,6 +47,7 @@ Pour le cadre global et les règles :
   - Nextcloud : `cloud.<root_domain>` → prod `cloud.fullfrontend.be`, dev `cloud.fullfrontend.kube`
   - Mailu : `mail.<root_domain>` → prod `mail.fullfrontend.be`, dev `mail.fullfrontend.kube`
   - Analytics : `insights.<root_domain>` → prod `insights.fullfrontend.be`, dev `insights.fullfrontend.kube`
+  - Registry (Zot) : `registry.<root_domain>` → prod `registry.fullfrontend.be`, dev `registry.fullfrontend.kube`
 
 ## Bonnes pratiques
 - Pas de charts/images Bitnami.

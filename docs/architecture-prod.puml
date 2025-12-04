@@ -27,8 +27,8 @@ node "Kubernetes (DOKS)\nnode pool autoscaling" {
     component "n8n\nhosts: n8n.fullfrontend.be\nwebhook.fullfrontend.be" as N8N
     component "Analytics (Vince)\nhost: insights.fullfrontend.be" as Vince
     component "Registry (Zot)\nhost: registry.fullfrontend.be" as Zot
-    component "Mailu (planned)" as Mailu
     component "Nextcloud (planned)" as Nextcloud
+    component "Mailu (planned)" as Mailu
   }
 }
 
@@ -43,9 +43,9 @@ Traefik --> Nextcloud
 WP --> MariaDB
 N8N --> Postgres
 Vince --> Postgres
+Zot --> Postgres
 Mailu --> Postgres
 Nextcloud --> Postgres
-Zot --> Postgres
 
 "external-dns" --> DODNS
 Velero --> Spaces
@@ -69,7 +69,7 @@ Prod settings:
 - Velero -> Spaces bucket
 - external-dns -> DO DNS
 - cert-manager enabled
-- Registry exposed via ingress
+-- Registry exposed via ingress (Zot)
 endlegend
 
 @enduml
