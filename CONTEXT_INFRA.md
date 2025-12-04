@@ -20,6 +20,7 @@ Migrer l’infrastructure existante vers un cluster Kubernetes DigitalOcean (DOK
 - Stockage POSIX : CSI DigitalOcean Block Storage (PVC)
 - Stockage objet : DigitalOcean Spaces (S3)
 - Backups : Velero (backups uniquement vers Spaces)
+- Registry privé : Zot exposé via ingress (`registry.<root_domain>`)
 - Interdit : images/charts Bitnami (licence payante)
 
 ## Stockage
@@ -36,7 +37,7 @@ Ne pas utiliser Spaces comme volume POSIX principal pour DB/Nextcloud.
 Kubernetes (DOKS)  
 ├── Namespace infra : ingress-controller, cert-manager, external-dns, monitoring/logging, velero/backups  
 ├── Namespace data : postgres (statefulset + pvc), mariadb (statefulset + pvc)  
-└── Namespace apps : wordpress, n8n, crm, nextcloud, mailu
+└── Namespace apps : wordpress, n8n, crm, nextcloud, mailu, registry
 
 ## Organisation des modules
 - `k8s-config` : uniquement infra/data (Traefik, cert-manager, external-dns, Velero, namespaces infra/data).
@@ -47,9 +48,10 @@ Kubernetes (DOKS)
   - Nextcloud : `cloud.<root_domain>`
   - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
   - Analytics : `insights.<root_domain>`
+  - Registry : `registry.<root_domain>`
   - FQDN non override : dérivés uniquement de `root_domain`.
-- Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, kubeconfig généré dans `${path.root}/.kube/config` ; `dev` = cluster local (ex: docker-desktop), pas de cluster DOKS ni cert-manager, kubeconfig `~/.kube/config`).
-- Velero : toujours déployé (prod → Spaces, dev → MinIO hostPath), planification quotidienne 03:00, rétention 30 jours.
+- Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, kubeconfig à récupérer puis écrire dans `${path.root}/.kube/config` via `doctl kubernetes cluster kubeconfig save ...`; `dev` = cluster local (ex: docker-desktop), pas de cluster DOKS ni cert-manager, kubeconfig `~/.kube/config`).
+- Velero : toujours déployé (prod → Spaces, dev → MinIO hostPath), planification quotidienne 03:00, rétention 30 jours (clés DO Spaces nécessaires pour créer le bucket).
 - Velero : toujours déployé en prod ; en dev, activé avec MinIO hostPath.
 
 ## Applications (règles et domaines)
@@ -58,6 +60,7 @@ Kubernetes (DOKS)
 - CRM (à choisir) : Postgres prioritaire (MariaDB si incompatibilité) ; fichiers éventuels → S3 ; FQDN dérivé de `root_domain`.
 - Nextcloud : Postgres ; data sur PVC ; S3 en stockage externe optionnel ; FQDN `cloud.<root_domain>`.
 - Mailu : chart officiel ; PV block ; DNS (DKIM/SPF/DMARC) via external-dns ; backups Spaces ; FQDN `mail.<root_domain>` + enregistrements MX/SPF/DKIM/DMARC.
+- Registry (Zot) : ingress `registry.<root_domain>`, PVC dédié, htpasswd optionnel.
 
 ## DNS
 - Migration complète vers DNS DigitalOcean.

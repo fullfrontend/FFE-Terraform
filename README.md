@@ -31,9 +31,11 @@ Pour le cadre global et les règles :
 1. Installer age/sops, générer la clé age (`bin/age-init.sh`), exporter `SOPS_AGE_KEY_FILE` et `SOPS_AGE_RECIPIENTS`.
 2. Créer/chiffrer `secrets.tfvars.enc` avec vos mots de passe (mêmes secrets pour dev/prod).
 3. Choisir l’environnement : `export APP_ENV=dev` ou `APP_ENV=prod`.
-4. `terraform init` puis `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`).
-5. Vérifier la StorageClass en dev (`hostpath` par défaut, configurable via `storage_class_name`).
-6. Ajuster domaines/creds dans `variable.tf` / tfvars chiffré.
+4. `terraform init`.
+5. En prod, récupérer le kubeconfig DOKS après création du cluster (écriture dans `./.kube/config`, ex : `mkdir -p .kube && doctl kubernetes cluster kubeconfig save <cluster> --kubeconfig ./.kube/config --set-current-context`).
+6. `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`).
+7. Vérifier la StorageClass en dev (`hostpath` par défaut, configurable via `storage_class_name`).
+8. Ajuster domaines/creds dans `variable.tf` / tfvars chiffré.
 
 ## Domaines par défaut (`root_domain`)
 - Prod : `fullfrontend.be` (variable `root_domain_prod`)
@@ -43,6 +45,7 @@ Pour le cadre global et les règles :
 - Nextcloud : `cloud.<root_domain>`
 - Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
 - Analytics (Vince) : `insights.<root_domain>` (choisi pour éviter les bloqueurs)
+- Registry : `registry.<root_domain>`
 - Les FQDN sont dérivés uniquement de `root_domain` (pas d’override app par app).
 
 ## Registry privé (Zot)
@@ -77,7 +80,7 @@ Pour le cadre global et les règles :
   ```
 
 ## Backups Velero
-- Prod : bucket DO Spaces auto-créé, backup quotidien 03:00, rétention 30 jours.
+- Prod : bucket DO Spaces auto-créé, backup quotidien 03:00, rétention 30 jours (exporter `SPACES_ACCESS_KEY_ID` / `SPACES_SECRET_ACCESS_KEY`).
 - Dev : MinIO + hostPath `./data/<cluster_name>` (git-ignoré), même planification, avec clés dédiées MinIO (pas les clés Spaces).
 - TODO : générer une paire d’Access/Secret Keys Spaces dédiée à Velero via le panel DO (non gérable par Terraform), puis les mettre dans `secrets.tfvars` chiffré.
 
