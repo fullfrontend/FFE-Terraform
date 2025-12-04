@@ -54,16 +54,12 @@ Pour le cadre global et les règles :
 - Ajout d’app : module dédié (namespace `apps/<app>`), ingress Traefik, entrée DB dans `postgres_app_credentials`/`mariadb_app_credentials` (créer DB+user manuellement si DB déjà en place).
 - Accès DB : `kubectl port-forward` ponctuel (Postgres `kubectl port-forward svc/postgres 5432:5432 -n data`, MariaDB `kubectl port-forward svc/mariadb 3306:3306 -n data`).
 - Secrets : jamais en clair dans git ; utiliser SOPS/age ou variables d’environnement `TF_VAR_*` (secrets identiques en dev/prod).
+- Init Jobs Postgres/MariaDB : un Job Terraform (TTL 120s) crée DB/utilisateur pour chaque app avec `IF NOT EXISTS`. Si le Job est garbage collecté ou si vous ajoutez une app, il sera recréé au prochain apply et ajoutera les bases manquantes sans toucher aux existantes.
 
 ### Mailu et multi-domaine
 - Un seul host exposé suffit (ex: `mail.<root_domain>`) si les MX des autres domaines pointent vers ce host. Dans Mailu admin : ajouter les domaines (`he8us.be`, `perinatalite.be`, etc.) puis comptes/alias.
 - DNS : MX des domaines supplémentaires vers `mail.<root_domain>`, SPF/DKIM/DMARC alignés sur ce host.
 - Si tu veux exposer plusieurs FQDN (ex: `mail.he8us.be`), ajoute ces hosts dans l’ingress Mailu et assure-toi que le certificat TLS couvre ces SAN.
-
-### Analytics (Vince)
-- Sous-domaine par défaut : `insights.<root_domain>` (limite le blocage par les adblockers).
-- Chart Helm officiel `vince` (repo `https://vinceanalytics.com/charts`), `baseURL=https://<host>`, domaines pré-ajoutés (`analytics_domains`, par défaut root_domain).
-- Admin initial (user/pass) injecté via SOPS (secrets uniques pour dev/prod).
 
 ## Commentaire code
 - Favoriser les commentaires multi-lignes au format :

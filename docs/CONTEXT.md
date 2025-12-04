@@ -39,6 +39,7 @@ Applications
 - Nextcloud : Postgres, data PVC, S3 externe optionnel, FQDN `cloud.<root_domain>`.  
 - Mailu : chart officiel, PV bloc, DNS mail via external-dns, backups Spaces, FQDN `mail.<root_domain>`.  
 - Registry : Zot exposé via ingress `registry.<root_domain>`, PVC dédié, auth htpasswd optionnelle.  
+- Init Jobs : Postgres/MariaDB créent DB/utilisateur via un Job (TTL 120s) avec `IF NOT EXISTS`. Si le Job disparaît ou si vous ajoutez des apps, un nouvel apply recrée le Job et ajoute seulement les bases manquantes.
 
 Règles IA  
 - 100% auto-hébergé, pas de DB managée.  

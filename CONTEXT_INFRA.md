@@ -80,6 +80,7 @@ Kubernetes (DOKS)
 - Important : les scripts d’init DB ne s’exécutent qu’au premier bootstrap des StatefulSets. Si Postgres/MariaDB tournent déjà, créer la DB et l’utilisateur manuellement (kubectl exec ou Job) avant de déployer l’app, avec les mêmes credentials que le secret.
 - external-dns et cert-manager gèrent DNS/ACME dès que l’ingress est appliqué.
 - Pour basculer dev/prod avec Terraform : `export APP_ENV=dev; export TF_VAR_app_env=$APP_ENV` (prod par défaut).
+- Init Jobs : Postgres/MariaDB sont créés via un Job (TTL 120s) qui exécute `IF NOT EXISTS` sur DB/utilisateur. Si le Job est garbage collecté ou si de nouvelles apps sont ajoutées, un apply recrée le Job et ajoute uniquement les bases manquantes.
 
 ## Priorités de migration
 1) Cluster DOKS + infra (Ingress, cert-manager, external-dns).  
