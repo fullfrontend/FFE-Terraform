@@ -23,7 +23,7 @@ resource "helm_release" "n8n" {
   cleanup_on_fail = true
   atomic          = true
 
-  set = [
+  set = concat([
     {
       name  = "db.type"
       value = "postgresdb"
@@ -62,6 +62,18 @@ resource "helm_release" "n8n" {
     },
     {
       name  = "ingress.hosts[0].paths[0].pathType"
+      value = "Prefix"
+    },
+    {
+      name  = "ingress.hosts[1].host"
+      value = var.webhook_host
+    },
+    {
+      name  = "ingress.hosts[1].paths[0].path"
+      value = "/"
+    },
+    {
+      name  = "ingress.hosts[1].paths[0].pathType"
       value = "Prefix"
     },
     {
@@ -104,7 +116,28 @@ resource "helm_release" "n8n" {
       name  = "main.extraEnvVars.N8N_GIT_NODE_DISABLE_BARE_REPOS"
       value = "true"
     }
-  ]
+  ], var.enable_tls ? [
+    {
+      name  = "ingress.annotations.cert-manager\\.io/cluster-issuer"
+      value = "letsencrypt-prod"
+    },
+    {
+      name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.tls"
+      value = "true"
+    },
+    {
+      name  = "ingress.tls[0].hosts[0]"
+      value = var.host
+    },
+    {
+      name  = "ingress.tls[0].hosts[1]"
+      value = var.webhook_host
+    },
+    {
+      name  = "ingress.tls[0].secretName"
+      value = "n8n-tls"
+    }
+  ] : [])
 
   set_sensitive = [
     {
@@ -112,4 +145,5 @@ resource "helm_release" "n8n" {
       value = var.db_password
     }
   ]
+
 }

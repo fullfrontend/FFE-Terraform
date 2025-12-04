@@ -43,6 +43,12 @@ variable "enable_kube_prometheus_stack" {
   description = "Déployer kube-prometheus-stack (monitoring/alerting)"
 }
 
+variable "enable_tls" {
+  type        = bool
+  default     = true
+  description = "Activer TLS/redirect sur les ingresses (false = HTTP seulement)"
+}
+
 variable "acme_email" {
   type        = string
   default     = ""

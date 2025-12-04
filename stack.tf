@@ -59,6 +59,7 @@ module "k8s-config" {
   enable_cert_manager = local.is_prod
   enable_kube_prometheus_stack = true
   acme_email          = var.acme_email
+  enable_tls  = var.enable_tls
 
   enable_velero     = true
   velero_bucket     = var.velero_bucket
@@ -217,5 +218,6 @@ module "registry" {
   s3_access_key      = var.registry_s3_access_key
   s3_secret_key      = var.registry_s3_secret_key
   s3_secure          = var.registry_s3_secure
+  enable_tls = var.enable_tls
 }
 //*/

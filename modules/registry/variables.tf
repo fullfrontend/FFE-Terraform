@@ -21,6 +21,12 @@ variable "ingress_class_name" {
   description = "IngressClassName (traefik prod, nginx dev)"
 }
 
+variable "enable_tls" {
+  type        = bool
+  default     = true
+  description = "Activer TLS/cert-manager pour l'ingress du registre"
+}
+
 variable "storage_size" {
   type        = string
   default     = "20Gi"

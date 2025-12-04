@@ -33,7 +33,27 @@ resource "helm_release" "vince" {
   cleanup_on_fail = true
   atomic          = true
 
-  set = local.analytics_sets
+  set = concat(
+    local.analytics_sets,
+    var.enable_tls ? [
+      {
+        name  = "ingress.annotations.cert-manager\\.io/cluster-issuer"
+        value = "letsencrypt-prod"
+      },
+      {
+        name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.tls"
+        value = "true"
+      },
+      {
+        name  = "ingress.tls[0].hosts[0]"
+        value = var.host
+      },
+      {
+        name  = "ingress.tls[0].secretName"
+        value = var.tls_secret_name
+      }
+    ] : []
+  )
   set_sensitive = [
     {
       name  = "secret.adminPassword"
@@ -46,6 +66,13 @@ resource "kubernetes_ingress_v1" "analytics" {
   metadata {
     name      = "analytics"
     namespace = kubernetes_namespace.analytics.metadata[0].name
+    annotations = var.enable_tls ? {
+      "kubernetes.io/ingress.class"              = var.ingress_class_name
+      "cert-manager.io/cluster-issuer"           = "letsencrypt-prod"
+      "traefik.ingress.kubernetes.io/router.tls" = "true"
+    } : {
+      "kubernetes.io/ingress.class" = var.ingress_class_name
+    }
   }
 
   spec {
@@ -69,9 +96,12 @@ resource "kubernetes_ingress_v1" "analytics" {
       }
     }
 
-    tls {
+  dynamic "tls" {
+    for_each = var.enable_tls ? [1] : []
+    content {
       hosts       = [var.host]
       secret_name = var.tls_secret_name
     }
+  }
   }
 }

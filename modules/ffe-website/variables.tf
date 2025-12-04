@@ -19,6 +19,12 @@ variable "ingress_class_name" {
   description = "IngressClassName (ex: traefik en prod, nginx en dev)"
 }
 
+variable "enable_tls" {
+  type        = bool
+  default     = true
+  description = "Activer TLS/cert-manager pour l'ingress WordPress"
+}
+
 variable "db_host" {
   type        = string
   description = "Hôte MariaDB externe pour WordPress"

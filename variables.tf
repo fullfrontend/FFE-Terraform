@@ -254,7 +254,7 @@ variable "doks_name" {
 
 variable "create_doks_cluster" {
   type        = bool
-  default     = false
+  default     = true
   description = "Créer le cluster DOKS (mettre false si le cluster existe déjà et qu’on veut uniquement provisionner K8s/Helm)"
 }
 
@@ -276,6 +276,13 @@ variable "acme_email" {
   type        = string
   default     = ""
   description = "Email pour Let's Encrypt (ex: ops@example.com). Vide = pas d'Issuer créé."
+}
+
+# Ingress TLS toggle (HTTPS/cert-manager)
+variable "enable_tls" {
+  type        = bool
+  default     = true
+  description = "Activer TLS/redirect HTTPS sur les ingresses (mettre false si DNS non prêt ou en dev)"
 }
 
 variable "velero_s3_url" {
