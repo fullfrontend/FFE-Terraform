@@ -24,12 +24,6 @@ variable "root_domain_dev" {
 }
 
 # N8N (base de données Postgres externe)
-variable "n8n_db_host" {
-  type        = string
-  default     = "postgres.data.svc.cluster.local"
-  description = "Hôte Postgres partagé pour n8n"
-}
-
 variable "n8n_db_port" {
   type        = number
   default     = 5432
@@ -47,12 +41,6 @@ variable "wp_tls_secret_name" {
   type        = string
   default     = "wordpress-tls"
   description = "Secret TLS pour l’ingress WordPress"
-}
-
-variable "wp_db_host" {
-  type        = string
-  default     = "mariadb.data.svc.cluster.local"
-  description = "Hôte MariaDB pour WordPress"
 }
 
 variable "wp_db_port" {
@@ -86,12 +74,6 @@ variable "nextcloud_tls_secret_name" {
   description = "Secret TLS pour l’ingress Nextcloud"
 }
 
-variable "nextcloud_db_host" {
-  type        = string
-  default     = "postgres.data.svc.cluster.local"
-  description = "Hôte Postgres pour Nextcloud"
-}
-
 variable "nextcloud_db_port" {
   type        = number
   default     = 5432
@@ -121,12 +103,6 @@ variable "mailu_tls_secret_name" {
   type        = string
   default     = "mailu-tls"
   description = "Secret TLS pour l’ingress Mailu"
-}
-
-variable "mailu_db_host" {
-  type        = string
-  default     = "postgres.data.svc.cluster.local"
-  description = "Hôte Postgres pour Mailu"
 }
 
 variable "mailu_db_port" {
