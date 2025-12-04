@@ -23,6 +23,12 @@ Migrer l’infrastructure existante vers un cluster Kubernetes DigitalOcean (DOK
 - Registry privé : Zot exposé via ingress (`registry.<root_domain>`)
 - Interdit : images/charts Bitnami (licence payante)
 
+## Secrets (SOPS/age)
+- Clé age générée via `bin/age-init.sh`; exporter `SOPS_AGE_KEY_FILE` et `SOPS_AGE_RECIPIENTS`.
+- Générer le fichier clair depuis l’exemple : `cp secrets.tfvars.example secrets.tfvars` puis compléter et chiffrer avec `bin/sops-encrypt.sh secrets.tfvars secrets.tfvars.enc` (policy `sops.yaml`).
+- Wrapper tofu : `APP_ENV=... ./scripts/tofu-secrets.sh plan|apply` (décrypte en `.secrets.auto.tfvars`, nettoie).
+- Jamais de secrets en clair dans git (tfvars clairs exclus, `.secrets.auto.tfvars` ignoré).
+
 ## Stockage
 1) Block Storage (PVC) pour tout le stateful : Postgres/MariaDB, Nextcloud data, wp-content, Mailu (maildir/queue/config).  
 2) Spaces (S3) pour objets : médias WordPress, backups DB/Nextcloud/Mailu, stockage externe Nextcloud optionnel.  

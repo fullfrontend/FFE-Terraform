@@ -29,7 +29,8 @@ Pour le cadre global et les règles :
 
 ## Process de démarrage
 1. Installer age/sops, générer la clé age (`bin/age-init.sh`), exporter `SOPS_AGE_KEY_FILE` et `SOPS_AGE_RECIPIENTS`.
-2. Créer/chiffrer `secrets.tfvars.enc` avec vos mots de passe (mêmes secrets pour dev/prod).
+2. Créer vos secrets à partir de l’exemple : `cp secrets.tfvars.example secrets.tfvars` puis remplissez les valeurs.
+3. Chiffrer `secrets.tfvars.enc` avec vos mots de passe (mêmes secrets pour dev/prod) : `bin/sops-encrypt.sh secrets.tfvars secrets.tfvars.enc`.
 3. Choisir l’environnement : `export APP_ENV=dev` ou `APP_ENV=prod`.
 4. `terraform init`.
 5. En prod, récupérer le kubeconfig DOKS après création du cluster (écriture dans `./.kube/config`, ex : `mkdir -p .kube && doctl kubernetes cluster kubeconfig save <cluster> --kubeconfig ./.kube/config --set-current-context`).
