@@ -9,20 +9,20 @@ actor User
 rectangle "DigitalOcean DNS" as DODNS
 database "DO Spaces\n(Velero backups)" as Spaces
 
-node "Kubernetes (DOKS)\nnode pool autoscaling" {
-  frame "infra namespace" {
+package "Kubernetes (DOKS)\nnode pool autoscaling" {
+  package "infra namespace" {
     component "Traefik\n(LoadBalancer ingress)" as Traefik
-    component "cert-manager"
-    component "external-dns"
-    component "Velero"
+    component "cert-manager" as Cert
+    component "external-dns" as ExtDNS
+    component "Velero" as Velero
   }
 
-  frame "data namespace" {
+  package "data namespace" {
     database "Postgres\n(postgres.data)" as Postgres
     database "MariaDB\n(mariadb.data)" as MariaDB
   }
 
-  frame "apps namespace" {
+  package "apps namespace" as Apps {
     component "WordPress\nhost: fullfrontend.be" as WP
     component "n8n\nhosts: n8n.fullfrontend.be\nwebhook.fullfrontend.be" as N8N
     component "Analytics (Vince)\nhost: insights.fullfrontend.be" as Vince
@@ -34,37 +34,17 @@ node "Kubernetes (DOKS)\nnode pool autoscaling" {
 
 User --> DODNS
 DODNS --> Traefik
-Traefik --> WP
-Traefik --> N8N
-Traefik --> Vince
-Traefik --> Zot
-Traefik --> Mailu
-Traefik --> Nextcloud
+Traefik --> Apps : ingress routes
 
-WP --> MariaDB
-N8N --> Postgres
-Vince --> Postgres
-Zot --> Postgres
-Mailu --> Postgres
-Nextcloud --> Postgres
-"Postgres" ..> "Velero" : backups
-"MariaDB" ..> "Velero" : backups
+Apps --> MariaDB : WordPress
+Apps --> Postgres : n8n / Analytics / Registry / planned apps
+Postgres ..> Velero : backups
+MariaDB ..> Velero : backups
 
-WP --> "external-dns"
-N8N --> "external-dns"
-Vince --> "external-dns"
-Zot --> "external-dns"
-Mailu --> "external-dns"
-Nextcloud --> "external-dns"
-"external-dns" ..> DODNS : auto-update
-
-WP --> "cert-manager"
-N8N --> "cert-manager"
-Vince --> "cert-manager"
-Zot --> "cert-manager"
-Mailu --> "cert-manager"
-Nextcloud --> "cert-manager"
-"cert-manager" ..> DODNS : auto-update
+Apps --> ExtDNS : hosts auto-update
+Apps --> Cert : certificates (prod)
+ExtDNS ..> DODNS : auto-update
+Cert ..> DODNS : auto-update
 
 Velero --> Spaces
 
@@ -87,7 +67,6 @@ Prod settings:
 - Velero -> Spaces bucket
 - external-dns -> DO DNS
 - cert-manager enabled
--- Registry exposed via ingress (Zot)
+- Registry exposed via ingress (Zot)
 endlegend
-
 @enduml
