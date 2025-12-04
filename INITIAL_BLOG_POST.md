@@ -125,6 +125,19 @@ C’est là que tout a basculé.
 
 ---
 
+### Interlude : haïku de nuit
+
+> Night falling  
+> Sparks lighting the sleepy brain  
+> Night magic happens  
+>  
+> If you need to touch this, may the force be with you.  
+> Baloo.
+
+Je l’ai écrit dans la codebase d’une banque allemande : il fallait livrer, j’ai passé des nuits à apprendre et à tordre des formules mathématiques pour une animation. Même logique ici : soit tu le fais à fond, soit tu ne le fais pas. Un clin d’œil pour celles et ceux qui lisent jusqu’au bout — et une prière pour les prochaines personnes qui devront mettre les mains dans mon code.
+
+---
+
 ## 5) Pourquoi Kubernetes (simplement)
 
 > ## Le biais de complexité
@@ -201,7 +214,9 @@ Les **secrets** : mots de passe, clés privées, tokens.
 Parce que :
 
 > **Tu peux ouvrir ta maison.  
-Mais tu ne donnes pas les clés.**
+> Mais tu ne donnes pas les clés. 
+> Faut pas déconner.**
+
 
 ---
 
@@ -218,11 +233,12 @@ Je l’open-source pour dire :
 
 Et aussi :
 
-> **« Voilà comment je travaille. Voilà ce que je crois. Voilà ce sur quoi tu peux t’appuyer. »**
+> **« Voilà comment je travaille. Voilà ce en quoi je crois. Voilà ce sur quoi tu peux t’appuyer. »**
 
 Ce n’est pas seulement un geste technique.  
 C’est un acte à contre-courant.  
 Une manière de planter un drapeau en plein vent.
+Et de faire un beau doigt à mon passé.
 
 Je choisis :
 
