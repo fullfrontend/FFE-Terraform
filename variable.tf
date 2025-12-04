@@ -252,6 +252,12 @@ variable "doks_name" {
   description = "K8S Cluster name"
 }
 
+variable "create_doks_cluster" {
+  type        = bool
+  default     = false
+  description = "Créer le cluster DOKS (mettre false si le cluster existe déjà et qu’on veut uniquement provisionner K8s/Helm)"
+}
+
 variable "doks_node_size" {
   type        = string
   default     = "s-1vcpu-2gb"
@@ -263,6 +269,13 @@ variable "velero_bucket" {
   type        = string
   default     = "velero-backups-ffe"
   description = "Bucket Spaces pour Velero en prod (DO Spaces)"
+}
+
+# Cert-manager / ACME
+variable "acme_email" {
+  type        = string
+  default     = ""
+  description = "Email pour Let's Encrypt (ex: ops@example.com). Vide = pas d'Issuer créé."
 }
 
 variable "velero_s3_url" {

@@ -18,20 +18,16 @@ resource "helm_release" "kube_prometheus_stack" {
       value = kubernetes_namespace.metrics.metadata[0].name
     },
     {
-      name  = "defaultRules.create"
-      value = "true"
-    },
-    {
       name  = "crds.enabled"
       value = "true"
     },
     {
       name  = "grafana.enabled"
-      value = "true"
+      value = "false"
     },
     {
-      name  = "prometheusOperator.admissionWebhooks.enabled"
-      value = "true"
+      name  = "alertmanager.enabled"
+      value = "false"
     }
   ]
 }

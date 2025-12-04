@@ -43,6 +43,12 @@ variable "enable_kube_prometheus_stack" {
   description = "Déployer kube-prometheus-stack (monitoring/alerting)"
 }
 
+variable "acme_email" {
+  type        = string
+  default     = ""
+  description = "Email ACME pour cert-manager (Let's Encrypt). Vide = ne pas créer l'Issuer."
+}
+
 variable "velero_bucket" {
   type        = string
   default     = ""

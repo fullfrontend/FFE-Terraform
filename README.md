@@ -37,6 +37,7 @@ Pour le cadre global et les règles :
 6. `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`).
 7. Vérifier la StorageClass en dev (`hostpath` par défaut, configurable via `storage_class_name`).
 8. Ajuster domaines/creds dans `variable.tf` / tfvars chiffré.
+9. Si le cluster DOKS existe déjà et ne doit pas être créé, passez `-var='create_doks_cluster=false'` (et éventuellement retirez la ressource du state si déjà gérée).
 9. Si le cluster DOKS existe déjà et ne doit pas être géré par Terraform, retirez-le du state avant apply : `tofu state rm <resource_address_to_keep>` (ex: `tofu state rm module.doks-cluster[0]`).
 
 ## Domaines par défaut (`root_domain`)

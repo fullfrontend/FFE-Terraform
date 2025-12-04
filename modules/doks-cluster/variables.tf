@@ -23,18 +23,6 @@ variable "pool_max_count" {
   description = "K8S cluster maximal nodes count"
 }
 
-variable "write_kubeconfig" {
-  type        = bool
-  default     = false
-  description = "Should we write the Kubeconfig on disk ?"
-}
-
-variable "velero_bucket" {
-  type        = string
-  default     = "velero-backups"
-  description = "Bucket Spaces pour Velero (prod)"
-}
-
 variable "project_name" {
   type        = string
   default     = "Full Front-End"
@@ -57,4 +45,10 @@ variable "project_purpose" {
   type        = string
   default     = "Website or blog"
   description = "Purpose du projet DigitalOcean"
+}
+
+variable "write_kubeconfig" {
+  type        = bool
+  default     = true
+  description = "Ecrire le kubeconfig du cluster sur disque"
 }

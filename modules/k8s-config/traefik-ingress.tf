@@ -9,10 +9,6 @@ locals {
     {
       name  = "service.annotations.service\\.beta\\.kubernetes\\.io/do-loadbalancer-name"
       value = format("%s-traefik", var.cluster_name)
-    },
-    {
-      name  = "service.spec.loadBalancerClass"
-      value = ""
     }
   ]
 }

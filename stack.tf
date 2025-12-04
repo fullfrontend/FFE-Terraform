@@ -25,7 +25,7 @@ locals {
     Disabled in dev (local cluster)
 */
 module "doks-cluster" {
-  count            = local.is_prod ? 1 : 0
+  count            = local.is_prod && var.create_doks_cluster ? 1 : 0
   source           = "./modules/doks-cluster"
   name             = local.cluster_name
   region           = var.doks_region
@@ -38,7 +38,6 @@ module "doks-cluster" {
   project_description = "Web stack for Website and Automation"
   project_environment = "Production"
   project_purpose     = "Website or blog"
-  velero_bucket       = var.velero_bucket
 }
 //*/
 
@@ -59,6 +58,7 @@ module "k8s-config" {
   kubeconfig_path     = local.kubeconfig_path
   enable_cert_manager = local.is_prod
   enable_kube_prometheus_stack = true
+  acme_email          = var.acme_email
 
   enable_velero     = true
   velero_bucket     = var.velero_bucket
