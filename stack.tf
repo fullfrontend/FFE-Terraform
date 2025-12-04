@@ -20,11 +20,11 @@ locals {
   mariadb_app_map    = { for app in var.mariadb_app_credentials : app.name => app }
 }
 
+/*
+    Prod cluster: DOKS + project attachment + Spaces bucket for Velero
+    Disabled in dev (local cluster)
+*/
 module "doks-cluster" {
-  /*
-      Prod cluster: DOKS + project attachment + Spaces bucket for Velero
-      Disabled in dev (local cluster)
-  */
   count            = local.is_prod ? 1 : 0
   source           = "./modules/doks-cluster"
   name             = local.cluster_name
@@ -40,15 +40,17 @@ module "doks-cluster" {
   project_purpose     = "Website or blog"
   velero_bucket       = var.velero_bucket
 }
+//*/
 
+
+/*
+    Cluster services and data plane:
+    - Traefik, cert-manager, external-dns (prod)
+    - Velero (Spaces/MinIO)
+    - Namespaces infra/data
+    - Postgres/MariaDB stateful sets
+*/
 module "k8s-config" {
-  /*
-      Cluster services and data plane:
-      - Traefik, cert-manager, external-dns (prod)
-      - Velero (Spaces/MinIO)
-      - Namespaces infra/data
-      - Postgres/MariaDB stateful sets
-  */
   source              = "./modules/k8s-config"
   cluster_name        = local.cluster_name
   region              = var.doks_region
@@ -77,11 +79,14 @@ module "k8s-config" {
   mariadb_root_password   = var.mariadb_root_password
   mariadb_app_credentials = var.mariadb_app_credentials
 }
+//*/
 
+
+
+/*
+    App: n8n (external Postgres)
+*/
 module "n8n" {
-  /*
-      App: n8n (external Postgres)
-  */
   source     = "./modules/n8n-ffe"
   depends_on = [module.k8s-config]
 
@@ -95,11 +100,13 @@ module "n8n" {
   chart_version      = var.n8n_chart_version
   ingress_class_name = local.ingress_class_name
 }
+//*/
 
+
+/*
+    App: WordPress (external MariaDB, PVC wp-content)
+*/
 module "wordpress" {
-  /*
-      App: WordPress (external MariaDB, PVC wp-content)
-  */
   source     = "./modules/ffe-website"
   depends_on = [module.k8s-config]
 
@@ -118,12 +125,14 @@ module "wordpress" {
   dockerhub_pat      = var.dockerhub_pat
   dockerhub_email    = var.dockerhub_email
 }
+//*/
 
+
+/*
+    App: Nextcloud (external Postgres, PVC data)
+*/
 module "nextcloud" {
   # Nextcloud désactivé (sera remis en ligne plus tard)
-  /*
-      App: Nextcloud (external Postgres, PVC data)
-  */
   count      = 0
   source     = "./modules/nextcloud-ffe"
   depends_on = [module.k8s-config]
@@ -140,12 +149,14 @@ module "nextcloud" {
   chart_version      = var.nextcloud_chart_version
   ingress_class_name = local.ingress_class_name
 }
+//*/
 
+
+/*
+    App: Mailu (external Postgres, PVC maildir/config)
+*/
 module "mailu" {
   # Mailu désactivé (sera remis en ligne plus tard)
-  /*
-      App: Mailu (external Postgres, PVC maildir/config)
-  */
   count      = 0
   source     = "./modules/mailu-ffe"
   depends_on = [module.k8s-config]
@@ -164,11 +175,13 @@ module "mailu" {
   chart_version      = var.mailu_chart_version
   ingress_class_name = local.ingress_class_name
 }
+//*/
 
+
+/*
+    App: Vince analytics (ingress + admin bootstrap)
+*/
 module "analytics" {
-  /*
-      App: Vince analytics (ingress + admin bootstrap)
-  */
   source     = "./modules/analytics-ffe"
   depends_on = [module.k8s-config]
 
@@ -180,11 +193,14 @@ module "analytics" {
   chart_version      = var.analytics_chart_version
   ingress_class_name = local.ingress_class_name
 }
+//*/
 
+
+
+/*
+    Private OCI/Docker registry (zot)
+*/
 module "registry" {
-  /*
-      Private OCI/Docker registry (zot)
-  */
   source     = "./modules/registry"
   depends_on = [module.k8s-config]
 
@@ -201,3 +217,4 @@ module "registry" {
   s3_secret_key      = var.registry_s3_secret_key
   s3_secure          = var.registry_s3_secure
 }
+//*/
