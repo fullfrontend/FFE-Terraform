@@ -49,13 +49,6 @@ Pour le cadre global et les règles :
 - Registry : `registry.<root_domain>`
 - Les FQDN sont dérivés uniquement de `root_domain` (pas d’override app par app).
 
-## Registry privé (Zot)
-- Endpoint : `registry.<root_domain>` exposé via ingress (Traefik prod, nginx dev)
-- Image : `ghcr.io/project-zot/zot-linux-amd64:latest` (OSS, léger) — site : https://zotregistry.dev
-- Auth : optionnel via `registry_htpasswd` (entrée bcrypted) montée dans le pod
-- Stockage : PVC `registry-data` (20Gi par défaut), config JSON en ConfigMap
-- TLS : secret `registry-tls` attendu sur le namespace `registry`
-
 ## Bonnes pratiques
 - Pas de charts/images Bitnami.
 - Ajout d’app : module dédié (namespace `apps/<app>`), ingress Traefik, entrée DB dans `postgres_app_credentials`/`mariadb_app_credentials` (créer DB+user manuellement si DB déjà en place).
