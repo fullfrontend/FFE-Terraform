@@ -33,8 +33,9 @@ Pour le cadre global et les règles :
 3. Chiffrer `secrets.tfvars.enc` avec vos mots de passe (mêmes secrets pour dev/prod) : `bin/sops-encrypt.sh secrets.tfvars secrets.tfvars.enc`.
 3. Choisir l’environnement : `export APP_ENV=dev` ou `APP_ENV=prod`.
 4. `tofu init`.
-5. En prod, récupérer le kubeconfig DOKS après création du cluster (écriture dans `./.kube/config`, ex : `mkdir -p .kube && doctl kubernetes cluster kubeconfig save <cluster> --kubeconfig ./.kube/config --set-current-context`).
-6. `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`).
+5. En prod, si le cluster n’existe pas, crée-le d’abord : `APP_ENV=prod ./scripts/tofu-secrets.sh apply -target=module.doks-cluster`.
+6. Récupérer le kubeconfig DOKS : `mkdir -p .kube && doctl kubernetes cluster kubeconfig save <cluster> --kubeconfig ./.kube/config --set-current-context`.
+7. Lancer le provisionnement complet : `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`). Si le cluster est déjà créé, on peut passer `-var='create_doks_cluster=false'` pour ne pas le recréer.
 7. Vérifier la StorageClass en dev (`hostpath` par défaut, configurable via `storage_class_name`).
 8. Ajuster domaines/creds dans `variable.tf` / tfvars chiffré.
 9. Si le cluster DOKS existe déjà et ne doit pas être créé, passez `-var='create_doks_cluster=false'` (et éventuellement retirez la ressource du state si déjà gérée).

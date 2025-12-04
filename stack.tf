@@ -50,16 +50,16 @@ module "doks-cluster" {
     - Postgres/MariaDB stateful sets
 */
 module "k8s-config" {
-  source              = "./modules/k8s-config"
-  cluster_name        = local.cluster_name
-  region              = var.doks_region
-  do_token            = var.do_token
-  is_prod             = local.is_prod
-  kubeconfig_path     = local.kubeconfig_path
-  enable_cert_manager = local.is_prod
+  source                       = "./modules/k8s-config"
+  cluster_name                 = local.cluster_name
+  region                       = var.doks_region
+  do_token                     = var.do_token
+  is_prod                      = local.is_prod
+  kubeconfig_path              = local.kubeconfig_path
+  enable_cert_manager          = local.is_prod
   enable_kube_prometheus_stack = true
-  acme_email          = var.acme_email
-  enable_tls  = var.enable_tls
+  acme_email                   = var.acme_email
+  enable_tls                   = var.enable_tls
 
   enable_velero     = true
   velero_bucket     = var.velero_bucket
@@ -83,6 +83,19 @@ module "k8s-config" {
 }
 //*/
 
+/*
+    Issuer Let's Encrypt (runs after cert-manager install)
+*/
+module "cert_manager_issuer" {
+  source     = "./modules/cert-manager-issuer"
+  depends_on = [module.k8s-config]
+
+  is_prod         = local.is_prod
+  acme_email      = var.acme_email
+  kubeconfig_path = local.kubeconfig_path
+}
+//*/
+
 
 
 /*
@@ -90,7 +103,7 @@ module "k8s-config" {
 */
 module "n8n" {
   source     = "./modules/n8n-ffe"
-  depends_on = [module.k8s-config]
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
 
   host               = format("n8n.%s", local.root_domain)
   webhook_host       = format("webhook.%s", local.root_domain)
@@ -110,7 +123,7 @@ module "n8n" {
 */
 module "wordpress" {
   source     = "./modules/ffe-website"
-  depends_on = [module.k8s-config]
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
 
   host               = local.root_domain
   tls_secret_name    = var.wp_tls_secret_name
@@ -137,7 +150,7 @@ module "nextcloud" {
   # Nextcloud désactivé (sera remis en ligne plus tard)
   count      = 0
   source     = "./modules/nextcloud-ffe"
-  depends_on = [module.k8s-config]
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
 
   host               = format("cloud.%s", local.root_domain)
   tls_secret_name    = var.nextcloud_tls_secret_name
@@ -161,7 +174,7 @@ module "mailu" {
   # Mailu désactivé (sera remis en ligne plus tard)
   count      = 0
   source     = "./modules/mailu-ffe"
-  depends_on = [module.k8s-config]
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
 
   host               = format("mail.%s", local.root_domain)
   domain             = local.root_domain
@@ -185,7 +198,7 @@ module "mailu" {
 */
 module "analytics" {
   source     = "./modules/analytics-ffe"
-  depends_on = [module.k8s-config]
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
 
   host               = format("insights.%s", local.root_domain)
   tls_secret_name    = var.analytics_tls_secret_name
@@ -204,7 +217,7 @@ module "analytics" {
 */
 module "registry" {
   source     = "./modules/registry"
-  depends_on = [module.k8s-config]
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
 
   host               = format("registry.%s", local.root_domain)
   tls_secret_name    = "registry-tls"
@@ -218,6 +231,6 @@ module "registry" {
   s3_access_key      = var.registry_s3_access_key
   s3_secret_key      = var.registry_s3_secret_key
   s3_secure          = var.registry_s3_secure
-  enable_tls = var.enable_tls
+  enable_tls         = var.enable_tls
 }
 //*/

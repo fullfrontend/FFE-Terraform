@@ -116,7 +116,7 @@ resource "helm_release" "n8n" {
       name  = "main.extraEnvVars.N8N_GIT_NODE_DISABLE_BARE_REPOS"
       value = "true"
     }
-  ], var.enable_tls ? [
+    ], var.enable_tls ? [
     {
       name  = "ingress.annotations.cert-manager\\.io/cluster-issuer"
       value = "letsencrypt-prod"

@@ -106,7 +106,7 @@ resource "kubernetes_deployment" "wordpress" {
       }
 
       spec {
-       container {
+        container {
           name  = "wordpress"
           image = var.image
 
@@ -166,13 +166,13 @@ resource "kubernetes_deployment" "wordpress" {
             mount_path = "/var/www/html"
           }
 
-         volume_mount {
-           name       = "apache-servername"
-           mount_path = "/etc/apache2/conf-enabled/servername.conf"
-           sub_path   = "servername.conf"
-           read_only  = true
-         }
-       }
+          volume_mount {
+            name       = "apache-servername"
+            mount_path = "/etc/apache2/conf-enabled/servername.conf"
+            sub_path   = "servername.conf"
+            read_only  = true
+          }
+        }
 
         volume {
           name = "wordpress-content"
@@ -182,13 +182,13 @@ resource "kubernetes_deployment" "wordpress" {
           }
         }
 
-       volume {
-         name = "apache-servername"
+        volume {
+          name = "apache-servername"
 
-         config_map {
-           name = kubernetes_config_map.apache_servername.metadata[0].name
-         }
-       }
+          config_map {
+            name = kubernetes_config_map.apache_servername.metadata[0].name
+          }
+        }
 
         dynamic "image_pull_secrets" {
           for_each = var.dockerhub_user != "" ? [1] : []
@@ -196,7 +196,7 @@ resource "kubernetes_deployment" "wordpress" {
             name = kubernetes_secret.dockerhub[0].metadata[0].name
           }
         }
-     }
+      }
     }
   }
 }
@@ -231,7 +231,7 @@ resource "kubernetes_ingress_v1" "wordpress" {
       "kubernetes.io/ingress.class"              = var.ingress_class_name
       "cert-manager.io/cluster-issuer"           = "letsencrypt-prod"
       "traefik.ingress.kubernetes.io/router.tls" = "true"
-    } : {
+      } : {
       "kubernetes.io/ingress.class" = var.ingress_class_name
     }
   }

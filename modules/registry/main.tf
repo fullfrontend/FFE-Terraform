@@ -12,7 +12,7 @@ locals {
       secretKey      = var.s3_secret_key
       secure         = var.s3_secure
     }
-  } : {
+    } : {
     rootDirectory = "/var/lib/registry"
     storageDriver = null
   }
@@ -99,7 +99,7 @@ resource "kubernetes_persistent_volume_claim" "data" {
 resource "kubernetes_deployment" "registry" {
   lifecycle {
     precondition {
-      condition = !(local.use_s3 && (var.s3_bucket == "" || local.s3_endpoint_effective == "" || var.s3_access_key == "" || var.s3_secret_key == ""))
+      condition     = !(local.use_s3 && (var.s3_bucket == "" || local.s3_endpoint_effective == "" || var.s3_access_key == "" || var.s3_secret_key == ""))
       error_message = "S3 backend requires s3_endpoint/region (or endpoint override), s3_bucket, s3_access_key, s3_secret_key."
     }
   }
@@ -223,10 +223,10 @@ resource "kubernetes_ingress_v1" "registry" {
     name      = "registry"
     namespace = kubernetes_namespace.registry.metadata[0].name
     annotations = var.enable_tls ? {
-      "kubernetes.io/ingress.class" = var.ingress_class_name
-      "cert-manager.io/cluster-issuer" = "letsencrypt-prod"
+      "kubernetes.io/ingress.class"              = var.ingress_class_name
+      "cert-manager.io/cluster-issuer"           = "letsencrypt-prod"
       "traefik.ingress.kubernetes.io/router.tls" = "true"
-    } : {
+      } : {
       "kubernetes.io/ingress.class" = var.ingress_class_name
     }
   }

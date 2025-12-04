@@ -70,7 +70,7 @@ resource "kubernetes_ingress_v1" "analytics" {
       "kubernetes.io/ingress.class"              = var.ingress_class_name
       "cert-manager.io/cluster-issuer"           = "letsencrypt-prod"
       "traefik.ingress.kubernetes.io/router.tls" = "true"
-    } : {
+      } : {
       "kubernetes.io/ingress.class" = var.ingress_class_name
     }
   }
@@ -96,12 +96,12 @@ resource "kubernetes_ingress_v1" "analytics" {
       }
     }
 
-  dynamic "tls" {
-    for_each = var.enable_tls ? [1] : []
-    content {
-      hosts       = [var.host]
-      secret_name = var.tls_secret_name
+    dynamic "tls" {
+      for_each = var.enable_tls ? [1] : []
+      content {
+        hosts       = [var.host]
+        secret_name = var.tls_secret_name
+      }
     }
-  }
   }
 }
