@@ -252,6 +252,12 @@ variable "doks_name" {
   description = "K8S Cluster name"
 }
 
+variable "create_doks_cluster" {
+  type        = bool
+  default     = false
+  description = "Créer le cluster DOKS (false si déjà existant pour ne provisionner que K8s)"
+}
+
 variable "doks_node_size" {
   type        = string
   default     = "s-1vcpu-2gb"
@@ -261,13 +267,13 @@ variable "doks_node_size" {
 # Velero (Spaces S3 pour backups)
 variable "velero_bucket" {
   type        = string
-  default     = "velero-backups"
+  default     = "velero-backups-ffe"
   description = "Bucket Spaces pour Velero en prod (DO Spaces)"
 }
 
 variable "velero_s3_url" {
   type        = string
-  default     = ""
+  default     = "https://fra1.digitaloceanspaces.com"
   description = "Endpoint Spaces (ex: https://fra1.digitaloceanspaces.com)"
 }
 

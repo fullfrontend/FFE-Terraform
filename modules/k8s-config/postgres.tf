@@ -238,6 +238,10 @@ resource "kubernetes_stateful_set_v1" "postgres" {
               }
             }
           }
+          env {
+            name  = "PGDATA"
+            value = "/var/lib/postgresql/data/pgdata"
+          }
 
           volume_mount {
             name       = "postgres-data"

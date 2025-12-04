@@ -37,6 +37,7 @@ Pour le cadre global et les règles :
 6. `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`).
 7. Vérifier la StorageClass en dev (`hostpath` par défaut, configurable via `storage_class_name`).
 8. Ajuster domaines/creds dans `variable.tf` / tfvars chiffré.
+9. Si le cluster DOKS existe déjà, passez `-var='create_doks_cluster=false'` pour ne provisionner que les ressources K8s/Helm.
 
 ## Domaines par défaut (`root_domain`)
 - Prod : `root_domain_prod` (défaut : `fullfrontend.be`)
