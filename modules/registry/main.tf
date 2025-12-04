@@ -3,19 +3,18 @@ locals {
   s3_endpoint_effective = var.s3_endpoint != "" ? var.s3_endpoint : (var.s3_region != "" ? format("https://%s.digitaloceanspaces.com", var.s3_region) : "")
   storage_block = local.use_s3 ? {
     rootDirectory = "/var/lib/registry"
-    driver        = "s3"
-    s3 = {
-      bucket    = var.s3_bucket
-      region    = var.s3_region
-      endpoint  = local.s3_endpoint_effective
-      accessKey = var.s3_access_key
-      secretKey = var.s3_secret_key
-      secure    = var.s3_secure
+    storageDriver = {
+      name           = "s3"
+      regionEndpoint = local.s3_endpoint_effective
+      bucket         = var.s3_bucket
+      region         = var.s3_region
+      accessKey      = var.s3_access_key
+      secretKey      = var.s3_secret_key
+      secure         = var.s3_secure
     }
   } : {
     rootDirectory = "/var/lib/registry"
-    driver        = "local"
-    s3            = null
+    storageDriver = null
   }
   registry_auth_enabled = var.htpasswd_entry != ""
 }
@@ -55,15 +54,15 @@ resource "kubernetes_secret" "config" {
       http = {
         address = "0.0.0.0"
         port    = "5000"
+        auth = local.registry_auth_enabled ? {
+          htpasswd = {
+            path = "/etc/zot-auth/htpasswd"
+          }
+        } : null
       }
       log = {
         level = "info"
       }
-      auth = local.registry_auth_enabled ? {
-        htpasswd = {
-          path = "/etc/zot-auth/htpasswd"
-        }
-      } : null
     })
   }
 }
