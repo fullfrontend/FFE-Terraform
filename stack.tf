@@ -18,8 +18,6 @@ locals {
   ingress_class_name = local.is_prod ? "traefik" : "nginx"
   postgres_app_map   = { for app in var.postgres_app_credentials : app.name => app }
   mariadb_app_map    = { for app in var.mariadb_app_credentials : app.name => app }
-  postgres_service   = "postgres.data.svc.cluster.local"
-  mariadb_service    = "mariadb.data.svc.cluster.local"
 }
 
 module "doks-cluster" {
@@ -89,7 +87,7 @@ module "n8n" {
 
   host               = format("n8n.%s", local.root_domain)
   webhook_host       = format("webhook.%s", local.root_domain)
-  db_host            = local.postgres_service
+  db_host            = module.k8s-config.postgres_service_fqdn
   db_port            = var.n8n_db_port
   db_name            = local.postgres_app_map["n8n-ffe"].db_name
   db_user            = local.postgres_app_map["n8n-ffe"].user
@@ -107,7 +105,7 @@ module "wordpress" {
 
   host               = local.root_domain
   tls_secret_name    = var.wp_tls_secret_name
-  db_host            = local.mariadb_service
+  db_host            = module.k8s-config.mariadb_service_fqdn
   db_port            = var.wp_db_port
   db_name            = local.mariadb_app_map["ffe-website"].db_name
   db_user            = local.mariadb_app_map["ffe-website"].user
@@ -132,7 +130,7 @@ module "nextcloud" {
 
   host               = format("cloud.%s", local.root_domain)
   tls_secret_name    = var.nextcloud_tls_secret_name
-  db_host            = local.postgres_service
+  db_host            = module.k8s-config.postgres_service_fqdn
   db_port            = var.nextcloud_db_port
   db_name            = local.postgres_app_map["nextcloud-ffe"].db_name
   db_user            = local.postgres_app_map["nextcloud-ffe"].user
@@ -155,7 +153,7 @@ module "mailu" {
   host               = format("mail.%s", local.root_domain)
   domain             = local.root_domain
   tls_secret_name    = var.mailu_tls_secret_name
-  db_host            = local.postgres_service
+  db_host            = module.k8s-config.postgres_service_fqdn
   db_port            = var.mailu_db_port
   db_name            = local.postgres_app_map["mailu-ffe"].db_name
   db_user            = local.postgres_app_map["mailu-ffe"].user
