@@ -8,6 +8,7 @@ actor User
 
 rectangle "DigitalOcean DNS" as DODNS
 database "DO Spaces\n(Velero backups)" as Spaces
+database "DO Spaces\n(WP uploads via plugin)" as SpacesWP
 
 package "Kubernetes (DOKS)\nnode pool autoscaling" {
   package "infra namespace" {
@@ -41,6 +42,8 @@ Apps --> Postgres : n8n / Analytics / Registry / planned apps
 Postgres ..> Velero : backups
 MariaDB ..> Velero : backups
 
+Apps ..> SpacesWP : WP uploads (plugin offload)
+
 Apps --> ExtDNS : hosts auto-update
 Apps --> Cert : certificates (prod)
 ExtDNS ..> DODNS : auto-update
@@ -68,5 +71,6 @@ Prod settings:
 - external-dns -> DO DNS
 - cert-manager enabled
 - Registry exposed via ingress (Zot)
+- WP uploads offloaded via plugin to DO Spaces
 endlegend
 @enduml

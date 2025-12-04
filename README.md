@@ -55,6 +55,7 @@ Pour le cadre global et les règles :
 - Accès DB : `kubectl port-forward` ponctuel (Postgres `kubectl port-forward svc/postgres 5432:5432 -n data`, MariaDB `kubectl port-forward svc/mariadb 3306:3306 -n data`).
 - Secrets : jamais en clair dans git ; utiliser SOPS/age ou variables d’environnement `TF_VAR_*` (secrets identiques en dev/prod).
 - Init Jobs Postgres/MariaDB : un Job Terraform (TTL 120s) crée DB/utilisateur pour chaque app avec `IF NOT EXISTS`. Si le Job est garbage collecté ou si vous ajoutez une app, il sera recréé au prochain apply et ajoutera les bases manquantes sans toucher aux existantes.
+- Offload WordPress uploads : utiliser le plugin [Amazon S3 and CloudFront](https://wordpress.org/plugins/amazon-s3-and-cloudfront/) avec un bucket Spaces et des credentials DO (non gérés par Terraform).
 
 ### Mailu et multi-domaine
 - Un seul host exposé suffit (ex: `mail.<root_domain>`) si les MX des autres domaines pointent vers ce host. Dans Mailu admin : ajouter les domaines secondaires puis comptes/alias.
