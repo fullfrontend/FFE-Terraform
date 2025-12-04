@@ -32,7 +32,7 @@ Pour le cadre global et les règles :
 2. Créer vos secrets à partir de l’exemple : `cp secrets.tfvars.example secrets.tfvars` puis remplissez les valeurs.
 3. Chiffrer `secrets.tfvars.enc` avec vos mots de passe (mêmes secrets pour dev/prod) : `bin/sops-encrypt.sh secrets.tfvars secrets.tfvars.enc`.
 3. Choisir l’environnement : `export APP_ENV=dev` ou `APP_ENV=prod`.
-4. `terraform init`.
+4. `tofu init`.
 5. En prod, récupérer le kubeconfig DOKS après création du cluster (écriture dans `./.kube/config`, ex : `mkdir -p .kube && doctl kubernetes cluster kubeconfig save <cluster> --kubeconfig ./.kube/config --set-current-context`).
 6. `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`).
 7. Vérifier la StorageClass en dev (`hostpath` par défaut, configurable via `storage_class_name`).
