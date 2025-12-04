@@ -63,6 +63,14 @@ resource "kubernetes_secret" "config" {
       log = {
         level = "info"
       }
+      extensions = {
+        metrics = {
+          enable = true
+          prometheus = {
+            path = "/metrics"
+          }
+        }
+      }
     })
   }
 }
