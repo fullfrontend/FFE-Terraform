@@ -32,7 +32,8 @@ node "Kubernetes (DOKS)\nnode pool autoscaling" {
   }
 }
 
-User --> Traefik
+User --> DODNS
+DODNS --> Traefik
 Traefik --> WP
 Traefik --> N8N
 Traefik --> Vince
@@ -46,8 +47,25 @@ Vince --> Postgres
 Zot --> Postgres
 Mailu --> Postgres
 Nextcloud --> Postgres
+"Postgres" ..> "Velero" : backups
+"MariaDB" ..> "Velero" : backups
 
-"external-dns" --> DODNS
+WP --> "external-dns"
+N8N --> "external-dns"
+Vince --> "external-dns"
+Zot --> "external-dns"
+Mailu --> "external-dns"
+Nextcloud --> "external-dns"
+"external-dns" ..> DODNS : auto-update
+
+WP --> "cert-manager"
+N8N --> "cert-manager"
+Vince --> "cert-manager"
+Zot --> "cert-manager"
+Mailu --> "cert-manager"
+Nextcloud --> "cert-manager"
+"cert-manager" ..> DODNS : auto-update
+
 Velero --> Spaces
 
 note right of Traefik
