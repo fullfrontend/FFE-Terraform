@@ -2,6 +2,8 @@
 
 Provision et déploiement complet d’une stack Kubernetes sur DigitalOcean (prod) ou sur un cluster local (dev, ex: docker-desktop) avec OpenTofu/Helm.
 
+👉 Contexte détaillé (blog post) : `INITIAL_BLOG_POST.md`
+
 Pour le cadre global et les règles :
 - Contexte humain : `CONTEXT_INFRA.md`
 - Contexte IA : `docs/CONTEXT.md`
@@ -88,6 +90,7 @@ Choisis une approche et aligne les noms de secrets avec ceux attendus par les in
 
 ## Documentation
 - Schéma prod : `docs/architecture-prod.png`
+- Blog post (contexte et démarche) : `INITIAL_BLOG_POST.md`
 - DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest  
 - Kubernetes : https://search.opentofu.org/provider/hashicorp/kubernetes/latest  
 - Helm : https://search.opentofu.org/provider/hashicorp/helm/latest  
