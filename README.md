@@ -39,15 +39,14 @@ Pour le cadre global et les règles :
 8. Ajuster domaines/creds dans `variable.tf` / tfvars chiffré.
 
 ## Domaines par défaut (`root_domain`)
-- Prod : `fullfrontend.be` (variable `root_domain_prod`)
-- Dev : `fullfrontend.kube` (variable `root_domain_dev`)
-- WordPress : `<root_domain>`
-- n8n : `n8n.<root_domain>` + `webhook.<root_domain>`
-- Nextcloud : `cloud.<root_domain>`
-- Mailu : `mail.<root_domain>` + MX/SPF/DKIM/DMARC
-- Analytics (Vince) : `insights.<root_domain>` (choisi pour éviter les bloqueurs)
-- Registry : `registry.<root_domain>`
-- Les FQDN sont dérivés uniquement de `root_domain` (pas d’override app par app).
+- Prod : `root_domain_prod` (défaut : `fullfrontend.be`)
+- Dev : `root_domain_dev` (défaut : `fullfrontend.kube`)
+- Les FQDN sont dérivés uniquement de `root_domain` (pas d’override app par app) :
+  - WordPress : `<root_domain>` → prod `fullfrontend.be`, dev `fullfrontend.kube`
+  - n8n : `n8n.<root_domain>` + `webhook.<root_domain>` → prod `n8n.fullfrontend.be`, dev `n8n.fullfrontend.kube`
+  - Nextcloud : `cloud.<root_domain>` → prod `cloud.fullfrontend.be`, dev `cloud.fullfrontend.kube`
+  - Mailu : `mail.<root_domain>` → prod `mail.fullfrontend.be`, dev `mail.fullfrontend.kube`
+  - Analytics : `insights.<root_domain>` → prod `insights.fullfrontend.be`, dev `insights.fullfrontend.kube`
 
 ## Bonnes pratiques
 - Pas de charts/images Bitnami.
@@ -57,7 +56,7 @@ Pour le cadre global et les règles :
 - Init Jobs Postgres/MariaDB : un Job Terraform (TTL 120s) crée DB/utilisateur pour chaque app avec `IF NOT EXISTS`. Si le Job est garbage collecté ou si vous ajoutez une app, il sera recréé au prochain apply et ajoutera les bases manquantes sans toucher aux existantes.
 
 ### Mailu et multi-domaine
-- Un seul host exposé suffit (ex: `mail.<root_domain>`) si les MX des autres domaines pointent vers ce host. Dans Mailu admin : ajouter les domaines (`he8us.be`, `perinatalite.be`, etc.) puis comptes/alias.
+- Un seul host exposé suffit (ex: `mail.<root_domain>`) si les MX des autres domaines pointent vers ce host. Dans Mailu admin : ajouter les domaines secondaires puis comptes/alias.
 - DNS : MX des domaines supplémentaires vers `mail.<root_domain>`, SPF/DKIM/DMARC alignés sur ce host.
 - Si tu veux exposer plusieurs FQDN (ex: `mail.he8us.be`), ajoute ces hosts dans l’ingress Mailu et assure-toi que le certificat TLS couvre ces SAN.
 
