@@ -76,7 +76,7 @@ Pour le cadre global et les règles :
 
 ## TLS en dev (cluster local)
 - cert-manager est désactivé en dev. Options :
-  1) Générer une CA locale immuable + wildcard : `mkcert -install` puis `mkcert "*.docker.internal"` (ou `*.<root_domain>` si résolu en local) ; créer un secret TLS par ingress, ex : `kubectl create secret tls wordpress-tls --cert=fullchain.pem --key=privkey.pem -n apps`.
+  1) Générer une CA locale immutable + wildcard : `mkcert -install` puis `mkcert "*.docker.internal"` (ou `*.<root_domain>` si résolu en local) ; créer un secret TLS par ingress, ex : `kubectl create secret tls wordpress-tls --cert=fullchain.pem --key=privkey.pem -n apps`.
   2) Accepter du HTTP en dev (supprimer les blocs TLS des ingress).
   3) Utiliser un proxy local qui termine TLS avec le certificat généré (traefik local).
 Choisis une approche et aligne les noms de secrets avec ceux attendus par les ingress (`wordpress-tls`, `nextcloud-tls`, `mailu-tls`, `analytics-tls`, `n8n-tls` si besoin).
