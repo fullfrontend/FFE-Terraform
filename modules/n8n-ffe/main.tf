@@ -95,6 +95,14 @@ resource "helm_release" "n8n" {
     {
       name  = "main.extraEnvVars.N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE"
       value = "true"
+    },
+    {
+      name  = "main.extraEnvVars.N8N_BLOCK_ENV_ACCESS_IN_NODE"
+      value = "true"
+    },
+    {
+      name  = "main.extraEnvVars.N8N_GIT_NODE_DISABLE_BARE_REPOS"
+      value = "true"
     }
   ]
 
