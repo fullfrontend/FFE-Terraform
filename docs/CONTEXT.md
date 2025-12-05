@@ -48,4 +48,5 @@ Règles IA
 - Séparer stateful (PVC) et objet (Spaces/MinIO).  
 - Architecture modulaire (infra, data, apps).  
 - DB Postgres par défaut ; MariaDB seulement si l’app ne supporte pas Postgres (ex : WordPress).  
-- Bannir Bitnami.
+- Bannir Bitnami.  
+- kubectl autorisé pour le debug/inspection ponctuelle.

@@ -2,6 +2,11 @@ locals {
   use_s3                = var.storage_backend == "s3"
   s3_endpoint_effective = var.s3_endpoint != "" ? var.s3_endpoint : (var.s3_region != "" ? format("https://%s.digitaloceanspaces.com", var.s3_region) : "")
   storage_block = local.use_s3 ? {
+    /*
+        With remote storage (S3), disable dedupe unless a remote DB is configured.
+        This avoids zot failing with "dedupe set to true with remote storage and database, but no remote database configured".
+    */
+    dedupe        = false
     rootDirectory = "/var/lib/registry"
     storageDriver = {
       name           = "s3"
@@ -13,6 +18,7 @@ locals {
       secure         = var.s3_secure
     }
     } : {
+    dedupe        = false
     rootDirectory = "/var/lib/registry"
     storageDriver = null
   }
@@ -59,6 +65,15 @@ resource "kubernetes_secret" "config" {
           prometheus = {
             path = "/metrics"
           }
+        }
+        /*
+            Enable Zot GUI (+ search API backing it). The image already bundles zui.
+        */
+        ui = {
+          enable = true
+        }
+        search = {
+          enable = true
         }
       }
     })

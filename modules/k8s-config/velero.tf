@@ -100,6 +100,22 @@ resource "helm_release" "velero" {
     {
       name  = "kubectl.image.repository"
       value = "registry.k8s.io/kubectl"
+    },
+    {
+      name  = "initContainers[0].name"
+      value = "velero-plugin-for-aws"
+    },
+    {
+      name  = "initContainers[0].image"
+      value = "velero/velero-plugin-for-aws:v1.9.2"
+    },
+    {
+      name  = "initContainers[0].volumeMounts[0].mountPath"
+      value = "/target"
+    },
+    {
+      name  = "initContainers[0].volumeMounts[0].name"
+      value = "plugins"
     }
   ]
 
