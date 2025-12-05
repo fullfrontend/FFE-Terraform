@@ -21,7 +21,7 @@ variable "ingress_class_name" {
 
 variable "enable_tls" {
   type        = bool
-  default     = true
+  default     = false
   description = "Activer TLS/cert-manager pour l'ingress WordPress"
 }
 
@@ -66,6 +66,81 @@ variable "storage_size" {
 variable "image" {
   type        = string
   description = "Image WordPress (officielle, non Bitnami)"
+}
+
+variable "as3_provider" {
+  type        = string
+  default     = "do"
+  description = "Provider pour AS3CF (ex: do)"
+}
+
+variable "as3_access_key" {
+  type        = string
+  default     = ""
+  description = "Access key pour AS3CF"
+  sensitive   = true
+}
+
+variable "as3_secret_key" {
+  type        = string
+  default     = ""
+  description = "Secret key pour AS3CF"
+  sensitive   = true
+}
+
+variable "mail_from" {
+  type        = string
+  default     = ""
+  description = "Adresse expéditeur pour WP Mail SMTP"
+}
+
+variable "mail_from_name" {
+  type        = string
+  default     = ""
+  description = "Nom expéditeur pour WP Mail SMTP"
+}
+
+variable "smtp_host" {
+  type        = string
+  default     = ""
+  description = "Host SMTP pour WP Mail SMTP"
+}
+
+variable "smtp_port" {
+  type        = string
+  default     = "465"
+  description = "Port SMTP pour WP Mail SMTP"
+}
+
+variable "smtp_ssl" {
+  type        = string
+  default     = "ssl"
+  description = "Mode SSL/TLS pour WP Mail SMTP ('', 'ssl', 'tls')"
+}
+
+variable "smtp_auth" {
+  type        = bool
+  default     = true
+  description = "Activer l'auth SMTP"
+}
+
+variable "smtp_user" {
+  type        = string
+  default     = ""
+  description = "Utilisateur SMTP"
+}
+
+variable "smtp_pass" {
+  type        = string
+  default     = ""
+  description = "Mot de passe SMTP"
+  sensitive   = true
+}
+
+variable "wp_lang" {
+  type        = string
+  default     = "fr_FR"
+  description = "Langue WordPress (constante WPLANG)"
 }
 
 variable "dockerhub_user" {

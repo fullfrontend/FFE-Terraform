@@ -142,6 +142,18 @@ module "wordpress" {
   dockerhub_pat      = var.dockerhub_pat
   dockerhub_email    = var.dockerhub_email
   velero_namespace   = module.k8s-config.velero_namespace
+  as3_provider       = var.wp_as3_provider
+  as3_access_key     = var.wp_as3_access_key
+  as3_secret_key     = var.wp_as3_secret_key
+  mail_from          = var.wp_mail_from
+  mail_from_name     = var.wp_mail_from_name
+  smtp_host          = var.wp_smtp_host
+  smtp_port          = var.wp_smtp_port
+  smtp_ssl           = var.wp_smtp_ssl
+  smtp_auth          = var.wp_smtp_auth
+  smtp_user          = var.wp_smtp_user
+  smtp_pass          = var.wp_smtp_pass
+  wp_lang            = var.wp_lang
 }
 //*/
 

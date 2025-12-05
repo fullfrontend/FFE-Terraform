@@ -24,6 +24,51 @@ resource "kubernetes_config_map" "apache_servername" {
   }
 }
 
+resource "kubernetes_config_map" "php_uploads" {
+  metadata {
+    name      = "wordpress-php-uploads"
+    namespace = kubernetes_namespace.wordpress.metadata[0].name
+  }
+
+  data = {
+    "uploads.ini" = <<-EOT
+      upload_max_filesize = 100M
+      post_max_size = 100M
+    EOT
+  }
+}
+
+/*
+    Extra config injected into wp-config.php via WORDPRESS_CONFIG_EXTRA
+    (AS3CF + WP Mail SMTP + langue).
+*/
+locals {
+  wordpress_config_extra = <<-EOT
+    define('AS3CF_SETTINGS', serialize([
+        'provider'          => '${var.as3_provider}',
+        'access-key-id'     => '${var.as3_access_key}',
+        'secret-access-key' => '${var.as3_secret_key}',
+    ]));
+
+    define('WPMS_ON', true);
+    define('WPMS_MAIL_FROM', '${var.mail_from}');
+    define('WPMS_MAIL_FROM_FORCE', true);
+    define('WPMS_MAIL_FROM_NAME', '${var.mail_from_name}');
+    define('WPMS_MAIL_FROM_NAME_FORCE', true);
+    define('WPMS_SET_RETURN_PATH', true);
+    define('WPMS_SMTP_HOST', '${var.smtp_host}');
+    define('WPMS_SMTP_PORT', '${var.smtp_port}');
+    define('WPMS_SSL', '${var.smtp_ssl}');
+    define('WPMS_SMTP_AUTH', ${var.smtp_auth});
+    define('WPMS_SMTP_USER', '${var.smtp_user}');
+    define('WPMS_SMTP_PASS', '${var.smtp_pass}');
+    define('WPMS_SMTP_AUTOTLS', false);
+    define('WPMS_MAILER', 'smtp');
+
+    define('WPLANG', '${var.wp_lang}');
+  EOT
+}
+
 resource "kubernetes_secret" "dockerhub" {
   count = var.dockerhub_user != "" ? 1 : 0
 
@@ -150,6 +195,10 @@ resource "kubernetes_deployment" "wordpress" {
               }
             }
           }
+          env {
+            name  = "WORDPRESS_CONFIG_EXTRA"
+            value = local.wordpress_config_extra
+          }
 
           volume_mount {
             name       = "wordpress-content"
@@ -160,6 +209,13 @@ resource "kubernetes_deployment" "wordpress" {
             name       = "apache-servername"
             mount_path = "/etc/apache2/conf-enabled/servername.conf"
             sub_path   = "servername.conf"
+            read_only  = true
+          }
+
+          volume_mount {
+            name       = "php-uploads"
+            mount_path = "/usr/local/etc/php/conf.d/uploads.ini"
+            sub_path   = "uploads.ini"
             read_only  = true
           }
         }
@@ -177,6 +233,14 @@ resource "kubernetes_deployment" "wordpress" {
 
           config_map {
             name = kubernetes_config_map.apache_servername.metadata[0].name
+          }
+        }
+
+        volume {
+          name = "php-uploads"
+
+          config_map {
+            name = kubernetes_config_map.php_uploads.metadata[0].name
           }
         }
 

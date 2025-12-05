@@ -67,6 +67,81 @@ variable "wp_image" {
   description = "Image WordPress (officielle, non Bitnami)"
 }
 
+variable "wp_as3_provider" {
+  type        = string
+  default     = "do"
+  description = "Provider pour AS3CF (ex: do)"
+}
+
+variable "wp_as3_access_key" {
+  type        = string
+  default     = ""
+  description = "Access key pour AS3CF"
+  sensitive   = true
+}
+
+variable "wp_as3_secret_key" {
+  type        = string
+  default     = ""
+  description = "Secret key pour AS3CF"
+  sensitive   = true
+}
+
+variable "wp_mail_from" {
+  type        = string
+  default     = ""
+  description = "Adresse expéditeur pour WP Mail SMTP"
+}
+
+variable "wp_mail_from_name" {
+  type        = string
+  default     = ""
+  description = "Nom expéditeur pour WP Mail SMTP"
+}
+
+variable "wp_smtp_host" {
+  type        = string
+  default     = ""
+  description = "Host SMTP pour WP Mail SMTP"
+}
+
+variable "wp_smtp_port" {
+  type        = string
+  default     = "465"
+  description = "Port SMTP pour WP Mail SMTP"
+}
+
+variable "wp_smtp_ssl" {
+  type        = string
+  default     = "ssl"
+  description = "Mode SSL/TLS pour WP Mail SMTP ('', 'ssl', 'tls')"
+}
+
+variable "wp_smtp_auth" {
+  type        = bool
+  default     = true
+  description = "Activer l'auth SMTP"
+}
+
+variable "wp_smtp_user" {
+  type        = string
+  default     = ""
+  description = "Utilisateur SMTP"
+}
+
+variable "wp_smtp_pass" {
+  type        = string
+  default     = ""
+  description = "Mot de passe SMTP"
+  sensitive   = true
+}
+
+variable "wp_lang" {
+  type        = string
+  default     = "fr_FR"
+  description = "Langue WordPress (constante WPLANG)"
+}
+
 # Nextcloud (Postgres externe)
 variable "nextcloud_tls_secret_name" {
   type        = string
