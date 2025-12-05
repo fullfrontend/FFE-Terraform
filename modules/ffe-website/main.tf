@@ -1,43 +1,3 @@
-resource "kubernetes_secret" "db" {
-  metadata {
-    name      = "wordpress-db"
-    namespace = kubernetes_namespace.wordpress.metadata[0].name
-  }
-
-  data = {
-    db_host     = var.db_host
-    db_port     = tostring(var.db_port)
-    db_name     = var.db_name
-    db_user     = var.db_user
-    db_password = var.db_password
-  }
-}
-
-resource "kubernetes_config_map" "apache_servername" {
-  metadata {
-    name      = "wordpress-apache-servername"
-    namespace = kubernetes_namespace.wordpress.metadata[0].name
-  }
-
-  data = {
-    "servername.conf" = "ServerName ${var.host}"
-  }
-}
-
-resource "kubernetes_config_map" "php_uploads" {
-  metadata {
-    name      = "wordpress-php-uploads"
-    namespace = kubernetes_namespace.wordpress.metadata[0].name
-  }
-
-  data = {
-    "uploads.ini" = <<-EOT
-      upload_max_filesize = 100M
-      post_max_size = 100M
-    EOT
-  }
-}
-
 /*
     Extra config injected into wp-config.php via WORDPRESS_CONFIG_EXTRA
     (AS3CF + WP Mail SMTP + langue).
@@ -67,30 +27,6 @@ locals {
 
     define('WPLANG', '${var.wp_lang}');
   EOT
-}
-
-resource "kubernetes_secret" "dockerhub" {
-  count = var.dockerhub_user != "" ? 1 : 0
-
-  metadata {
-    name      = "dockerhub-credentials"
-    namespace = kubernetes_namespace.wordpress.metadata[0].name
-  }
-
-  type = "kubernetes.io/dockerconfigjson"
-
-  data = {
-    ".dockerconfigjson" = jsonencode({
-      auths = {
-        "https://index.docker.io/v1/" = {
-          username = var.dockerhub_user
-          password = var.dockerhub_pat
-          email    = var.dockerhub_email
-          auth     = base64encode("${var.dockerhub_user}:${var.dockerhub_pat}")
-        }
-      }
-    })
-  }
 }
 
 resource "kubernetes_persistent_volume_claim" "wp_content" {
