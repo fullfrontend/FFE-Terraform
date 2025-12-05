@@ -33,6 +33,22 @@ resource "helm_release" "nextcloud" {
       value = var.ingress_class_name
     },
     {
+      name  = "ingress.annotations.kubernetes\\.io/ingress\\.class"
+      value = var.ingress_class_name
+    },
+    {
+      name  = "ingress.annotations.kubernetes\\.io/ingress\\.allow-http"
+      value = "true"
+    },
+    {
+      name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.entrypoints"
+      value = "web,websecure"
+    },
+    {
+      name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.middlewares"
+      value = "infra-redirect-https@kubernetescrd"
+    },
+    {
       name  = "ingress.hosts[0].host"
       value = var.host
     },
