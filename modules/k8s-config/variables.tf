@@ -24,6 +24,11 @@ variable "do_token" {
   description = "DigitalOcean API token (pour external-dns)"
 }
 
+variable "root_domain" {
+  type        = string
+  description = "Domaine racine (utilisé par external-dns pour filtrer/ownership TXT)"
+}
+
 # Velero (Spaces S3 pour backups)
 variable "enable_velero" {
   type        = bool

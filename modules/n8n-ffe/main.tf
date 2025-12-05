@@ -81,6 +81,16 @@ resource "helm_release" "n8n" {
       value = var.ingress_class_name
     },
     {
+      name  = "ingress.annotations.kubernetes\\.io/ingress\\.class"
+      value = var.ingress_class_name
+      type  = "string"
+    },
+    {
+      name  = "ingress.annotations.nginx\\.ingress\\.kubernetes\\.io/ssl-redirect"
+      value = "true"
+      type  = "string"
+    },
+    {
       name  = "redis.enabled"
       value = true
     },
@@ -120,10 +130,12 @@ resource "helm_release" "n8n" {
     {
       name  = "ingress.annotations.cert-manager\\.io/cluster-issuer"
       value = "letsencrypt-prod"
+      type  = "string"
     },
     {
       name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.tls"
       value = "true"
+      type  = "string"
     },
     {
       name  = "ingress.tls[0].hosts[0]"

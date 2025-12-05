@@ -254,7 +254,7 @@ variable "doks_name" {
 
 variable "create_doks_cluster" {
   type        = bool
-  default     = true
+  default     = false
   description = "Créer le cluster DOKS (mettre false si le cluster existe déjà et qu’on veut uniquement provisionner K8s/Helm)"
 }
 

@@ -31,8 +31,16 @@ resource "helm_release" "external_dns" {
       value = "digitalocean"
     },
     {
+      name  = "registry"
+      value = "txt"
+    },
+    {
       name  = "policy"
       value = "sync"
+    },
+    {
+      name  = "domainFilters[0]"
+      value = var.root_domain
     },
     {
       name  = "sources[0]"
@@ -44,7 +52,7 @@ resource "helm_release" "external_dns" {
     },
     {
       name  = "txtOwnerId"
-      value = var.cluster_name
+      value = var.root_domain
     },
     {
       name  = "env[0].name"
