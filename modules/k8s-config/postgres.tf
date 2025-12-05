@@ -6,28 +6,6 @@ locals {
   ) : {}
 }
 
-resource "kubernetes_secret" "postgres" {
-  metadata {
-    name      = "postgres-root"
-    namespace = kubernetes_namespace.data.metadata[0].name
-  }
-
-  data = {
-    POSTGRES_PASSWORD = var.postgres_root_password
-  }
-}
-
-resource "kubernetes_secret" "postgres_init" {
-  count = length(var.postgres_app_credentials) > 0 ? 1 : 0
-
-  metadata {
-    name      = "postgres-initdb"
-    namespace = kubernetes_namespace.data.metadata[0].name
-  }
-
-  data = local.postgres_init_creds
-}
-
 resource "kubernetes_job" "postgres_init" {
   count = length(var.postgres_app_credentials) > 0 ? 1 : 0
 
@@ -283,24 +261,4 @@ resource "kubernetes_stateful_set_v1" "postgres" {
     App-facing secrets: consumed by apps (host/port/db/user/password).
     Init secrets live in data namespace (postgres-initdb) and are admin-only.
 */
-resource "kubernetes_secret" "postgres_apps" {
-  for_each = { for app in var.postgres_app_credentials : app.name => app }
-
-  metadata {
-    name      = "postgres-${each.value.name}"
-    namespace = kubernetes_namespace.data.metadata[0].name
-    labels = {
-      "app.kubernetes.io/managed-by" = "terraform"
-      "db"                           = "postgres"
-      "app"                          = each.value.name
-    }
-  }
-
-  data = {
-    host     = kubernetes_service.postgres.metadata[0].name
-    port     = "5432"
-    database = each.value.db_name
-    user     = each.value.user
-    password = each.value.password
-  }
-}
+// moved to secrets.tf

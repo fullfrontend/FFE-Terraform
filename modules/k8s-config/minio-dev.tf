@@ -52,20 +52,6 @@ resource "kubernetes_persistent_volume_claim" "minio_dev" {
   }
 }
 
-resource "kubernetes_secret" "minio_dev" {
-  count = var.is_prod || !var.enable_velero ? 0 : 1
-
-  metadata {
-    name      = "minio-dev-credentials"
-    namespace = kubernetes_namespace.infra.metadata[0].name
-  }
-
-  data = {
-    accesskey = var.minio_access_key
-    secretkey = var.minio_secret_key
-  }
-}
-
 resource "kubernetes_deployment" "minio_dev" {
   count = var.is_prod || !var.enable_velero ? 0 : 1
 

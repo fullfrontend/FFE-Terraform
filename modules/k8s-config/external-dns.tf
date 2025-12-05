@@ -2,19 +2,6 @@
     external-dns only in prod:
     sync ingress hosts to DigitalOcean DNS
 */
-resource "kubernetes_secret" "external_dns_do_token" {
-  count = var.is_prod ? 1 : 0
-
-  metadata {
-    name      = "external-dns-do-token"
-    namespace = kubernetes_namespace.infra.metadata[0].name
-  }
-
-  data = {
-    DO_TOKEN = var.do_token
-  }
-}
-
 locals {
   external_dns_sets = concat(
     [

@@ -6,28 +6,6 @@ locals {
   ) : {}
 }
 
-resource "kubernetes_secret" "mariadb" {
-  metadata {
-    name      = "mariadb-root"
-    namespace = kubernetes_namespace.data.metadata[0].name
-  }
-
-  data = {
-    MARIADB_ROOT_PASSWORD = var.mariadb_root_password
-  }
-}
-
-resource "kubernetes_secret" "mariadb_init" {
-  count = length(var.mariadb_app_credentials) > 0 ? 1 : 0
-
-  metadata {
-    name      = "mariadb-initdb"
-    namespace = kubernetes_namespace.data.metadata[0].name
-  }
-
-  data = local.mariadb_init_creds
-}
-
 resource "kubernetes_service" "mariadb" {
   metadata {
     name      = "mariadb"
@@ -134,32 +112,6 @@ resource "kubernetes_stateful_set_v1" "mariadb" {
         storage_class_name = var.storage_class_name != "" ? var.storage_class_name : null
       }
     }
-  }
-}
-
-/*
-    App-facing secrets: consumed by apps (host/port/db/user/password).
-    Init secrets live in data namespace (mariadb-initdb) and are admin-only.
-*/
-resource "kubernetes_secret" "mariadb_apps" {
-  for_each = { for app in var.mariadb_app_credentials : app.name => app }
-
-  metadata {
-    name      = "mariadb-${each.value.name}"
-    namespace = kubernetes_namespace.data.metadata[0].name
-    labels = {
-      "app.kubernetes.io/managed-by" = "terraform"
-      "db"                           = "mariadb"
-      "app"                          = each.value.name
-    }
-  }
-
-  data = {
-    host     = kubernetes_service.mariadb.metadata[0].name
-    port     = "3306"
-    database = each.value.db_name
-    user     = each.value.user
-    password = each.value.password
   }
 }
 
