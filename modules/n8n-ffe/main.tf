@@ -91,6 +91,21 @@ resource "helm_release" "n8n" {
       type  = "string"
     },
     {
+      name  = "ingress.annotations.kubernetes\\.io/ingress\\.allow-http"
+      value = "true"
+      type  = "string"
+    },
+    {
+      name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.entrypoints"
+      value = "web,websecure"
+      type  = "string"
+    },
+    {
+      name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.middlewares"
+      value = "infra-redirect-https@kubernetescrd"
+      type  = "string"
+    },
+    {
       name  = "redis.enabled"
       value = true
     },
