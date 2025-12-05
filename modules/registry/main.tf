@@ -25,27 +25,6 @@ locals {
   registry_auth_enabled = var.htpasswd_entry != ""
 }
 
-resource "kubernetes_persistent_volume_claim" "data" {
-  count = local.use_s3 ? 0 : 1
-
-  metadata {
-    name      = "registry-data"
-    namespace = kubernetes_namespace.registry.metadata[0].name
-  }
-
-  spec {
-    access_modes = ["ReadWriteOnce"]
-
-    resources {
-      requests = {
-        storage = var.storage_size
-      }
-    }
-
-    storage_class_name = null
-  }
-}
-
 resource "kubernetes_deployment" "registry" {
   lifecycle {
     precondition {

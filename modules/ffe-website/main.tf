@@ -29,23 +29,6 @@ locals {
   EOT
 }
 
-resource "kubernetes_persistent_volume_claim" "wp_content" {
-  metadata {
-    name      = "wordpress-content"
-    namespace = kubernetes_namespace.wordpress.metadata[0].name
-  }
-
-  spec {
-    access_modes = ["ReadWriteOnce"]
-
-    resources {
-      requests = {
-        storage = var.storage_size
-      }
-    }
-  }
-}
-
 resource "kubernetes_deployment" "wordpress" {
   metadata {
     name      = "wordpress"
