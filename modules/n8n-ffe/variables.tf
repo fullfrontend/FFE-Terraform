@@ -57,3 +57,9 @@ variable "enable_tls" {
   default     = true
   description = "Activer TLS/cert-manager pour l'ingress n8n"
 }
+
+variable "tls_secret_name" {
+  type        = string
+  default     = "n8n-tls"
+  description = "Secret TLS pour l'ingress n8n"
+}

@@ -1,13 +1,3 @@
-resource "kubernetes_namespace" "wordpress" {
-  metadata {
-    name = var.namespace
-    labels = {
-      "app.kubernetes.io/name"    = "wordpress"
-      "app.kubernetes.io/part-of" = "apps"
-    }
-  }
-}
-
 resource "kubernetes_secret" "db" {
   metadata {
     name      = "wordpress-db"

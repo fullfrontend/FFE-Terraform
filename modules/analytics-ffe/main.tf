@@ -8,16 +8,6 @@ locals {
   )
 }
 
-resource "kubernetes_namespace" "analytics" {
-  metadata {
-    name = var.namespace
-    labels = {
-      "app.kubernetes.io/name"    = "analytics"
-      "app.kubernetes.io/part-of" = "apps"
-    }
-  }
-}
-
 resource "helm_release" "vince" {
   name      = "vince"
   namespace = kubernetes_namespace.analytics.metadata[0].name
@@ -50,7 +40,7 @@ resource "helm_release" "vince" {
       },
       {
         name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.entrypoints"
-        value = "web,websecure"
+        value = "web\\,websecure"
       },
       {
         name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.middlewares"

@@ -73,3 +73,9 @@ variable "admin_password" {
   sensitive   = true
   description = "Mot de passe admin initial"
 }
+
+variable "enable_tls" {
+  type        = bool
+  default     = true
+  description = "Activer TLS/cert-manager pour l'ingress Mailu"
+}

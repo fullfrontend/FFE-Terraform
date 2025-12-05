@@ -62,3 +62,9 @@ variable "ingress_class_name" {
   type        = string
   description = "IngressClassName (ex: traefik en prod, nginx en dev)"
 }
+
+variable "enable_tls" {
+  type        = bool
+  default     = true
+  description = "Activer TLS/cert-manager pour l'ingress Nextcloud"
+}
