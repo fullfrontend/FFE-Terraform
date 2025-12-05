@@ -149,6 +149,13 @@ resource "kubernetes_deployment" "wordpress" {
           }
 
           volume_mount {
+            name       = "apache-webp"
+            mount_path = "/etc/apache2/conf-enabled/webp.conf"
+            sub_path   = "webp.conf"
+            read_only  = true
+          }
+
+          volume_mount {
             name       = "php-uploads"
             mount_path = "/usr/local/etc/php/conf.d/uploads.ini"
             sub_path   = "uploads.ini"
@@ -169,6 +176,14 @@ resource "kubernetes_deployment" "wordpress" {
 
           config_map {
             name = kubernetes_config_map.apache_servername.metadata[0].name
+          }
+        }
+
+        volume {
+          name = "apache-webp"
+
+          config_map {
+            name = kubernetes_config_map.apache_webp_htaccess.metadata[0].name
           }
         }
 

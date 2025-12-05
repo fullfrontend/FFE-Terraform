@@ -6,7 +6,6 @@ locals {
       "kubernetes.io/ingress.class"                      = var.ingress_class_name
       "kubernetes.io/ingress.allow-http"                 = "true"
       "traefik.ingress.kubernetes.io/router.entrypoints" = "web,websecure"
-      "external-dns.alpha.kubernetes.io/exclude"         = "true"
     },
     var.enable_tls ? {
       "cert-manager.io/cluster-issuer"                   = "letsencrypt-prod"
@@ -20,7 +19,6 @@ locals {
     "kubernetes.io/ingress.allow-http"                 = "true"
     "traefik.ingress.kubernetes.io/router.entrypoints" = "web"
     "traefik.ingress.kubernetes.io/router.middlewares" = "infra-redirect-https@kubernetescrd"
-    "external-dns.alpha.kubernetes.io/exclude"         = "true"
   }
 }
 
@@ -128,7 +126,6 @@ resource "kubernetes_ingress_v1" "wordpress_www_redirect" {
       "kubernetes.io/ingress.allow-http"                 = "true"
       "traefik.ingress.kubernetes.io/router.entrypoints" = "web"
       "traefik.ingress.kubernetes.io/router.middlewares" = "${kubernetes_namespace.wordpress.metadata[0].name}-wordpress-www-redirect@kubernetescrd"
-      "external-dns.alpha.kubernetes.io/exclude"         = "true"
     }
   }
 

@@ -22,3 +22,31 @@ resource "kubernetes_config_map" "php_uploads" {
     EOT
   }
 }
+
+resource "kubernetes_config_map" "apache_webp_htaccess" {
+  metadata {
+    name      = "wordpress-apache-webp"
+    namespace = kubernetes_namespace.wordpress.metadata[0].name
+  }
+
+  data = {
+    "webp.conf" = <<-EOT
+      <Directory /var/www/html>
+        <IfModule mod_rewrite.c>
+          RewriteEngine On
+          RewriteCond %%{HTTP_ACCEPT} image/webp
+          RewriteCond %%{REQUEST_FILENAME} (.*)\.(jpe?g|png|gif)$
+          RewriteCond %%{REQUEST_FILENAME}\\.webp -f
+          RewriteCond %%{QUERY_STRING} !type=original
+          RewriteRule (.+)\\.(jpe?g|png|gif)$ %%{REQUEST_URI}.webp [T=image/webp,L]
+        </IfModule>
+        <IfModule mod_headers.c>
+          <FilesMatch "\\.(jpe?g|png|gif)$">
+            Header append Vary Accept
+          </FilesMatch>
+        </IfModule>
+        AddType image/webp .webp
+      </Directory>
+    EOT
+  }
+}

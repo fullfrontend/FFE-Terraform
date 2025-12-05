@@ -21,7 +21,7 @@ variable "ingress_class_name" {
 
 variable "enable_tls" {
   type        = bool
-  default     = false
+  default     = true
   description = "Activer TLS/cert-manager pour l'ingress WordPress"
 }
 
