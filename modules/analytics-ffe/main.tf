@@ -45,6 +45,18 @@ resource "helm_release" "vince" {
         value = "true"
       },
       {
+        name  = "ingress.annotations.kubernetes\\.io/ingress\\.allow-http"
+        value = "true"
+      },
+      {
+        name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.entrypoints"
+        value = "web,websecure"
+      },
+      {
+        name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.middlewares"
+        value = "infra-redirect-https@kubernetescrd"
+      },
+      {
         name  = "ingress.tls[0].hosts[0]"
         value = var.host
       },
@@ -60,48 +72,4 @@ resource "helm_release" "vince" {
       value = var.admin_password
     }
   ]
-}
-
-resource "kubernetes_ingress_v1" "analytics" {
-  metadata {
-    name      = "analytics"
-    namespace = kubernetes_namespace.analytics.metadata[0].name
-    annotations = var.enable_tls ? {
-      "kubernetes.io/ingress.class"              = var.ingress_class_name
-      "cert-manager.io/cluster-issuer"           = "letsencrypt-prod"
-      "traefik.ingress.kubernetes.io/router.tls" = "true"
-      } : {
-      "kubernetes.io/ingress.class" = var.ingress_class_name
-    }
-  }
-
-  spec {
-    ingress_class_name = var.ingress_class_name
-
-    rule {
-      host = var.host
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-          backend {
-            service {
-              name = helm_release.vince.name
-              port {
-                number = 80
-              }
-            }
-          }
-        }
-      }
-    }
-
-    dynamic "tls" {
-      for_each = var.enable_tls ? [1] : []
-      content {
-        hosts       = [var.host]
-        secret_name = var.tls_secret_name
-      }
-    }
-  }
 }
