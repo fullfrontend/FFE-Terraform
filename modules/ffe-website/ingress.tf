@@ -6,6 +6,7 @@ locals {
       "kubernetes.io/ingress.class"                      = var.ingress_class_name
       "kubernetes.io/ingress.allow-http"                 = "true"
       "traefik.ingress.kubernetes.io/router.entrypoints" = "web,websecure"
+      "external-dns.alpha.kubernetes.io/exclude"         = "true"
     },
     var.enable_tls ? {
       "cert-manager.io/cluster-issuer"                   = "letsencrypt-prod"
@@ -19,12 +20,13 @@ locals {
     "kubernetes.io/ingress.allow-http"                 = "true"
     "traefik.ingress.kubernetes.io/router.entrypoints" = "web"
     "traefik.ingress.kubernetes.io/router.middlewares" = "infra-redirect-https@kubernetescrd"
+    "external-dns.alpha.kubernetes.io/exclude"         = "true"
   }
 }
 
 # Middleware to redirect www -> apex over HTTPS
 resource "kubernetes_manifest" "wordpress_www_redirect" {
-  count      = var.enable_tls ? 1 : 0
+  count = var.enable_tls ? 1 : 0
 
   manifest = {
     apiVersion = "traefik.io/v1alpha1"
@@ -119,13 +121,14 @@ resource "kubernetes_ingress_v1" "wordpress_www_redirect" {
   count = var.enable_tls ? 1 : 0
 
   metadata {
-    name        = "wordpress-www-http"
-    namespace   = kubernetes_namespace.wordpress.metadata[0].name
+    name      = "wordpress-www-http"
+    namespace = kubernetes_namespace.wordpress.metadata[0].name
     annotations = {
       "kubernetes.io/ingress.class"                      = var.ingress_class_name
       "kubernetes.io/ingress.allow-http"                 = "true"
       "traefik.ingress.kubernetes.io/router.entrypoints" = "web"
       "traefik.ingress.kubernetes.io/router.middlewares" = "${kubernetes_namespace.wordpress.metadata[0].name}-wordpress-www-redirect@kubernetescrd"
+      "external-dns.alpha.kubernetes.io/exclude"         = "true"
     }
   }
 
