@@ -141,6 +141,7 @@ module "wordpress" {
   dockerhub_user     = var.dockerhub_user
   dockerhub_pat      = var.dockerhub_pat
   dockerhub_email    = var.dockerhub_email
+  velero_namespace   = module.k8s-config.velero_namespace
 }
 //*/
 

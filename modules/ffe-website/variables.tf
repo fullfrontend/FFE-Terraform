@@ -86,3 +86,9 @@ variable "dockerhub_email" {
   default     = ""
   description = "Email Docker Hub (optionnel pour le secret dockerconfigjson)"
 }
+
+variable "velero_namespace" {
+  type        = string
+  default     = "infra"
+  description = "Namespace où tourne Velero (pour créer le Schedule)"
+}

@@ -58,7 +58,7 @@ Kubernetes (DOKS)
   - Registry : `registry.<root_domain>`
   - FQDN non override : dérivés uniquement de `root_domain`.
 - Environnements : `APP_ENV=prod|dev` (`prod` = DOKS + cert-manager, kubeconfig à récupérer puis écrire dans `${path.root}/.kube/config` via `doctl kubernetes cluster kubeconfig save ...`; `dev` = cluster local (ex: docker-desktop), pas de cluster DOKS ni cert-manager, kubeconfig `~/.kube/config`).
-- Velero : toujours déployé (prod → Spaces, dev → MinIO hostPath), planification quotidienne 03:00, rétention 30 jours (clés DO Spaces nécessaires pour créer le bucket).
+- Velero : toujours déployé (prod → Spaces, dev → MinIO hostPath), planification quotidienne 03:00, rétention 30 jours (clés DO Spaces nécessaires pour créer le bucket). Chaque app peut ajouter son propre `Schedule` via Terraform (ex: WordPress crée `velero.io/Schedule wordpress-daily` dans `infra` qui capture son namespace/PVC).
 - Velero : toujours déployé en prod ; en dev, activé avec MinIO hostPath.
 
 ## Applications (règles et domaines)

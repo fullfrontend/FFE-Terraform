@@ -6,7 +6,7 @@ Plateforme
 - Certificats : cert-manager (prod)  
 - DNS : external-dns (prod)  
 - Stockage : PVC bloc (DO CSI), objet Spaces/MinIO  
-- Backups : Velero (03:00 quotidien, rétention 30 jours)  
+- Backups : Velero (03:00 quotidien, rétention 30 jours). Chaque app peut enregistrer son `Schedule` Velero via Terraform (ex: WordPress installe un schedule quotidien qui couvre son namespace/PVC).  
 - Registry : Zot exposé via ingress (registry.<root_domain>)  
 - Interdit : charts/images Bitnami
 

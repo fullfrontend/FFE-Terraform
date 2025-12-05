@@ -7,3 +7,8 @@ output "mariadb_service_fqdn" {
   value       = "${kubernetes_service.mariadb.metadata[0].name}.${kubernetes_namespace.data.metadata[0].name}.svc.cluster.local"
   description = "Internal FQDN for the MariaDB service"
 }
+
+output "velero_namespace" {
+  value       = kubernetes_namespace.infra.metadata[0].name
+  description = "Namespace where Velero is deployed"
+}
