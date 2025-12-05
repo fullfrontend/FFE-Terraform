@@ -29,8 +29,32 @@ resource "helm_release" "traefik" {
       value = 2
     },
     {
+      name  = "ports.web.port"
+      value = 8000
+    },
+    {
+      name  = "ports.web.exposedPort"
+      value = 80
+    },
+    {
+      name  = "ports.websecure.port"
+      value = 8443
+    },
+    {
+      name  = "ports.websecure.exposedPort"
+      value = 443
+    },
+    {
       name  = "service.type"
       value = local.traefik_service_type
+    },
+    {
+      name  = "providers.kubernetesCRD.enabled"
+      value = true
+    },
+    {
+      name  = "providers.kubernetesIngress.enabled"
+      value = true
     },
     {
       name  = "ingressClass.enabled"
@@ -43,6 +67,6 @@ resource "helm_release" "traefik" {
     {
       name  = "ports.websecure.tls.enabled"
       value = true
-    }
+    },
   ], var.is_prod ? local.traefik_sets_prod : [])
 }
