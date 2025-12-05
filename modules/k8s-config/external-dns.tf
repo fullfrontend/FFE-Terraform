@@ -15,6 +15,25 @@ resource "kubernetes_secret" "external_dns_do_token" {
   }
 }
 
+locals {
+  external_dns_sets = concat(
+    [
+      { name = "provider", value = "digitalocean" },
+      { name = "registry", value = "txt" },
+      { name = "policy", value = "sync" },
+      { name = "interval", value = "1m" },
+      { name = "sources[0]", value = "service" },
+      { name = "sources[1]", value = "ingress" },
+      { name = "txtOwnerId", value = var.cluster_name },
+      { name = "txtPrefix", value = "_extdns." },
+      { name = "env[0].name", value = "DO_TOKEN" },
+      { name = "env[0].valueFrom.secretKeyRef.name", value = kubernetes_secret.external_dns_do_token[0].metadata[0].name },
+      { name = "env[0].valueFrom.secretKeyRef.key", value = "DO_TOKEN" }
+    ],
+    [for idx, d in concat([var.root_domain], var.extra_domain_filters) : { name = "domainFilters[${idx}]", value = d }]
+  )
+}
+
 resource "helm_release" "external_dns" {
   count     = var.is_prod ? 1 : 0
   name      = "external-dns"
@@ -25,48 +44,7 @@ resource "helm_release" "external_dns" {
   cleanup_on_fail = true
   atomic          = true
 
-  set = [
-    {
-      name  = "provider"
-      value = "digitalocean"
-    },
-    {
-      name  = "registry"
-      value = "txt"
-    },
-    {
-      name  = "policy"
-      value = "sync"
-    },
-    {
-      name  = "domainFilters[0]"
-      value = var.root_domain
-    },
-    {
-      name  = "sources[0]"
-      value = "service"
-    },
-    {
-      name  = "sources[1]"
-      value = "ingress"
-    },
-    {
-      name  = "txtOwnerId"
-      value = var.root_domain
-    },
-    {
-      name  = "env[0].name"
-      value = "DO_TOKEN"
-    },
-    {
-      name  = "env[0].valueFrom.secretKeyRef.name"
-      value = kubernetes_secret.external_dns_do_token[0].metadata[0].name
-    },
-    {
-      name  = "env[0].valueFrom.secretKeyRef.key"
-      value = "DO_TOKEN"
-    }
-  ]
+  set = local.external_dns_sets
 
   set_sensitive = [
     {

@@ -285,6 +285,12 @@ variable "enable_tls" {
   description = "Activer TLS/redirect HTTPS sur les ingresses (mettre false si DNS non prêt ou en dev)"
 }
 
+variable "extra_domain_filters" {
+  type        = list(string)
+  default     = ["perinatalite.be", "cloud.perinatalite.be"]
+  description = "Domaines additionnels gérés par external-dns (ex: perinatalite.be, cloud.perinatalite.be)"
+}
+
 variable "velero_s3_url" {
   type        = string
   default     = "https://fra1.digitaloceanspaces.com"

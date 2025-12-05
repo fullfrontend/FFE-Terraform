@@ -24,6 +24,12 @@ variable "do_token" {
   description = "DigitalOcean API token (pour external-dns)"
 }
 
+variable "extra_domain_filters" {
+  type        = list(string)
+  default     = []
+  description = "Domaines additionnels gérés par external-dns (en plus de root_domain)"
+}
+
 variable "root_domain" {
   type        = string
   description = "Domaine racine (utilisé par external-dns pour filtrer/ownership TXT)"

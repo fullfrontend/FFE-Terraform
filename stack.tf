@@ -54,6 +54,7 @@ module "k8s-config" {
   cluster_name                 = local.cluster_name
   region                       = var.doks_region
   root_domain                  = local.root_domain
+  extra_domain_filters         = var.extra_domain_filters
   do_token                     = var.do_token
   is_prod                      = local.is_prod
   kubeconfig_path              = local.kubeconfig_path
