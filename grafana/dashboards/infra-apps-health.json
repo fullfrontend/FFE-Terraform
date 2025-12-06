@@ -1074,6 +1074,6 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Infra - Status, Storage, Apps, Ingress",
+  "title": "Infra & Apps Health (Ingress/DB)",
   "version": 3
 }

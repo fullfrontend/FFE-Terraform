@@ -1,100 +1,71 @@
 # FFE Terraform
 
-Provision et déploiement complet d’une stack Kubernetes sur DigitalOcean (prod) ou sur un cluster local (dev, ex: docker-desktop) avec OpenTofu/Helm.
+Déploiement complet d’une stack Kubernetes via OpenTofu/Helm.
+- Prod : cluster DOKS.
+- Dev : cluster local (docker-desktop/minikube).
+- Composants : Traefik, cert-manager/external-dns (prod), Velero (prod: Spaces, dev: MinIO), Postgres, MariaDB, apps (WordPress, n8n, CRM futur, Nextcloud, Mailu, Zot registry).
 
-👉 Contexte détaillé (blog post) : [INITIAL_BLOG_POST.md](INITIAL_BLOG_POST.md)
+👉 Nouveaux arrivants : ce fichier est votre guide rapide.  
+👉 Contexte complet humain : [CONTEXT_INFRA.md](CONTEXT_INFRA.md).  
+👉 Rappels et règles IA : [docs/CONTEXT.md](docs/CONTEXT.md).  
+👉 Blog post : [INITIAL_BLOG_POST.md](INITIAL_BLOG_POST.md).
 
-Pour le cadre global et les règles :
-- Contexte humain : [CONTEXT_INFRA.md](CONTEXT_INFRA.md)
-- Contexte IA : [docs/CONTEXT.md](docs/CONTEXT.md)
-
-## Vue d’ensemble
-- Infra : Traefik, external-dns (prod), cert-manager (prod), Velero (prod: Spaces, dev: MinIO).
-- Données : Postgres, MariaDB (PVC bloc).
-- Apps : WordPress (MariaDB), n8n (Postgres), CRM futur, Nextcloud, Mailu.
-- Stockage : bloc (PVC) vs objet (Spaces/MinIO).
-
-## Environnements
-- Prod (`APP_ENV=prod`) : cluster DOKS, kubeconfig `${path.root}/.kube/config`, cert-manager + external-dns actifs, Velero vers DO Spaces (bucket auto-créé).
-- Dev (`APP_ENV=dev`) : cluster local (`~/.kube/config`, ex: docker-desktop), cert-manager/external-dns désactivés, Velero actif avec MinIO (`./data/<cluster_name>-velero`).
+## Prérequis
+- `age` et `sops` installés.
+- `tofu`/`helm`/`kubectl` installés, DO CLI (`doctl`) pour la prod.
+- Exports attendus : `SOPS_AGE_KEY_FILE`, `SOPS_AGE_RECIPIENTS`, `APP_ENV=dev|prod`.
 
 ## Secrets (SOPS/age)
-1. Installer age et sops :  
-   - age : https://github.com/FiloSottile/age#installation  
-   - sops : https://github.com/getsops/sops#installation
-2. Générer une clé age : `bin/age-init.sh` puis exporter `SOPS_AGE_KEY_FILE` et `SOPS_AGE_RECIPIENTS` (local + CI).
-3. Chiffrer vos tfvars : `bin/sops-encrypt.sh secrets.tfvars secrets.tfvars.enc` (ou `sops secrets.tfvars.enc` pour éditer).
-4. Exécuter tofu via le wrapper (décrypte en `.secrets.auto.tfvars` puis nettoie) :  
-   `APP_ENV=dev ./scripts/tofu-secrets.sh plan|apply`
+1. Générer la clé age : `bin/age-init.sh` puis exporter les variables.
+2. Copier l’exemple : `cp secrets.tfvars.example secrets.tfvars` et remplir.
+3. Chiffrer : `bin/sops-encrypt.sh secrets.tfvars secrets.tfvars.enc` (édition : `sops secrets.tfvars.enc`).
+4. Utiliser le wrapper tofu (décrypte/nettoie auto) : `APP_ENV=... ./scripts/tofu-secrets.sh plan|apply`.
 
-## Process de démarrage
-1. Installer age/sops, générer la clé age (`bin/age-init.sh`), exporter `SOPS_AGE_KEY_FILE` et `SOPS_AGE_RECIPIENTS`.
-2. Créer vos secrets à partir de l’exemple : `cp secrets.tfvars.example secrets.tfvars` puis remplissez les valeurs.
-3. Chiffrer `secrets.tfvars.enc` avec vos mots de passe (mêmes secrets pour dev/prod) : `bin/sops-encrypt.sh secrets.tfvars secrets.tfvars.enc`.
-3. Choisir l’environnement : `export APP_ENV=dev` ou `APP_ENV=prod`.
-4. `tofu init`.
-5. En prod, si le cluster n’existe pas, crée-le d’abord : `APP_ENV=prod ./scripts/tofu-secrets.sh apply -target=module.doks-cluster`.
-6. Récupérer le kubeconfig DOKS : `mkdir -p .kube && doctl kubernetes cluster kubeconfig save <cluster> --kubeconfig ./.kube/config --set-current-context`.
-7. Lancer le provisionnement complet : `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`). Si le cluster est déjà créé, on peut passer `-var='create_doks_cluster=false'` pour ne pas le recréer.
-7. Vérifier la StorageClass en dev (`hostpath` par défaut, configurable via `storage_class_name`).
-8. Ajuster domaines/creds dans `variable.tf` / tfvars chiffré.
-9. Si le cluster DOKS existe déjà et ne doit pas être créé, passez `-var='create_doks_cluster=false'` (et éventuellement retirez la ressource du state si déjà gérée).
-9. Si le cluster DOKS existe déjà et ne doit pas être géré par Terraform, retirez-le du state avant apply : `tofu state rm <resource_address_to_keep>` (ex: `tofu state rm module.doks-cluster[0]`).
+## Démarrage rapide
+1) `export APP_ENV=dev` (ou `prod`) et `export TF_VAR_app_env=$APP_ENV` si besoin.  
+2) `tofu init`.  
+3) Prod seulement (cluster absent) : `APP_ENV=prod ./scripts/tofu-secrets.sh apply -target=module.doks-cluster`.  
+4) Prod : récupérer le kubeconfig DO dans `./.kube/config` via `doctl kubernetes cluster kubeconfig save ...`.  
+5) Déployer : `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`).  
+6) Dev : vérifier la StorageClass (hostpath par défaut, overridable via `storage_class_name`).  
+7) Si le cluster DOKS existe déjà et doit être conservé hors Terraform, retirer la ressource du state avant apply (`tofu state rm ...`).
 
 ## Domaines par défaut (`root_domain`)
-- Prod : `root_domain_prod` (défaut : `fullfrontend.be`)
-- Dev : `root_domain_dev` (défaut : `fullfrontend.kube`)
-- Les FQDN sont dérivés uniquement de `root_domain` (pas d’override app par app) :
-  - WordPress : `<root_domain>` → prod `fullfrontend.be`, dev `fullfrontend.kube`
-  - n8n : `n8n.<root_domain>` + `webhook.<root_domain>` → prod `n8n.fullfrontend.be`, dev `n8n.fullfrontend.kube`
-  - Nextcloud : `cloud.<root_domain>` → prod `cloud.fullfrontend.be`, dev `cloud.fullfrontend.kube`
-  - Mailu : `mail.<root_domain>` → prod `mail.fullfrontend.be`, dev `mail.fullfrontend.kube`
-  - Analytics : `insights.<root_domain>` → prod `insights.fullfrontend.be`, dev `insights.fullfrontend.kube`
-  - Registry (Zot) : `registry.<root_domain>` → prod `registry.fullfrontend.be`, dev `registry.fullfrontend.kube`
-
-## Monitoring
-- `kube-prometheus-stack` déployé (prod) dans le namespace `monitoring` (toggle : `enable_kube_prometheus_stack=true`).
+- Prod : `root_domain_prod` (défaut `fullfrontend.be`)
+- Dev : `root_domain_dev` (défaut `fullfrontend.kube`)
+- FQDN dérivés uniquement du `root_domain` (pas d’override app) :  
+  WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` ; Mailu `mail.<root_domain>` ; Analytics `insights.<root_domain>` ; Registry `registry.<root_domain>`.
 
 ## Bonnes pratiques
 - Pas de charts/images Bitnami.
-- Ajout d’app : module dédié (namespace `apps/<app>`), ingress Traefik, entrée DB dans `postgres_app_credentials`/`mariadb_app_credentials` (créer DB+user manuellement si DB déjà en place).
-- Accès DB : `kubectl port-forward` ponctuel (Postgres `kubectl port-forward svc/postgres 5432:5432 -n data`, MariaDB `kubectl port-forward svc/mariadb 3306:3306 -n data`).
-- Secrets : jamais en clair dans git ; utiliser SOPS/age ou variables d’environnement `TF_VAR_*` (secrets identiques en dev/prod).
-- Init Jobs Postgres/MariaDB : un Job Terraform (TTL 120s) crée DB/utilisateur pour chaque app avec `IF NOT EXISTS`. Si le Job est garbage collecté ou si vous ajoutez une app, il sera recréé au prochain apply et ajoutera les bases manquantes sans toucher aux existantes.
-- Offload WordPress uploads : utiliser le plugin [Amazon S3 and CloudFront](https://wordpress.org/plugins/amazon-s3-and-cloudfront/) avec un bucket Spaces et des credentials DO (non gérés par Terraform).
+- Un module dédié par app (namespace `apps/<app>`), ingress Traefik, credentials DB dans `postgres_app_credentials`/`mariadb_app_credentials`.
+- Jamais de secrets en clair ; privilégier SOPS/age ou `TF_VAR_*`.
+- Init Jobs Postgres/MariaDB créent DB/utilisateur en `IF NOT EXISTS` (recréés si manquant).
 
-### Mailu et multi-domaine
-- Un seul host exposé suffit (ex: `mail.<root_domain>`) si les MX des autres domaines pointent vers ce host. Dans Mailu admin : ajouter les domaines secondaires puis comptes/alias.
-- DNS : MX des domaines supplémentaires vers `mail.<root_domain>`, SPF/DKIM/DMARC alignés sur ce host.
-- Si tu veux exposer plusieurs FQDN (ex: `mail.he8us.be`), ajoute ces hosts dans l’ingress Mailu et assure-toi que le certificat TLS couvre ces SAN.
+## TLS en dev
+- cert-manager off. Options :  
+  1) Cert local (`mkcert`) + secrets TLS par ingress (noms : `wordpress-tls`, `nextcloud-tls`, `mailu-tls`, `analytics-tls`, `n8n-tls`).  
+  2) HTTP only (retirer les blocs TLS).  
+  3) Proxy local qui termine TLS.
 
-## Commentaire code
-- Favoriser les commentaires multi-lignes au format :
-  ```
-  /*
-      Your comment here
-  */
-  ```
+## Monitoring
+- `kube-prometheus-stack` toggle : `enable_kube_prometheus_stack=true` (prod par défaut).
+- Dashboards Grafana prêts à importer : [grafana/dashboards/](grafana/dashboards/) (cf. [grafana/dashboards/README.md](grafana/dashboards/README.md)).
 
-## Backups Velero
-- TODO : générer une paire d’Access/Secret Keys Spaces dédiée à Velero via le panel DO (non gérable par Terraform), puis les mettre dans `secrets.tfvars` chiffré.
+## Besoin de creuser ?
+- Vision détaillée infra/humaine : [CONTEXT_INFRA.md](CONTEXT_INFRA.md).  
+- Règles et raccourcis pour l’IA : [docs/CONTEXT.md](docs/CONTEXT.md).
 
-## TLS en dev (cluster local)
-- cert-manager est désactivé en dev. Options :
-  1) Générer une CA locale immutable + wildcard : `mkcert -install` puis `mkcert "*.docker.internal"` (ou `*.<root_domain>` si résolu en local) ; créer un secret TLS par ingress, ex : `kubectl create secret tls wordpress-tls --cert=fullchain.pem --key=privkey.pem -n apps`.
-  2) Accepter du HTTP en dev (supprimer les blocs TLS des ingress).
-  3) Utiliser un proxy local qui termine TLS avec le certificat généré (traefik local).
-Choisis une approche et aligne les noms de secrets avec ceux attendus par les ingress (`wordpress-tls`, `nextcloud-tls`, `mailu-tls`, `analytics-tls`, `n8n-tls` si besoin).
+## Contribuer
+- Issues/PR bienvenues. Pas de secrets en clair, pas d’images/charts Bitnami.
+- Respecter le style existant (modules par app, commentaires multi-lignes si besoin).
+- Les contributions sont acceptées sous la même licence (WTFPL).
+- Voir aussi : [CONTRIBUTING.md](CONTRIBUTING.md) et [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
-## Documentation
-- Schéma prod : [docs/architecture-prod.png](docs/architecture-prod.png)
-- Blog post (contexte et démarche) : [INITIAL_BLOG_POST.md](INITIAL_BLOG_POST.md)
-- DigitalOcean : https://search.opentofu.org/provider/digitalocean/digitalocean/latest  
-- Kubernetes : https://search.opentofu.org/provider/hashicorp/kubernetes/latest  
-- Helm : https://search.opentofu.org/provider/hashicorp/helm/latest  
-- age : https://github.com/FiloSottile/age  
-- sops : https://github.com/getsops/sops
+## Licence et avertissement
+- Tout le dépôt (code, dashboards, schémas) est sous WTFPL (`LICENSE`).
+- Aucune garantie ni support : auditez avant usage en prod.
+- Les dépendances externes restent sous leurs propres licences.
 
-## Dev (minikube)
-- Commande de création minikube utilisée en dev :  
-  `minikube delete && minikube start --driver=docker && minikube addons enable ingress && minikube addons enable ingress-dns && minikube addons enable metrics-server && minikube dashboard`
+## Sécurité
+- Pour signaler une vulnérabilité, suivre les instructions de [SECURITY.md](SECURITY.md). Pas de secrets ni données sensibles dans les issues/PR.
