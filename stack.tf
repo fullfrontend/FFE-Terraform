@@ -88,6 +88,7 @@ module "k8s-config" {
     Monitoring (kube-prometheus-stack + Grafana)
 */
 module "monitoring" {
+  count      = var.enable_monitoring ? 1 : 0
   source     = "./modules/monitoring"
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 
@@ -118,8 +119,7 @@ module "cert_manager_issuer" {
     App: n8n (external Postgres)
 */
 module "n8n" {
-  # n8n désactivé (sera remis en ligne plus tard)
-  count      = 0
+  count      = var.enable_n8n ? 1 : 0
   source     = "./modules/n8n-ffe"
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 

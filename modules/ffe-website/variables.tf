@@ -1,7 +1,7 @@
 variable "namespace" {
   type        = string
-  default     = "wordpress"
-  description = "Namespace K8S pour WordPress"
+  default     = "ffe-website"
+  description = "Namespace K8S pour ffe-website"
 }
 
 variable "host" {

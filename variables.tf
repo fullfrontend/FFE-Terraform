@@ -23,7 +23,19 @@ variable "root_domain_dev" {
   description = "Root domain in dev"
 }
 
+variable "enable_monitoring" {
+  type        = bool
+  default     = true
+  description = "Activer le module monitoring (kube-prometheus-stack/Grafana)"
+}
+
 # N8N (base de données Postgres externe)
+variable "enable_n8n" {
+  type        = bool
+  default     = false
+  description = "Déployer n8n (Helm) si true"
+}
+
 variable "n8n_db_port" {
   type        = number
   default     = 5432

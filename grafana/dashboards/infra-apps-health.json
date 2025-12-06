@@ -106,7 +106,7 @@
       "pluginVersion": "12.3.0",
       "targets": [
         {
-          "expr": "min(kube_deployment_status_replicas_available{namespace=\"wordpress\", deployment=\"wordpress\"})",
+          "expr": "min(kube_deployment_status_replicas_available{namespace=\"ffe-website\", deployment=\"wordpress\"})",
           "legendFormat": "wordpress",
           "refId": "A"
         }

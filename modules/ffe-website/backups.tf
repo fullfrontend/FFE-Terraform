@@ -12,7 +12,7 @@ resource "kubernetes_manifest" "wordpress_backup" {
       labels = {
         "app.kubernetes.io/name"       = "velero"
         "app.kubernetes.io/component"  = "backup"
-        "app.kubernetes.io/part-of"    = "wordpress"
+        "app.kubernetes.io/part-of"    = "ffe-website"
         "app.kubernetes.io/managed-by" = "terraform"
       }
     }

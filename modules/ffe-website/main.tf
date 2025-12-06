@@ -34,7 +34,7 @@ resource "kubernetes_deployment" "wordpress" {
     name      = "wordpress"
     namespace = kubernetes_namespace.wordpress.metadata[0].name
     labels = {
-      app = "wordpress"
+      app = "ffe-website"
     }
   }
 
@@ -48,14 +48,14 @@ resource "kubernetes_deployment" "wordpress" {
 
     selector {
       match_labels = {
-        app = "wordpress"
+        app = "ffe-website"
       }
     }
 
     template {
       metadata {
         labels = {
-          app = "wordpress"
+          app = "ffe-website"
         }
       }
 
@@ -194,13 +194,13 @@ resource "kubernetes_service" "wordpress" {
     name      = "wordpress"
     namespace = kubernetes_namespace.wordpress.metadata[0].name
     labels = {
-      app = "wordpress"
+      app = "ffe-website"
     }
   }
 
   spec {
     selector = {
-      app = "wordpress"
+      app = "ffe-website"
     }
 
     port {
