@@ -48,12 +48,6 @@ variable "enable_cert_manager" {
   description = "Déployer cert-manager (désactivé en dev cluster local)"
 }
 
-variable "enable_kube_prometheus_stack" {
-  type        = bool
-  default     = true
-  description = "Déployer kube-prometheus-stack (monitoring/alerting)"
-}
-
 variable "enable_tls" {
   type        = bool
   default     = true

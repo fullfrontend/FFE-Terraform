@@ -199,6 +199,19 @@ variable "mailu_admin_username" {
   description = "Utilisateur admin initial Mailu"
 }
 
+variable "grafana_admin_user" {
+  type        = string
+  default     = "admin"
+  description = "Utilisateur admin Grafana"
+}
+
+variable "grafana_admin_password" {
+  type        = string
+  default     = ""
+  description = "Mot de passe admin Grafana"
+  sensitive   = true
+}
+
 variable "mailu_admin_password" {
   type        = string
   default     = ""

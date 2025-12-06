@@ -50,18 +50,17 @@ module "doks-cluster" {
     - Postgres/MariaDB stateful sets
 */
 module "k8s-config" {
-  source                       = "./modules/k8s-config"
-  cluster_name                 = local.cluster_name
-  region                       = var.doks_region
-  root_domain                  = local.root_domain
-  extra_domain_filters         = var.extra_domain_filters
-  do_token                     = var.do_token
-  is_prod                      = local.is_prod
-  kubeconfig_path              = local.kubeconfig_path
-  enable_cert_manager          = local.is_prod
-  enable_kube_prometheus_stack = true
-  acme_email                   = var.acme_email
-  enable_tls                   = var.enable_tls
+  source               = "./modules/k8s-config"
+  cluster_name         = local.cluster_name
+  region               = var.doks_region
+  root_domain          = local.root_domain
+  extra_domain_filters = var.extra_domain_filters
+  do_token             = var.do_token
+  is_prod              = local.is_prod
+  kubeconfig_path      = local.kubeconfig_path
+  enable_cert_manager  = local.is_prod
+  acme_email           = var.acme_email
+  enable_tls           = var.enable_tls
 
   enable_velero     = true
   velero_bucket     = var.velero_bucket
@@ -82,6 +81,21 @@ module "k8s-config" {
   mariadb_storage_size    = var.mariadb_storage_size
   mariadb_root_password   = var.mariadb_root_password
   mariadb_app_credentials = var.mariadb_app_credentials
+}
+//*/
+
+/*
+    Monitoring (kube-prometheus-stack + Grafana)
+*/
+module "monitoring" {
+  source     = "./modules/monitoring"
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
+
+  is_prod                      = local.is_prod
+  enable_kube_prometheus_stack = true
+  grafana_host                 = format("monitoring.%s", local.root_domain)
+  grafana_admin_user           = var.grafana_admin_user
+  grafana_admin_password       = var.grafana_admin_password
 }
 //*/
 

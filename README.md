@@ -53,7 +53,7 @@ Pour le cadre global et les règles :
   - Registry (Zot) : `registry.<root_domain>` → prod `registry.fullfrontend.be`, dev `registry.fullfrontend.kube`
 
 ## Monitoring
-- `kube-prometheus-stack` déployé (prod) dans le namespace `metrics` (toggle : `enable_kube_prometheus_stack=true`).
+- `kube-prometheus-stack` déployé (prod) dans le namespace `monitoring` (toggle : `enable_kube_prometheus_stack=true`).
 
 ## Bonnes pratiques
 - Pas de charts/images Bitnami.
