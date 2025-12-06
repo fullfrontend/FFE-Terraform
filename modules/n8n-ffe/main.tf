@@ -25,6 +25,11 @@ resource "helm_release" "n8n" {
       { name = "webhook.mode", value = "queue" },
       { name = "webhook.mcp.enabled", value = true },
       { name = "webhook.url", value = "https://${var.webhook_host}" },
+      { name = "main.livenessProbe.initialDelaySeconds", value = 60 },
+      { name = "main.readinessProbe.initialDelaySeconds", value = 30 },
+      // Prometheus ServiceMonitor (Prometheus Operator)
+      { name = "serviceMonitor.enabled", value = true },
+      { name = "serviceMonitor.labels.release", value = "prometheus" },
       { name = "main.extraEnvVars.GENERIC_TIMEZONE", value = "Europe/Brussels" },
       { name = "main.extraEnvVars.N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE", value = "true" },
       { name = "main.extraEnvVars.N8N_BLOCK_ENV_ACCESS_IN_NODE", value = "true" },

@@ -104,6 +104,8 @@ module "cert_manager_issuer" {
     App: n8n (external Postgres)
 */
 module "n8n" {
+  # n8n désactivé (sera remis en ligne plus tard)
+  count      = 0
   source     = "./modules/n8n-ffe"
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 

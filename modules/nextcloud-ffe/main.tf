@@ -24,7 +24,11 @@ resource "helm_release" "nextcloud" {
     { name = "externalDatabase.user", value = var.db_user },
     { name = "persistence.enabled", value = true },
     { name = "persistence.size", value = var.storage_size },
-    { name = "replicaCount", value = var.replicas }
+    { name = "replicaCount", value = var.replicas },
+    // Prometheus metrics via built-in exporter + ServiceMonitor
+    { name = "metrics.enabled", value = true },
+    { name = "metrics.serviceMonitor.enabled", value = true },
+    { name = "metrics.serviceMonitor.labels.release", value = "prometheus" }
   ]
 
   set_sensitive = [
