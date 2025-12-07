@@ -280,6 +280,8 @@ resource "kubernetes_service" "pvc_usage_collector" {
 }
 
 resource "kubernetes_manifest" "pvc_usage_collector_servicemonitor" {
+  depends_on = [helm_release.kube_prometheus_stack]
+
   manifest = {
     apiVersion = "monitoring.coreos.com/v1"
     kind       = "ServiceMonitor"

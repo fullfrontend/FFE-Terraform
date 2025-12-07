@@ -88,5 +88,9 @@ resource "helm_release" "traefik" {
       name  = "metrics.prometheus.serviceMonitor.additionalLabels.release"
       value = "kube-prometheus-stack"
     },
+    {
+      name  = "crds.enabled"
+      value = true
+    },
   ], var.is_prod ? local.traefik_sets_prod : [])
 }
