@@ -68,5 +68,25 @@ resource "helm_release" "traefik" {
       name  = "ports.websecure.tls.enabled"
       value = true
     },
+    {
+      name  = "metrics.prometheus.enabled"
+      value = true
+    },
+    {
+      name  = "metrics.prometheus.entryPoint"
+      value = "metrics"
+    },
+    {
+      name  = "metrics.prometheus.serviceMonitor.enabled"
+      value = true
+    },
+    {
+      name  = "metrics.prometheus.serviceMonitor.namespace"
+      value = "monitoring"
+    },
+    {
+      name  = "metrics.prometheus.serviceMonitor.additionalLabels.release"
+      value = "kube-prometheus-stack"
+    },
   ], var.is_prod ? local.traefik_sets_prod : [])
 }

@@ -32,7 +32,7 @@ variable "enable_monitoring" {
 # N8N (base de données Postgres externe)
 variable "enable_n8n" {
   type        = bool
-  default     = false
+  default     = true
   description = "Déployer n8n (Helm) si true"
 }
 
