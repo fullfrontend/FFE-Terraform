@@ -95,6 +95,21 @@ resource "helm_release" "kube_prometheus_stack" {
     {
       name  = "grafana.admin.existingSecret"
       value = local.grafana_secret_name
+    },
+    /*
+        Persist Grafana data (dashboards/datasources) on a PVC.
+    */
+    {
+      name  = "grafana.persistence.enabled"
+      value = "true"
+    },
+    {
+      name  = "grafana.persistence.size"
+      value = "2Gi"
+    },
+    {
+      name  = "grafana.persistence.accessModes[0]"
+      value = "ReadWriteOnce"
     }
   ]
 }
