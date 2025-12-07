@@ -1,1079 +1,1005 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
+  "meta": {
+    "type": "db",
+    "canSave": true,
+    "canEdit": true,
+    "canAdmin": true,
+    "canStar": true,
+    "canDelete": true,
+    "expires": "0001-01-01T00:00:00Z",
+    "created": "2025-12-07T05:37:19Z",
+    "updated": "2025-12-07T06:27:29Z",
+    "updatedBy": "fullfrontend",
+    "createdBy": "fullfrontend",
+    "version": 2,
+    "hasAcl": false,
+    "isFolder": false,
+    "apiVersion": "v0alpha1",
+    "folderId": 0,
+    "folderUid": "",
+    "folderTitle": "General",
+    "folderUrl": "",
+    "provisioned": false,
+    "provisionedExternalId": "",
+    "annotationsPermissions": {
+      "dashboard": {
+        "canAdd": true,
+        "canEdit": true,
+        "canDelete": true
+      },
+      "organization": {
+        "canAdd": true,
+        "canEdit": true,
+        "canDelete": true
       }
-    ]
-  },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
-  "id": 0,
-  "links": [],
-  "panels": [
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 50,
-      "panels": [],
-      "title": "Status",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus"
-      },
-      "description": "Deployment wordpress ready",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "orange",
-                  "index": 1,
-                  "text": "Error"
-                },
-                "1": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "OK"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 1
-              },
-              {
-                "color": "green",
-                "value": 2
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 0,
-        "y": 1
-      },
-      "id": 51,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "min(kube_deployment_status_replicas_available{namespace=\"ffe-website\", deployment=\"wordpress\"})",
-          "legendFormat": "wordpress",
-          "refId": "A"
-        }
-      ],
-      "title": "FFE Website",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus"
-      },
-      "description": "Deployment n8n ready",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "red",
-                  "index": 2,
-                  "text": "No Data"
-                },
-                "1": {
-                  "color": "orange",
-                  "index": 1,
-                  "text": "Error"
-                },
-                "2": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "OK"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 8,
-        "y": 1
-      },
-      "id": 52,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "min(kube_deployment_status_replicas_available{namespace=\"n8n\", deployment=\"n8n\"})",
-          "legendFormat": "n8n",
-          "refId": "A"
-        }
-      ],
-      "title": "Automation Server",
-      "type": "stat"
-    },
-    {
-      "description": "Deployment Nextcloud ready",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "red",
-                  "index": 1,
-                  "text": "NOK"
-                },
-                "1": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "OK"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 16,
-        "y": 1
-      },
-      "id": 55,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "min(kube_deployment_status_replicas_available{namespace=\"nextcloud\", deployment=\"nextcloud\"})",
-          "legendFormat": "nextcloud",
-          "refId": "A"
-        }
-      ],
-      "title": "Nextcloud",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus"
-      },
-      "description": "Ingress Traefik ready (traefik namespace, deployment traefik)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "1": {
-                  "color": "orange",
-                  "index": 1,
-                  "text": "Error"
-                },
-                "2": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "OK"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 1
-              },
-              {
-                "color": "green",
-                "value": 2
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 0,
-        "y": 5
-      },
-      "id": 56,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "scalar(min(kube_deployment_status_replicas_available{namespace=\"infra\", deployment=\"traefik\"}) >= 1)",
-          "legendFormat": "traefik ok",
-          "refId": "A"
-        }
-      ],
-      "title": "Traefik",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus"
-      },
-      "description": "StatefulSet MariaDB ready (data namespace)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "red",
-                  "index": 1,
-                  "text": "NOK"
-                },
-                "1": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "OK"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 8,
-        "y": 5
-      },
-      "id": 54,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "min(kube_statefulset_status_replicas_ready{namespace=\"data\",statefulset=\"mariadb\"})",
-          "legendFormat": "mariadb",
-          "refId": "A"
-        }
-      ],
-      "title": "MariaDB Server",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus"
-      },
-      "description": "StatefulSet Postgres ready (data namespace)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "red",
-                  "index": 1,
-                  "text": "NOK"
-                },
-                "1": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "OK"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 16,
-        "y": 5
-      },
-      "id": 53,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "min(kube_statefulset_status_replicas_ready{namespace=\"data\",statefulset=\"postgres\"})",
-          "legendFormat": "postgres",
-          "refId": "A"
-        }
-      ],
-      "title": "Postgres Server",
-      "type": "stat"
-    },
-    {
-      "description": "Erreurs 5xx par service Traefik",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "ops"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 0,
-        "y": 9
-      },
-      "id": 301,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "rate(traefik_service_requests_total{code=~\"5..\"}[5m])",
-          "legendFormat": "{{service}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Traefik 5xx (req/s)",
-      "type": "timeseries"
-    },
-    {
-      "description": "Challenges HTTP-01 en erreur (cert-manager)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 12,
-        "y": 9
-      },
-      "id": 302,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "count_over_time(certmanager_http01_challenges_total{reason!=\"Presented\"}[15m])",
-          "legendFormat": "challenges error",
-          "refId": "A"
-        }
-      ],
-      "title": "Cert-manager challenges en erreur (15m)",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 14
-      },
-      "id": 100,
-      "panels": [],
-      "title": "PVC usage",
-      "type": "row"
-    },
-    {
-      "description": "Top 10 PVC par taux d'utilisation (kubelet_volume_stats_used_bytes / capacity)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 0,
-        "y": 15
-      },
-      "id": 1,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "topk(10, 100 * kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)",
-          "legendFormat": "{{persistentvolumeclaim}} ({{namespace}})",
-          "refId": "A"
-        }
-      ],
-      "title": "Top PVC usage (%)",
-      "type": "timeseries"
-    },
-    {
-      "description": "Espace restant (GiB) par PVC",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "gbytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 15
-      },
-      "id": 2,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "kubelet_volume_stats_available_bytes / 1024 / 1024 / 1024",
-          "legendFormat": "{{persistentvolumeclaim}} ({{namespace}})",
-          "refId": "A"
-        }
-      ],
-      "title": "PVC espace libre (GiB)",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 24
-      },
-      "id": 200,
-      "panels": [],
-      "title": "Apps metrics",
-      "type": "row"
-    },
-    {
-      "description": "Charge CPU par n\u0153ud",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 25
-      },
-      "id": 5,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))) * on (instance) group_left(nodename) node_uname_info",
-          "legendFormat": "{{nodename}}",
-          "refId": "A"
-        }
-      ],
-      "title": "CPU nodes (%)",
-      "type": "timeseries"
-    },
-    {
-      "description": "M\u00e9moire utilis\u00e9e par n\u0153ud",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 25
-      },
-      "id": 6,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * on (instance) group_left(nodename) node_uname_info",
-          "legendFormat": "{{nodename}}",
-          "refId": "A"
-        }
-      ],
-      "title": "M\u00e9moire nodes (%)",
-      "type": "timeseries"
     }
-  ],
-  "preload": false,
-  "refresh": "30s",
-  "schemaVersion": 42,
-  "tags": [
-    "kubernetes",
-    "pvc",
-    "n8n",
-    "nextcloud"
-  ],
-  "templating": {
-    "list": []
   },
-  "time": {
-    "from": "now-24h",
-    "to": "now"
-  },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "Infra & Apps Health (Ingress/DB)",
-  "version": 3
+  "dashboard": {
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "links": [],
+    "panels": [
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "df6cbmqqq9tkwc"
+        },
+        "description": "Charge CPU par nœud",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "percent"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "id": 5,
+        "options": {
+          "minVizHeight": 75,
+          "minVizWidth": 75,
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true,
+          "sizing": "auto"
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))) * on (instance) group_left(nodename) node_uname_info",
+            "legendFormat": "{{nodename}}",
+            "refId": "A"
+          }
+        ],
+        "title": "CPU nodes",
+        "type": "gauge"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "df6cbmqqq9tkwc"
+        },
+        "description": "Mémoire utilisée par nœud",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "percent"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "id": 6,
+        "options": {
+          "minVizHeight": 75,
+          "minVizWidth": 75,
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true,
+          "sizing": "auto"
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * on (instance) group_left(nodename) node_uname_info",
+            "legendFormat": "{{nodename}}",
+            "refId": "A"
+          }
+        ],
+        "title": "Mémoire nodes",
+        "type": "gauge"
+      },
+      {
+        "datasource": {
+          "type": "prometheus"
+        },
+        "description": "Deployment wordpress ready",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "color": "red",
+                    "text": "NOK"
+                  },
+                  "1": {
+                    "color": "green",
+                    "text": "OK"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 8,
+          "x": 0,
+          "y": 5
+        },
+        "id": 51,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "value",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "scalar(count(kube_deployment_status_replicas_available{namespace=\"ffe-website\", deployment=\"wordpress\"} > 0) or on() vector(0))",
+            "instant": true,
+            "legendFormat": "wordpress",
+            "refId": "A"
+          }
+        ],
+        "title": "FFE Website",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus"
+        },
+        "description": "Deployment n8n ready",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "color": "red",
+                    "text": "NOK"
+                  },
+                  "1": {
+                    "color": "green",
+                    "text": "OK"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 8,
+          "x": 8,
+          "y": 5
+        },
+        "id": 52,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "value",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "scalar(count(kube_deployment_status_replicas_available{namespace=\"n8n\", deployment=\"n8n\"} > 0) or on() vector(0))",
+            "instant": true,
+            "legendFormat": "n8n",
+            "refId": "A"
+          }
+        ],
+        "title": "Automation Server",
+        "type": "stat"
+      },
+      {
+        "description": "Deployment Nextcloud ready",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "color": "red",
+                    "text": "NOK"
+                  },
+                  "1": {
+                    "color": "green",
+                    "text": "OK"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 8,
+          "x": 16,
+          "y": 5
+        },
+        "id": 55,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "value",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "scalar(count(kube_deployment_status_replicas_available{namespace=\"nextcloud\", deployment=\"nextcloud\"} > 0) or on() vector(0))",
+            "instant": true,
+            "legendFormat": "nextcloud",
+            "refId": "A"
+          }
+        ],
+        "title": "Nextcloud",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus"
+        },
+        "description": "Ingress Traefik ready (traefik namespace, deployment traefik)",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "color": "red",
+                    "text": "NOK"
+                  },
+                  "1": {
+                    "color": "green",
+                    "text": "OK"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 8,
+          "x": 0,
+          "y": 9
+        },
+        "id": 56,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "value",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "scalar(count(kube_deployment_status_replicas_available{namespace=\"infra\", deployment=\"traefik\"} > 0) or on() vector(0))",
+            "instant": true,
+            "legendFormat": "traefik ok",
+            "refId": "A"
+          }
+        ],
+        "title": "Traefik",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus"
+        },
+        "description": "StatefulSet MariaDB ready (data namespace)",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "color": "red",
+                    "text": "NOK"
+                  },
+                  "1": {
+                    "color": "green",
+                    "text": "OK"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 8,
+          "x": 8,
+          "y": 9
+        },
+        "id": 54,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "value",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "scalar(count(kube_statefulset_status_replicas_ready{namespace=\"data\",statefulset=\"mariadb\"} > 0) or on() vector(0))",
+            "instant": true,
+            "legendFormat": "mariadb",
+            "refId": "A"
+          }
+        ],
+        "title": "MariaDB Server",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus"
+        },
+        "description": "StatefulSet Postgres ready (data namespace)",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "color": "red",
+                    "text": "NOK"
+                  },
+                  "1": {
+                    "color": "green",
+                    "text": "OK"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 8,
+          "x": 16,
+          "y": 9
+        },
+        "id": 53,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "value",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "scalar(count(kube_statefulset_status_replicas_ready{namespace=\"data\",statefulset=\"postgres\"} > 0) or on() vector(0))",
+            "instant": true,
+            "legendFormat": "postgres",
+            "refId": "A"
+          }
+        ],
+        "title": "Postgres Server",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "df6cbmqqq9tkwc"
+        },
+        "description": "Erreurs 5xx par service Traefik",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "barWidthFactor": 0.6,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "showValues": false,
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "ops"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 12,
+          "x": 0,
+          "y": 13
+        },
+        "id": 301,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "hideZeros": false,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "rate(traefik_service_requests_total{code=~\"5..\"}[5m])",
+            "legendFormat": "{{service}}",
+            "refId": "A"
+          }
+        ],
+        "title": "Traefik 5xx (req/s)",
+        "type": "timeseries"
+      },
+      {
+        "description": "Challenges HTTP-01 en erreur (cert-manager)",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 12,
+          "x": 12,
+          "y": 13
+        },
+        "id": 302,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "count_over_time(certmanager_http01_challenges_total{reason!=\"Presented\"}[15m])",
+            "legendFormat": "challenges error",
+            "refId": "A"
+          }
+        ],
+        "title": "Cert-manager challenges en erreur (15m)",
+        "type": "stat"
+      },
+      {
+        "description": "Top 10 PVC par taux d'utilisation (kubelet_volume_stats_used_bytes / capacity)",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "barWidthFactor": 0.6,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "showValues": false,
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 70
+                },
+                {
+                  "color": "red",
+                  "value": 90
+                }
+              ]
+            },
+            "unit": "percent"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 12,
+          "x": 0,
+          "y": 18
+        },
+        "id": 1,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "hideZeros": false,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "topk(10, 100 * pvc_used_bytes / clamp_min(pvc_capacity_bytes, 1))",
+            "legendFormat": "{{pvc}} ({{namespace}}/{{node}})",
+            "refId": "A"
+          }
+        ],
+        "title": "Top PVC usage (%)",
+        "type": "timeseries"
+      },
+      {
+        "description": "Espace restant (GiB) par PVC",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "barWidthFactor": 0.6,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "showValues": false,
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "gbytes"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 12,
+          "x": 12,
+          "y": 18
+        },
+        "id": 2,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "hideZeros": false,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "pvc_available_bytes / 1024 / 1024 / 1024",
+            "legendFormat": "{{pvc}} ({{namespace}}/{{node}})",
+            "refId": "A"
+          }
+        ],
+        "title": "PVC espace libre (GiB)",
+        "type": "timeseries"
+      }
+    ],
+    "preload": false,
+    "refresh": "30s",
+    "schemaVersion": 42,
+    "tags": [
+      "kubernetes",
+      "pvc",
+      "n8n",
+      "nextcloud"
+    ],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "browser",
+    "title": "Infra & Apps Health (Ingress/DB)",
+    "weekStart": ""
+  }
 }
