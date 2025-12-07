@@ -167,3 +167,9 @@ variable "velero_namespace" {
   default     = "infra"
   description = "Namespace où tourne Velero (pour créer le Schedule)"
 }
+
+variable "enable_velero" {
+  type        = bool
+  default     = true
+  description = "Activer la création du Schedule Velero (désactiver si Velero n'est pas déployé)"
+}

@@ -3,6 +3,8 @@
     Lives in the Velero namespace (infra).
 */
 resource "kubernetes_manifest" "wordpress_backup" {
+  count = var.enable_velero ? 1 : 0
+
   manifest = {
     apiVersion = "velero.io/v1"
     kind       = "Schedule"

@@ -280,6 +280,7 @@ resource "kubernetes_service" "pvc_usage_collector" {
 }
 
 resource "kubernetes_manifest" "pvc_usage_collector_servicemonitor" {
+  count      = var.is_prod && var.enable_kube_prometheus_stack ? 1 : 0
   depends_on = [helm_release.kube_prometheus_stack]
 
   manifest = {

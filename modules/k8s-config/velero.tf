@@ -85,6 +85,10 @@ resource "helm_release" "velero" {
       value = "registry.k8s.io/kubectl"
     },
     {
+      name  = "kubectl.image.tag"
+      value = "latest" # 1.34 inexistant; pin to a stable kubectl tag
+    },
+    {
       name  = "initContainers[0].name"
       value = "velero-plugin-for-aws"
     },

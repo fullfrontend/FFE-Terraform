@@ -62,7 +62,7 @@ module "k8s-config" {
   acme_email           = var.acme_email
   enable_tls           = var.enable_tls
 
-  enable_velero     = true
+  enable_velero     = var.enable_velero
   velero_bucket     = var.velero_bucket
   velero_s3_url     = local.velero_s3_url
   velero_access_key = var.velero_access_key
@@ -158,6 +158,7 @@ module "wordpress" {
   dockerhub_pat      = var.dockerhub_pat
   dockerhub_email    = var.dockerhub_email
   velero_namespace   = module.k8s-config.velero_namespace
+  enable_velero      = var.enable_velero
   as3_provider       = var.wp_as3_provider
   as3_access_key     = var.wp_as3_access_key
   as3_secret_key     = var.wp_as3_secret_key

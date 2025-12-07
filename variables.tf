@@ -385,6 +385,12 @@ variable "enable_tls" {
   description = "Activer TLS/redirect HTTPS sur les ingresses (mettre false si DNS non prêt ou en dev)"
 }
 
+variable "enable_velero" {
+  type        = bool
+  default     = true
+  description = "Déployer Velero et les ressources liées (schedules, node-agent)."
+}
+
 variable "extra_domain_filters" {
   type        = list(string)
   default     = ["perinatalite.be", "cloud.perinatalite.be"]

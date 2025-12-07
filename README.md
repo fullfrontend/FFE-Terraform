@@ -41,6 +41,7 @@ Déploiement complet d’une stack Kubernetes via OpenTofu/Helm.
 - Un module dédié par app (namespace `apps/<app>`), ingress Traefik, credentials DB dans `postgres_app_credentials`/`mariadb_app_credentials`.
 - Jamais de secrets en clair ; privilégier SOPS/age ou `TF_VAR_*`.
 - Init Jobs Postgres/MariaDB créent DB/utilisateur en `IF NOT EXISTS` (recréés si manquant).
+- Stockage : toujours démarrer petit sur les PVC et n’agrandir qu’au besoin. Le shrink n’est pas supporté → recréation/migration obligatoire (sinon blood and tears).
 
 ## TLS en dev
 - cert-manager off. Options :  
