@@ -44,7 +44,7 @@ resource "kubernetes_ingress_v1" "n8n_https" {
             service {
               name = "n8n"
               port {
-                number = 80
+                number = 5678
               }
             }
           }
@@ -62,7 +62,7 @@ resource "kubernetes_ingress_v1" "n8n_https" {
             service {
               name = "n8n"
               port {
-                number = 80
+                number = 5678
               }
             }
           }
@@ -95,7 +95,7 @@ resource "kubernetes_ingress_v1" "n8n_http_redirect" {
             service {
               name = "n8n"
               port {
-                number = 80
+                number = 5678
               }
             }
           }
@@ -113,7 +113,7 @@ resource "kubernetes_ingress_v1" "n8n_http_redirect" {
             service {
               name = "n8n"
               port {
-                number = 80
+                number = 5678
               }
             }
           }
@@ -148,7 +148,7 @@ resource "kubernetes_ingress_v1" "n8n_http_plain" {
             service {
               name = "n8n"
               port {
-                number = 80
+                number = 5678
               }
             }
           }
@@ -166,7 +166,7 @@ resource "kubernetes_ingress_v1" "n8n_http_plain" {
             service {
               name = "n8n"
               port {
-                number = 80
+                number = 5678
               }
             }
           }
