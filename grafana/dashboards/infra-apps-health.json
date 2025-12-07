@@ -8,10 +8,10 @@
     "canDelete": true,
     "expires": "0001-01-01T00:00:00Z",
     "created": "2025-12-07T05:37:19Z",
-    "updated": "2025-12-07T06:27:29Z",
+    "updated": "2025-12-07T06:53:47Z",
     "updatedBy": "fullfrontend",
     "createdBy": "fullfrontend",
-    "version": 2,
+    "version": 7,
     "hasAcl": false,
     "isFolder": false,
     "apiVersion": "v0alpha1",
@@ -647,45 +647,11 @@
           "type": "prometheus",
           "uid": "df6cbmqqq9tkwc"
         },
-        "description": "Erreurs 5xx par service Traefik",
+        "description": "",
         "fieldConfig": {
           "defaults": {
             "color": {
-              "mode": "palette-classic"
-            },
-            "custom": {
-              "axisBorderShow": false,
-              "axisCenteredZero": false,
-              "axisColorMode": "text",
-              "axisLabel": "",
-              "axisPlacement": "auto",
-              "barAlignment": 0,
-              "barWidthFactor": 0.6,
-              "drawStyle": "line",
-              "fillOpacity": 0,
-              "gradientMode": "none",
-              "hideFrom": {
-                "legend": false,
-                "tooltip": false,
-                "viz": false
-              },
-              "insertNulls": false,
-              "lineInterpolation": "linear",
-              "lineWidth": 1,
-              "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "showPoints": "auto",
-              "showValues": false,
-              "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
+              "mode": "thresholds"
             },
             "mappings": [],
             "thresholds": {
@@ -696,45 +662,51 @@
                   "value": 0
                 },
                 {
+                  "color": "yellow",
+                  "value": 70
+                },
+                {
                   "color": "red",
-                  "value": 80
+                  "value": 90
                 }
               ]
             },
-            "unit": "ops"
+            "unit": "percent"
           },
           "overrides": []
         },
         "gridPos": {
-          "h": 5,
+          "h": 10,
           "w": 12,
           "x": 0,
           "y": 13
         },
-        "id": 301,
+        "id": 1,
         "options": {
-          "legend": {
-            "calcs": [],
-            "displayMode": "list",
-            "placement": "bottom",
-            "showLegend": true
+          "minVizHeight": 75,
+          "minVizWidth": 75,
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
           },
-          "tooltip": {
-            "hideZeros": false,
-            "mode": "single",
-            "sort": "none"
-          }
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true,
+          "sizing": "auto"
         },
         "pluginVersion": "12.3.0",
         "targets": [
           {
-            "expr": "rate(traefik_service_requests_total{code=~\"5..\"}[5m])",
-            "legendFormat": "{{service}}",
+            "expr": "topk(10, 100 * pvc_used_bytes / clamp_min(pvc_capacity_bytes, 1))",
+            "legendFormat": "{{pvc}} ({{namespace}}/{{node}})",
             "refId": "A"
           }
         ],
-        "title": "Traefik 5xx (req/s)",
-        "type": "timeseries"
+        "title": "PVC usage",
+        "type": "gauge"
       },
       {
         "description": "Challenges HTTP-01 en erreur (cert-manager)",
@@ -797,101 +769,11 @@
         "type": "stat"
       },
       {
-        "description": "Top 10 PVC par taux d'utilisation (kubelet_volume_stats_used_bytes / capacity)",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "custom": {
-              "axisBorderShow": false,
-              "axisCenteredZero": false,
-              "axisColorMode": "text",
-              "axisLabel": "",
-              "axisPlacement": "auto",
-              "barAlignment": 0,
-              "barWidthFactor": 0.6,
-              "drawStyle": "line",
-              "fillOpacity": 0,
-              "gradientMode": "none",
-              "hideFrom": {
-                "legend": false,
-                "tooltip": false,
-                "viz": false
-              },
-              "insertNulls": false,
-              "lineInterpolation": "linear",
-              "lineWidth": 1,
-              "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "showPoints": "auto",
-              "showValues": false,
-              "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": 0
-                },
-                {
-                  "color": "yellow",
-                  "value": 70
-                },
-                {
-                  "color": "red",
-                  "value": 90
-                }
-              ]
-            },
-            "unit": "percent"
-          },
-          "overrides": []
+        "datasource": {
+          "type": "prometheus",
+          "uid": "df6cbmqqq9tkwc"
         },
-        "gridPos": {
-          "h": 5,
-          "w": 12,
-          "x": 0,
-          "y": 18
-        },
-        "id": 1,
-        "options": {
-          "legend": {
-            "calcs": [],
-            "displayMode": "list",
-            "placement": "bottom",
-            "showLegend": true
-          },
-          "tooltip": {
-            "hideZeros": false,
-            "mode": "single",
-            "sort": "none"
-          }
-        },
-        "pluginVersion": "12.3.0",
-        "targets": [
-          {
-            "expr": "topk(10, 100 * pvc_used_bytes / clamp_min(pvc_capacity_bytes, 1))",
-            "legendFormat": "{{pvc}} ({{namespace}}/{{node}})",
-            "refId": "A"
-          }
-        ],
-        "title": "Top PVC usage (%)",
-        "type": "timeseries"
-      },
-      {
-        "description": "Espace restant (GiB) par PVC",
+        "description": "Erreurs 5xx par service Traefik",
         "fieldConfig": {
           "defaults": {
             "color": {
@@ -945,7 +827,7 @@
                 }
               ]
             },
-            "unit": "gbytes"
+            "unit": "ops"
           },
           "overrides": []
         },
@@ -955,7 +837,7 @@
           "x": 12,
           "y": 18
         },
-        "id": 2,
+        "id": 301,
         "options": {
           "legend": {
             "calcs": [],
@@ -972,12 +854,12 @@
         "pluginVersion": "12.3.0",
         "targets": [
           {
-            "expr": "pvc_available_bytes / 1024 / 1024 / 1024",
-            "legendFormat": "{{pvc}} ({{namespace}}/{{node}})",
+            "expr": "rate(traefik_service_requests_total{code=~\"5..\"}[5m])",
+            "legendFormat": "{{service}}",
             "refId": "A"
           }
         ],
-        "title": "PVC espace libre (GiB)",
+        "title": "Traefik 5xx (req/s)",
         "type": "timeseries"
       }
     ],
