@@ -115,7 +115,7 @@ variable "postgres_image" {
 
 variable "postgres_storage_size" {
   type        = string
-  default     = "20Gi"
+  default     = "5Gi"
   description = "Taille du volume Postgres"
 }
 
@@ -146,7 +146,7 @@ variable "mariadb_image" {
 
 variable "mariadb_storage_size" {
   type        = string
-  default     = "20Gi"
+  default     = "5Gi"
   description = "Taille du volume MariaDB"
 }
 
