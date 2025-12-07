@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# Import (push) local dashboards to Grafana, matching by title.
-# If the title already exists, it will be overwritten.
+# Update (push) local dashboards to Grafana, matching by title.
+# Prompts once to confirm overwrite of dashboards with the same title.
 # Requirements: curl, jq, python3.
 #
 # Env vars:
@@ -51,6 +51,25 @@ else
   exit 1
 fi
 
+# Confirm overwrite (default: yes). Can be pre-set via OVERWRITE=true/false.
+if [[ -z "${OVERWRITE:-}" ]]; then
+  read -r -p "Overwrite dashboards with same title? [Y/n] " ans
+  ans_lc="$(printf '%s' "$ans" | tr '[:upper:]' '[:lower:]')"
+  case "${ans_lc}" in
+    y|yes) OVERWRITE="true" ;;
+    n|no) OVERWRITE="false" ;;
+    "") echo "Cancelled."; exit 0 ;;
+    *) OVERWRITE="false" ;;
+  esac
+fi
+
+# jq expects a JSON boolean, not a string.
+if [[ "${OVERWRITE}" == "true" ]]; then
+  OVERWRITE_BOOL="true"
+else
+  OVERWRITE_BOOL="false"
+fi
+
 api_post() {
   local path="$1"
   shift
@@ -70,9 +89,9 @@ for file in "${DASH_DIR}"/*.json; do
 
   # Normalize payload for /api/dashboards/db
   if echo "$dash_json" | jq -e '.dashboard' >/dev/null 2>&1; then
-    payload="$(echo "$dash_json" | jq '{dashboard: .dashboard, overwrite: true, folderId: 0}')"
+    payload="$(echo "$dash_json" | jq --argjson ow "$OVERWRITE_BOOL" '{dashboard: .dashboard, overwrite: $ow, folderId: 0}')"
   else
-    payload="$(echo "$dash_json" | jq '{dashboard: ., overwrite: true, folderId: 0}')"
+    payload="$(echo "$dash_json" | jq --argjson ow "$OVERWRITE_BOOL" '{dashboard: ., overwrite: $ow, folderId: 0}')"
   fi
 
   resp="$(api_post "/api/dashboards/db" --data-binary @<(echo "$payload"))"

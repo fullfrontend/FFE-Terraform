@@ -17,3 +17,4 @@ Emplacement des dashboards prêts à importer dans Grafana.
 3) Lancer `./scripts/export-grafana-dashboards.sh`.
    - Exporte chaque dashboard dont le titre correspond à un fichier JSON local, anonymise (supprime uid/id/slug/url/version) et écrase le fichier.
    - Prérequis : `curl`, `jq`, `python3`.
+4) Pour pousser les dashboards locaux vers Grafana : `./scripts/update-grafana-dashboards.sh` (demande confirmation pour écraser ceux du même titre).

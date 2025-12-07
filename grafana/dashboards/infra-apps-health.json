@@ -7,11 +7,11 @@
     "canStar": true,
     "canDelete": true,
     "expires": "0001-01-01T00:00:00Z",
-    "created": "2025-12-07T05:37:19Z",
-    "updated": "2025-12-07T06:53:47Z",
+    "created": "2025-12-07T07:30:09Z",
+    "updated": "2025-12-07T07:40:33Z",
     "updatedBy": "fullfrontend",
     "createdBy": "fullfrontend",
-    "version": 7,
+    "version": 6,
     "hasAcl": false,
     "isFolder": false,
     "apiVersion": "v0alpha1",
@@ -706,74 +706,28 @@
           }
         ],
         "title": "PVC usage",
-        "type": "gauge"
-      },
-      {
-        "description": "Challenges HTTP-01 en erreur (cert-manager)",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
+        "transformations": [
+          {
+            "id": "sortBy",
+            "options": {
+              "fields": {},
+              "sort": [
                 {
-                  "color": "green",
-                  "value": 0
-                },
-                {
-                  "color": "red",
-                  "value": 1
+                  "desc": true,
+                  "field": "Value"
                 }
               ]
-            },
-            "unit": "short"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 5,
-          "w": 12,
-          "x": 12,
-          "y": 13
-        },
-        "id": 302,
-        "options": {
-          "colorMode": "value",
-          "graphMode": "none",
-          "justifyMode": "center",
-          "orientation": "auto",
-          "percentChangeColorMode": "standard",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "",
-            "values": false
-          },
-          "showPercentChange": false,
-          "textMode": "auto",
-          "wideLayout": true
-        },
-        "pluginVersion": "12.3.0",
-        "targets": [
-          {
-            "expr": "count_over_time(certmanager_http01_challenges_total{reason!=\"Presented\"}[15m])",
-            "legendFormat": "challenges error",
-            "refId": "A"
+            }
           }
         ],
-        "title": "Cert-manager challenges en erreur (15m)",
-        "type": "stat"
+        "type": "gauge"
       },
       {
         "datasource": {
           "type": "prometheus",
           "uid": "df6cbmqqq9tkwc"
         },
-        "description": "Erreurs 5xx par service Traefik",
+        "description": "Traefik: requêtes totales vs requêtes en erreur (5xx) par heure.",
         "fieldConfig": {
           "defaults": {
             "color": {
@@ -787,8 +741,8 @@
               "axisPlacement": "auto",
               "barAlignment": 0,
               "barWidthFactor": 0.6,
-              "drawStyle": "line",
-              "fillOpacity": 0,
+              "drawStyle": "lines",
+              "fillOpacity": 8,
               "gradientMode": "none",
               "hideFrom": {
                 "legend": false,
@@ -797,8 +751,8 @@
               },
               "insertNulls": false,
               "lineInterpolation": "linear",
-              "lineWidth": 1,
-              "pointSize": 5,
+              "lineWidth": 2,
+              "pointSize": 4,
               "scaleDistribution": {
                 "type": "linear"
               },
@@ -827,7 +781,7 @@
                 }
               ]
             },
-            "unit": "ops"
+            "unit": "req/h"
           },
           "overrides": []
         },
@@ -835,7 +789,7 @@
           "h": 5,
           "w": 12,
           "x": 12,
-          "y": 18
+          "y": 13
         },
         "id": 301,
         "options": {
@@ -847,20 +801,103 @@
           },
           "tooltip": {
             "hideZeros": false,
-            "mode": "single",
+            "mode": "multi",
             "sort": "none"
           }
         },
         "pluginVersion": "12.3.0",
         "targets": [
           {
-            "expr": "rate(traefik_service_requests_total{code=~\"5..\"}[5m])",
-            "legendFormat": "{{service}}",
+            "expr": "sum by (service)(increase(traefik_service_requests_total[1h]))",
+            "legendFormat": "{{service}} total",
+            "refId": "A"
+          },
+          {
+            "expr": "sum by (service)(increase(traefik_service_requests_total{code=~\"5..\"}[1h]))",
+            "legendFormat": "{{service}} erreurs (5xx)",
+            "refId": "B"
+          }
+        ],
+        "title": "Traefik requêtes / heure",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "df6cbmqqq9tkwc"
+        },
+        "description": "",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "color": "green",
+                    "text": "OK"
+                  },
+                  "1": {
+                    "color": "red",
+                    "text": "NOK"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 12,
+          "x": 12,
+          "y": 18
+        },
+        "id": 302,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "value",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.3.0",
+        "targets": [
+          {
+            "expr": "scalar((sum(count_over_time(certmanager_http01_challenges_total{reason!=\"Presented\"}[15m])) > 0) or on() vector(0))",
+            "legendFormat": "challenges error",
             "refId": "A"
           }
         ],
-        "title": "Traefik 5xx (req/s)",
-        "type": "timeseries"
+        "title": "Cert-manager",
+        "type": "stat"
       }
     ],
     "preload": false,
@@ -876,7 +913,7 @@
       "list": []
     },
     "time": {
-      "from": "now-24h",
+      "from": "now-1h",
       "to": "now"
     },
     "timepicker": {},
