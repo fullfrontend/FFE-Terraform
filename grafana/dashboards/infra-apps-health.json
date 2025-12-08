@@ -1,5 +1,6 @@
 {
   "meta": {
+    "isStarred": true,
     "type": "db",
     "canSave": true,
     "canEdit": true,
@@ -7,8 +8,8 @@
     "canStar": true,
     "canDelete": true,
     "expires": "0001-01-01T00:00:00Z",
-    "created": "2025-12-07T07:30:09Z",
-    "updated": "2025-12-07T07:40:33Z",
+    "created": "2025-12-08T21:46:50Z",
+    "updated": "2025-12-08T21:50:39Z",
     "updatedBy": "fullfrontend",
     "createdBy": "fullfrontend",
     "version": 6,
@@ -55,8 +56,7 @@
     "panels": [
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "df6cbmqqq9tkwc"
+          "type": "prometheus"
         },
         "description": "Charge CPU par nœud",
         "fieldConfig": {
@@ -117,8 +117,7 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "df6cbmqqq9tkwc"
+          "type": "prometheus"
         },
         "description": "Mémoire utilisée par nœud",
         "fieldConfig": {
@@ -644,8 +643,7 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "df6cbmqqq9tkwc"
+          "type": "prometheus"
         },
         "description": "",
         "fieldConfig": {
@@ -724,8 +722,7 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "df6cbmqqq9tkwc"
+          "type": "prometheus"
         },
         "description": "Traefik: requêtes totales vs requêtes en erreur (5xx) par heure.",
         "fieldConfig": {
@@ -823,8 +820,7 @@
       },
       {
         "datasource": {
-          "type": "prometheus",
-          "uid": "df6cbmqqq9tkwc"
+          "type": "prometheus"
         },
         "description": "",
         "fieldConfig": {
@@ -919,6 +915,6 @@
     "timepicker": {},
     "timezone": "browser",
     "title": "Infra & Apps Health (Ingress/DB)",
-    "weekStart": ""
+    "weekStart": "monday"
   }
 }

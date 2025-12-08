@@ -99,7 +99,7 @@ for file in "${DASH_DIR}"/*.json; do
   # Remove identifying metadata (uid/id/slug/url/version) to anonymize.
   echo "$export_json" | jq '
     del(.meta.uid, .meta.slug, .meta.url)
-    | del(.dashboard.uid, .dashboard.id, .dashboard.version)
+    | del(.dashboard.uid, .dashboard.id, .dashboard.version, .dashboard.panels[].datasource.uid)
   ' > "$file"
 
   echo "Exported and anonymized: $title -> $file"
