@@ -58,6 +58,14 @@ resource "helm_release" "kube_prometheus_stack" {
       value = var.grafana_host
     },
     {
+      name  = "grafana.ingress.tls[0].hosts[0]"
+      value = var.grafana_host
+    },
+    {
+      name  = "grafana.ingress.tls[0].secretName"
+      value = "grafana-tls"
+    },
+    {
       name  = "grafana.ingress.annotations.kubernetes\\.io/ingress\\.class"
       value = "traefik"
     },
@@ -71,11 +79,15 @@ resource "helm_release" "kube_prometheus_stack" {
     },
     {
       name  = "grafana.ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.middlewares"
-      value = ""
+      value = "infra-redirect-https@kubernetescrd"
     },
     {
       name  = "grafana.ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.tls"
-      value = "'false'"
+      value = "'true'"
+    },
+    {
+      name  = "grafana.ingress.annotations.cert-manager\\.io/cluster-issuer"
+      value = "letsencrypt-prod"
     },
     /*
         Admin credentials provided via existing secret
