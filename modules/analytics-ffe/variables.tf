@@ -36,6 +36,18 @@ variable "chart_version" {
   description = "Version du chart Helm Vince (vide = dernière)"
 }
 
+variable "storage_size" {
+  type        = string
+  default     = "5Gi"
+  description = "Taille du PVC pour les données analytics"
+}
+
+variable "storage_class_name" {
+  type        = string
+  default     = ""
+  description = "StorageClass pour le PVC analytics (vide = storageclass par défaut)"
+}
+
 variable "ingress_class_name" {
   type        = string
   description = "IngressClassName (ex: traefik en prod, nginx en dev)"

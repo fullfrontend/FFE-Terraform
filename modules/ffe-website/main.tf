@@ -69,6 +69,17 @@ resource "kubernetes_deployment" "wordpress" {
             container_port = 80
           }
 
+          resources {
+            requests = {
+              cpu    = "250m"
+              memory = "512Mi"
+            }
+            limits = {
+              cpu    = "250m"
+              memory = "512Mi"
+            }
+          }
+
           env {
             name = "WORDPRESS_DB_HOST"
             value_from {

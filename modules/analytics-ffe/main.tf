@@ -6,6 +6,25 @@ locals {
       { name = "secret.adminName", value = var.admin_username }
     ]
   )
+
+  analytics_values = {
+    # Persistance des données Vince sur un PVC monté à /data
+    dataPath = "/data"
+    volumeMounts = [
+      {
+        name      = "analytics-data"
+        mountPath = "/data"
+      }
+    ]
+    volumes = [
+      {
+        name = "analytics-data"
+        persistentVolumeClaim = {
+          claimName = kubernetes_persistent_volume_claim.analytics_data.metadata[0].name
+        }
+      }
+    ]
+  }
 }
 
 resource "helm_release" "vince" {
@@ -56,6 +75,9 @@ resource "helm_release" "vince" {
       }
     ] : []
   )
+  values = [
+    yamlencode(local.analytics_values)
+  ]
   set_sensitive = [
     {
       name  = "secret.adminPassword"

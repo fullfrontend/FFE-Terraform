@@ -210,7 +210,7 @@ resource "kubernetes_daemonset" "pvc_usage_collector" {
           command = ["sh", "-c", "pip install --no-cache-dir requests && python /app/collector.py"]
 
           env {
-            name  = "NODE_NAME"
+            name = "NODE_NAME"
             value_from {
               field_ref {
                 field_path = "spec.nodeName"

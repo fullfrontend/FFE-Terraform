@@ -9,10 +9,10 @@
     "canDelete": true,
     "expires": "0001-01-01T00:00:00Z",
     "created": "2025-12-08T21:46:50Z",
-    "updated": "2025-12-08T21:50:39Z",
+    "updated": "2025-12-10T12:55:44Z",
     "updatedBy": "fullfrontend",
     "createdBy": "fullfrontend",
-    "version": 6,
+    "version": 5,
     "hasAcl": false,
     "isFolder": false,
     "apiVersion": "v0alpha1",
@@ -724,7 +724,7 @@
         "datasource": {
           "type": "prometheus"
         },
-        "description": "Traefik: requêtes totales vs requêtes en erreur (5xx) par heure.",
+        "description": "Traefik: requêtes totales vs requêtes en erreur (5xx) par minutes.",
         "fieldConfig": {
           "defaults": {
             "color": {
@@ -778,7 +778,7 @@
                 }
               ]
             },
-            "unit": "req/h"
+            "unit": "req/min"
           },
           "overrides": []
         },
@@ -805,17 +805,21 @@
         "pluginVersion": "12.3.0",
         "targets": [
           {
-            "expr": "sum by (service)(increase(traefik_service_requests_total[1h]))",
+            "editorMode": "code",
+            "expr": "sum by (service)(increase(traefik_service_requests_total[1m]))",
             "legendFormat": "{{service}} total",
+            "range": true,
             "refId": "A"
           },
           {
-            "expr": "sum by (service)(increase(traefik_service_requests_total{code=~\"5..\"}[1h]))",
+            "editorMode": "code",
+            "expr": "sum by (service)(increase(traefik_service_requests_total{code=~\"5..\"}[1m]))",
             "legendFormat": "{{service}} erreurs (5xx)",
+            "range": true,
             "refId": "B"
           }
         ],
-        "title": "Traefik requêtes / heure",
+        "title": "Traefik requêtes / min",
         "type": "timeseries"
       },
       {

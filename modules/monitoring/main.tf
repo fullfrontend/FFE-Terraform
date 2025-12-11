@@ -111,6 +111,22 @@ resource "helm_release" "kube_prometheus_stack" {
       name  = "grafana.persistence.accessModes[0]"
       value = "ReadWriteOnce"
     },
+    {
+      name  = "grafana.resources.requests.cpu"
+      value = "250m"
+    },
+    {
+      name  = "grafana.resources.requests.memory"
+      value = "512Mi"
+    },
+    {
+      name  = "grafana.resources.limits.cpu"
+      value = "250m"
+    },
+    {
+      name  = "grafana.resources.limits.memory"
+      value = "512Mi"
+    },
     /*
         Default Prometheus datasource (points to the in-cluster Prometheus service).
     */
