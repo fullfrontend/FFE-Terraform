@@ -3,6 +3,17 @@ variable "is_prod" {
   description = "True en prod (déploie la stack kube-prometheus)"
 }
 
+variable "ingress_class_name" {
+  type        = string
+  description = "IngressClassName pour Grafana (traefik en prod, nginx en dev)"
+}
+
+variable "enable_tls" {
+  type        = bool
+  default     = true
+  description = "Activer TLS/annotations cert-manager sur l'ingress Grafana"
+}
+
 variable "enable_kube_prometheus_stack" {
   type        = bool
   default     = true

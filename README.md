@@ -3,7 +3,7 @@
 Déploiement complet d’une stack Kubernetes via OpenTofu/Helm.
 - Prod : cluster DOKS.
 - Dev : cluster local (docker-desktop/minikube).
-- Composants : Traefik, cert-manager/external-dns (prod), Velero (prod: Spaces, dev: MinIO), Postgres, MariaDB, apps (WordPress, n8n, CRM futur, Nextcloud, Mailu, Zot registry).
+- Composants : Traefik (prod) / ingress nginx (dev via minikube), cert-manager/external-dns (prod), Velero (prod: Spaces, dev: MinIO), Postgres, MariaDB, apps (WordPress, n8n, Vince analytics, CRM futur, Nextcloud en cours, Zot registry).
 
 👉 Nouveaux arrivants : ce fichier est votre guide rapide.  
 👉 Contexte complet humain : [CONTEXT_INFRA.md](CONTEXT_INFRA.md).  
@@ -27,14 +27,15 @@ Déploiement complet d’une stack Kubernetes via OpenTofu/Helm.
 3) Prod seulement (cluster absent) : `APP_ENV=prod ./scripts/tofu-secrets.sh apply -target=module.doks-cluster`.  
 4) Prod : récupérer le kubeconfig DO dans `./.kube/config` via `doctl kubernetes cluster kubeconfig save ...`.  
 5) Déployer : `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`).  
-6) Dev : vérifier la StorageClass (hostpath par défaut, overridable via `storage_class_name`).  
-7) Si le cluster DOKS existe déjà et doit être conservé hors Terraform, retirer la ressource du state avant apply (`tofu state rm ...`).
+6) Dev : minikube installe l’ingress nginx via la commande de launch ; vérifier la StorageClass (hostpath par défaut, overridable via `storage_class_name`).  
+7) Velero en dev : MinIO tourne en hostPath sous `./data/<cluster_name>` (git-ignoré).  
+8) Si le cluster DOKS existe déjà et doit être conservé hors Terraform, retirer la ressource du state avant apply (`tofu state rm ...`).
 
 ## Domaines par défaut (`root_domain`)
 - Prod : `root_domain_prod` (défaut `fullfrontend.be`)
 - Dev : `root_domain_dev` (défaut `fullfrontend.kube`)
 - FQDN dérivés uniquement du `root_domain` (pas d’override app) :  
-  WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` ; Mailu `mail.<root_domain>` ; Analytics `insights.<root_domain>` ; Registry `registry.<root_domain>`.
+  WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Registry `registry.<root_domain>`.
 
 ## Bonnes pratiques
 - Pas de charts/images Bitnami.
@@ -45,13 +46,18 @@ Déploiement complet d’une stack Kubernetes via OpenTofu/Helm.
 
 ## TLS en dev
 - cert-manager off. Options :  
-  1) Cert local (`mkcert`) + secrets TLS par ingress (noms : `wordpress-tls`, `nextcloud-tls`, `mailu-tls`, `analytics-tls`, `n8n-tls`).  
+  1) Cert local (`mkcert`) + secrets TLS par ingress (noms : `wordpress-tls`, `nextcloud-tls`, `analytics-tls`, `n8n-tls`).  
   2) HTTP only (retirer les blocs TLS).  
   3) Proxy local qui termine TLS.
 
 ## Monitoring
-- `kube-prometheus-stack` toggle : `enable_kube_prometheus_stack=true` (prod par défaut).
+- `kube-prometheus-stack` toggle : `enable_kube_prometheus_stack=true` (déployable en dev aussi, ingress class dérivée de l’env, TLS optionnel).
 - Dashboards Grafana prêts à importer : [grafana/dashboards/](grafana/dashboards/) (cf. [grafana/dashboards/README.md](grafana/dashboards/README.md)).
+
+## Applications
+- WordPress (prod) et n8n déployés ; Nextcloud en cours de dev.  
+- Analytics (Vince) activé par défaut (`insights.<root_domain>`).  
+- Mailu retiré (risque open relay sur DOKS / LB publics).
 
 ## Besoin de creuser ?
 - Vision détaillée infra/humaine : [CONTEXT_INFRA.md](CONTEXT_INFRA.md).  

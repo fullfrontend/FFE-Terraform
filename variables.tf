@@ -48,6 +48,13 @@ variable "n8n_chart_version" {
   description = "Version du chart n8n (vide = dernière)"
 }
 
+variable "n8n_encryption_key" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Clé de chiffrement n8n (N8N_ENCRYPTION_KEY) ; si vide, le module doit en recevoir une via tfvars"
+}
+
 # WordPress (MariaDB externe)
 variable "wp_tls_secret_name" {
   type        = string
@@ -185,32 +192,7 @@ variable "nextcloud_chart_version" {
   description = "Version du chart Nextcloud (vide = dernière)"
 }
 
-# Mailu (Postgres externe)
-variable "mailu_tls_secret_name" {
-  type        = string
-  default     = "mailu-tls"
-  description = "Secret TLS pour l’ingress Mailu"
-}
-
-variable "mailu_db_port" {
-  type        = number
-  default     = 5432
-  description = "Port Postgres pour Mailu"
-}
-
-variable "mailu_secret_key" {
-  type        = string
-  default     = ""
-  description = "Clé secrète Mailu (16+ chars)"
-  sensitive   = true
-}
-
-variable "mailu_admin_username" {
-  type        = string
-  default     = "admin"
-  description = "Utilisateur admin initial Mailu"
-}
-
+# Monitoring / Grafana
 variable "grafana_admin_user" {
   type        = string
   default     = "admin"
@@ -222,19 +204,6 @@ variable "grafana_admin_password" {
   default     = ""
   description = "Mot de passe admin Grafana"
   sensitive   = true
-}
-
-variable "mailu_admin_password" {
-  type        = string
-  default     = ""
-  description = "Mot de passe admin initial Mailu"
-  sensitive   = true
-}
-
-variable "mailu_chart_version" {
-  type        = string
-  default     = ""
-  description = "Version du chart Mailu (vide = dernière)"
 }
 
 # Analytics (vince – https://www.vinceanalytics.com)

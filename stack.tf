@@ -94,6 +94,8 @@ module "monitoring" {
 
   is_prod                      = local.is_prod
   enable_kube_prometheus_stack = true
+  ingress_class_name           = local.ingress_class_name
+  enable_tls                   = var.enable_tls
   grafana_host                 = format("monitoring.%s", local.root_domain)
   grafana_admin_user           = var.grafana_admin_user
   grafana_admin_password       = var.grafana_admin_password
@@ -124,14 +126,15 @@ module "n8n" {
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 
   host               = format("n8n.%s", local.root_domain)
-  webhook_host       = format("webhook.%s", local.root_domain)
+  tls_secret_name    = "n8n-tls"
+  ingress_class_name = local.ingress_class_name
+  chart_version      = var.n8n_chart_version
   db_host            = module.k8s-config.postgres_service_fqdn
   db_port            = var.n8n_db_port
   db_name            = local.postgres_app_map["n8n-ffe"].db_name
   db_user            = local.postgres_app_map["n8n-ffe"].user
   db_password        = local.postgres_app_map["n8n-ffe"].password
-  chart_version      = var.n8n_chart_version
-  ingress_class_name = local.ingress_class_name
+  encryption_key     = var.n8n_encryption_key
 }
 //*/
 
@@ -194,32 +197,6 @@ module "nextcloud" {
   replicas           = var.nextcloud_replicas
   storage_size       = var.nextcloud_storage_size
   chart_version      = var.nextcloud_chart_version
-  ingress_class_name = local.ingress_class_name
-}
-//*/
-
-
-/*
-    App: Mailu (external Postgres, PVC maildir/config)
-*/
-module "mailu" {
-  # Mailu désactivé (sera remis en ligne plus tard)
-  count      = 0
-  source     = "./modules/mailu-ffe"
-  depends_on = [module.k8s-config, module.cert_manager_issuer]
-
-  host               = format("mail.%s", local.root_domain)
-  domain             = local.root_domain
-  tls_secret_name    = var.mailu_tls_secret_name
-  db_host            = module.k8s-config.postgres_service_fqdn
-  db_port            = var.mailu_db_port
-  db_name            = local.postgres_app_map["mailu-ffe"].db_name
-  db_user            = local.postgres_app_map["mailu-ffe"].user
-  db_password        = local.postgres_app_map["mailu-ffe"].password
-  secret_key         = var.mailu_secret_key
-  admin_username     = var.mailu_admin_username
-  admin_password     = var.mailu_admin_password
-  chart_version      = var.mailu_chart_version
   ingress_class_name = local.ingress_class_name
 }
 //*/

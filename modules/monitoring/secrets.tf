@@ -2,7 +2,7 @@
     Grafana admin credentials (used by kube-prometheus-stack chart via existingSecret)
 */
 resource "kubernetes_secret" "grafana_admin" {
-  count = var.is_prod && var.enable_kube_prometheus_stack ? 1 : 0
+  count = var.enable_kube_prometheus_stack ? 1 : 0
 
   metadata {
     name      = "grafana-admin"

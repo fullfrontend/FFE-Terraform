@@ -1,9 +1,10 @@
 locals {
-  grafana_secret_name = var.is_prod && var.enable_kube_prometheus_stack ? kubernetes_secret.grafana_admin[0].metadata[0].name : ""
+  grafana_secret_name = var.enable_kube_prometheus_stack ? kubernetes_secret.grafana_admin[0].metadata[0].name : ""
+  is_traefik          = lower(var.ingress_class_name) == "traefik"
 }
 
 resource "helm_release" "kube_prometheus_stack" {
-  count            = var.is_prod && var.enable_kube_prometheus_stack ? 1 : 0
+  count            = var.enable_kube_prometheus_stack ? 1 : 0
   name             = "kube-prometheus-stack"
   namespace        = kubernetes_namespace.monitoring.metadata[0].name
   repository       = "https://prometheus-community.github.io/helm-charts"
@@ -12,7 +13,7 @@ resource "helm_release" "kube_prometheus_stack" {
   atomic           = true
   create_namespace = false
 
-  set = [
+  set = concat([
     {
       name  = "namespaceOverride"
       value = kubernetes_namespace.monitoring.metadata[0].name
@@ -51,43 +52,19 @@ resource "helm_release" "kube_prometheus_stack" {
     },
     {
       name  = "grafana.ingress.ingressClassName"
-      value = "traefik"
+      value = var.ingress_class_name
     },
     {
       name  = "grafana.ingress.hosts[0]"
       value = var.grafana_host
     },
     {
-      name  = "grafana.ingress.tls[0].hosts[0]"
-      value = var.grafana_host
-    },
-    {
-      name  = "grafana.ingress.tls[0].secretName"
-      value = "grafana-tls"
-    },
-    {
       name  = "grafana.ingress.annotations.kubernetes\\.io/ingress\\.class"
-      value = "traefik"
+      value = var.ingress_class_name
     },
     {
       name  = "grafana.ingress.annotations.kubernetes\\.io/ingress\\.allow-http"
       value = "'true'"
-    },
-    {
-      name  = "grafana.ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.entrypoints"
-      value = "web\\,websecure"
-    },
-    {
-      name  = "grafana.ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.middlewares"
-      value = "infra-redirect-https@kubernetescrd"
-    },
-    {
-      name  = "grafana.ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.tls"
-      value = "'true'"
-    },
-    {
-      name  = "grafana.ingress.annotations.cert-manager\\.io/cluster-issuer"
-      value = "letsencrypt-prod"
     },
     /*
         Admin credentials provided via existing secret
@@ -169,5 +146,33 @@ resource "helm_release" "kube_prometheus_stack" {
       name  = "kubelet.serviceMonitor.insecureSkipVerify"
       value = "true"
     }
-  ]
+    ], var.enable_tls ? [
+    {
+      name  = "grafana.ingress.tls[0].hosts[0]"
+      value = var.grafana_host
+    },
+    {
+      name  = "grafana.ingress.tls[0].secretName"
+      value = "grafana-tls"
+    }
+    ] : [], var.enable_tls && var.is_prod ? [
+    {
+      name  = "grafana.ingress.annotations.cert-manager\\.io/cluster-issuer"
+      value = "letsencrypt-prod"
+    }
+    ] : [], local.is_traefik ? concat([
+      {
+        name  = "grafana.ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.entrypoints"
+        value = "web\\,websecure"
+      }
+      ], var.enable_tls ? [
+      {
+        name  = "grafana.ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.middlewares"
+        value = "infra-redirect-https@kubernetescrd"
+      },
+      {
+        name  = "grafana.ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.tls"
+        value = "'true'"
+      }
+  ] : []) : [])
 }

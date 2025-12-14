@@ -12,8 +12,8 @@ Public : personnes qui veulent comprendre l’architecture et les règles de la 
   - `infra` (Traefik, cert-manager, external-dns, Velero)  
   - `data` (Postgres, MariaDB)  
   - `metrics` (kube-prometheus-stack)  
-  - `apps/<app>` (wordpress, n8n, crm, nextcloud, mailu, registry)
-- Ingress : Traefik. Certificats : cert-manager (Let’s Encrypt) en prod. DNS : external-dns (DO).
+  - `apps/<app>` (wordpress, n8n, crm, nextcloud WIP, analytics, registry)
+- Ingress : Traefik en prod, nginx via minikube en dev. Certificats : cert-manager (Let’s Encrypt) en prod. DNS : external-dns (DO).
 - Backups : Velero (prod → DO Spaces, dev → MinIO hostPath). Planification 03:00, rétention 30 jours.
 - Registry : Zot exposé via ingress `registry.<root_domain>`.
 - Interdit : images/charts Bitnami.
@@ -21,7 +21,7 @@ Public : personnes qui veulent comprendre l’architecture et les règles de la 
 ## Environnements
 - Variables : `APP_ENV=prod|dev`, `TF_VAR_app_env` optionnel pour aligner Terraform.
 - Prod : kubeconfig dans `${path.root}/.kube/config` via `doctl ... kubeconfig save ...`. cert-manager + external-dns actifs.
-- Dev : kubeconfig `~/.kube/config` (docker-desktop/minikube). cert-manager/external-dns désactivés. Velero utilise MinIO local (`./data/<cluster_name>-velero`).
+- Dev : kubeconfig `~/.kube/config` (docker-desktop/minikube). cert-manager/external-dns désactivés. Velero utilise MinIO local (`./data/<cluster_name>`).
 
 ## Secrets (SOPS/age)
 - Générer la clé age (`bin/age-init.sh`), exporter `SOPS_AGE_KEY_FILE` et `SOPS_AGE_RECIPIENTS`.
@@ -29,8 +29,8 @@ Public : personnes qui veulent comprendre l’architecture et les règles de la 
 - Wrapper tofu : `APP_ENV=... ./scripts/tofu-secrets.sh plan|apply` (décrypte `.secrets.auto.tfvars`, nettoie). Jamais de secrets en clair (tfvars clairs hors git, `.secrets.auto.tfvars` ignoré).
 
 ## Stockage
-1) Block storage (PVC) pour tout le stateful : Postgres/MariaDB, Nextcloud data, wp-content, Mailu (maildir/queue/config).  
-2) Objet (DO Spaces ou MinIO) pour médias, backups DB/Nextcloud/Mailu, stockage externe optionnel Nextcloud.  
+1) Block storage (PVC) pour tout le stateful : Postgres/MariaDB, Nextcloud data, wp-content.  
+2) Objet (DO Spaces ou MinIO) pour médias, backups DB/Nextcloud, stockage externe optionnel Nextcloud.  
 Ne jamais monter Spaces comme volume POSIX principal.
 
 ## Bases de données
@@ -40,13 +40,13 @@ Ne jamais monter Spaces comme volume POSIX principal.
 
 ## Domaines et applications
 - Domaine par environnement (défauts : prod `fullfrontend.be`, dev `fullfrontend.kube`). Pas d’override app.
-- FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` ; Mailu `mail.<root_domain>` ; Analytics `insights.<root_domain>` ; Registry `registry.<root_domain>`.
+- FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Registry `registry.<root_domain>`.
 - Règles app :  
   - WordPress : MariaDB + PVC wp-content, plugin S3 optionnel, ingress cert-manager en prod.  
   - n8n : Postgres partagé, S3 optionnel, ingress.  
   - CRM (à choisir) : Postgres par défaut, S3 si fichiers.  
-  - Nextcloud : Postgres + PVC, S3 externe optionnel.  
-  - Mailu : chart officiel, PV bloc, DNS mail via external-dns, backups Spaces.  
+  - Nextcloud : Postgres + PVC, S3 externe optionnel, WIP.  
+  - Analytics (Vince) : ingress dédié, admin bootstrap Helm, PVC data.  
   - Registry (Zot) : ingress dédié, PVC, htpasswd optionnel.
 
 ## DNS
@@ -65,8 +65,7 @@ Ne jamais monter Spaces comme volume POSIX principal.
 4) WordPress  
 5) n8n  
 6) DNS DigitalOcean  
-7) Nextcloud  
-8) Mailu
+7) Nextcloud
 
 ## Références utiles
 - Providers OpenTofu : DigitalOcean / Kubernetes / Helm.  
