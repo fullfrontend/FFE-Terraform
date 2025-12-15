@@ -25,6 +25,9 @@ resource "helm_release" "nextcloud" {
     { name = "persistence.enabled", value = true },
     { name = "persistence.size", value = var.storage_size },
     { name = "replicaCount", value = var.replicas },
+    { name = "resources.requests.cpu", value = "250m" },
+    { name = "resources.limits.cpu", value = "500m" },
+    { name = "resources.limits.memory", value = "1Gi" },
     // Prometheus metrics via built-in exporter + ServiceMonitor
     { name = "metrics.enabled", value = true },
     { name = "metrics.serviceMonitor.enabled", value = true },

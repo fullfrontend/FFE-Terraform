@@ -207,6 +207,16 @@ resource "kubernetes_stateful_set_v1" "postgres" {
             container_port = 5432
           }
 
+          resources {
+            requests = {
+              cpu = "200m"
+            }
+            limits = {
+              cpu    = "400m"
+              memory = "768Mi"
+            }
+          }
+
           env {
             name = "POSTGRES_PASSWORD"
             value_from {

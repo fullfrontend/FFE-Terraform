@@ -4,6 +4,7 @@ resource "helm_release" "n8n" {
   repository = "https://community-charts.github.io/helm-charts"
   chart      = "n8n"
   version    = var.chart_version != "" ? var.chart_version : null
+  force_update = true
 
   cleanup_on_fail = true
   atomic          = true
@@ -38,8 +39,7 @@ resource "helm_release" "n8n" {
     { name = "main.persistence.volumeName", value = "n8n-main-data" },
     { name = "main.persistence.size", value = "5Gi" },
     { name = "main.resources.requests.cpu", value = "250m" },
-    { name = "main.resources.requests.memory", value = "512Mi" },
-    { name = "main.resources.limits.cpu", value = "250m" },
+    { name = "main.resources.limits.cpu", value = "500m" },
     { name = "main.resources.limits.memory", value = "512Mi" },
     { name = "main.livenessProbe.initialDelaySeconds", value = 30 },
     { name = "main.livenessProbe.timeoutSeconds", value = 5 },
@@ -56,6 +56,9 @@ resource "helm_release" "n8n" {
     { name = "worker.count", value = 1 },
     { name = "worker.waitMainNodeReady.enabled", value = true },
 
+    # Image
+    { name = "image.pullPolicy", value = "Always" },
+
     # Webhooks config
     //{ name = "webhook.mode", value = "regular" },
     //{ name = "webhook.count", value = 1 },
@@ -71,9 +74,7 @@ resource "helm_release" "n8n" {
     { name = "db.logging.enabled", value = true },
     { name = "db.logging.options", value = "error" },
     { name = "db.logging.maxQueryExecutionTime", value = 5000 },
-    { name = "main.extraEnvVars[0].name", value = "N8N_BLOCK_ENV_ACCESS_IN_NODE" },
-    { name = "main.extraEnvVars[0].value", value = "false" },
-    { name = "main.extraEnvVars[1].name", value = "N8N_GIT_NODE_DISABLE_BARE_REPOS" },
-    { name = "main.extraEnvVars[1].value", value = "true" },
+    { name = "main.extraEnvVars.N8N_BLOCK_ENV_ACCESS_IN_NODE", value = "false" },
+    { name = "main.extraEnvVars.N8N_GIT_NODE_DISABLE_BARE_REPOS", value = "true" },
   ]
 }

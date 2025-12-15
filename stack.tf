@@ -31,7 +31,7 @@ module "doks-cluster" {
   region           = var.doks_region
   node_size        = var.doks_node_size
   pool_min_count   = 4
-  pool_max_count   = 7
+  pool_max_count   = 8
   write_kubeconfig = true
 
   project_name        = "Full Front-End"

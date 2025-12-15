@@ -42,6 +42,18 @@ resource "helm_release" "kube_prometheus_stack" {
       name  = "prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage"
       value = "5Gi"
     },
+    {
+      name  = "prometheus.prometheusSpec.resources.requests.cpu"
+      value = "200m"
+    },
+    {
+      name  = "prometheus.prometheusSpec.resources.limits.cpu"
+      value = "400m"
+    },
+    {
+      name  = "prometheus.prometheusSpec.resources.limits.memory"
+      value = "1Gi"
+    },
     /*
         Grafana ingress: tls + HTTP->HTTPS redirect (Traefik middleware infra-redirect-https).
         Annotations quoted as strings.
@@ -93,12 +105,8 @@ resource "helm_release" "kube_prometheus_stack" {
       value = "250m"
     },
     {
-      name  = "grafana.resources.requests.memory"
-      value = "512Mi"
-    },
-    {
       name  = "grafana.resources.limits.cpu"
-      value = "250m"
+      value = "500m"
     },
     {
       name  = "grafana.resources.limits.memory"

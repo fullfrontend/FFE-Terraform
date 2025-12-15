@@ -69,6 +69,16 @@ resource "kubernetes_stateful_set_v1" "mariadb" {
             container_port = 3306
           }
 
+          resources {
+            requests = {
+              cpu = "200m"
+            }
+            limits = {
+              cpu    = "400m"
+              memory = "768Mi"
+            }
+          }
+
           env {
             name = "MARIADB_ROOT_PASSWORD"
             value_from {
