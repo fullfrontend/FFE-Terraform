@@ -87,3 +87,15 @@ variable "htpasswd_entry" {
   sensitive   = true
   description = "Entrée htpasswd (user:bcrypt-hash) pour l’accès au registre"
 }
+
+variable "enable_velero" {
+  type        = bool
+  default     = true
+  description = "Activer le Schedule Velero pour le namespace registry"
+}
+
+variable "velero_namespace" {
+  type        = string
+  default     = "velero"
+  description = "Namespace Velero (pour le Schedule)"
+}

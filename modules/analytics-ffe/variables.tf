@@ -58,3 +58,15 @@ variable "enable_tls" {
   default     = true
   description = "Activer TLS/cert-manager pour l'ingress analytics"
 }
+
+variable "enable_velero" {
+  type        = bool
+  default     = true
+  description = "Activer le Schedule Velero pour le namespace analytics"
+}
+
+variable "velero_namespace" {
+  type        = string
+  default     = "velero"
+  description = "Namespace Velero (pour le Schedule)"
+}

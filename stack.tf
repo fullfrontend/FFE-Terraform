@@ -225,6 +225,8 @@ module "analytics" {
   admin_password     = var.analytics_admin_password
   chart_version      = var.analytics_chart_version
   ingress_class_name = local.ingress_class_name
+  enable_velero      = var.enable_velero
+  velero_namespace   = module.k8s-config.velero_namespace
 }
 //*/
 
@@ -250,5 +252,7 @@ module "registry" {
   s3_secret_key      = var.registry_s3_secret_key
   s3_secure          = var.registry_s3_secure
   enable_tls         = var.enable_tls
+  enable_velero      = var.enable_velero
+  velero_namespace   = module.k8s-config.velero_namespace
 }
 //*/
