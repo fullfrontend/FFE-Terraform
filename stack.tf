@@ -18,6 +18,8 @@ locals {
   ingress_class_name = local.is_prod ? "traefik" : "nginx"
   postgres_app_map   = { for app in var.postgres_app_credentials : app.name => app }
   mariadb_app_map    = { for app in var.mariadb_app_credentials : app.name => app }
+  espocrm_host       = var.espocrm_host != "" ? var.espocrm_host : format("crm.%s", local.root_domain)
+  espocrm_db_creds   = lookup(local.mariadb_app_map, "espocrm", null)
 }
 
 /*
@@ -147,6 +149,37 @@ module "n8n" {
 }
 //*/
 
+
+/*
+    App: EspoCRM (external MariaDB, PVC data)
+*/
+module "espocrm" {
+  count      = var.enable_espocrm ? 1 : 0
+  source     = "./modules/espocrm"
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
+
+  host               = local.espocrm_host
+  tls_secret_name    = var.espocrm_tls_secret_name
+  ingress_class_name = local.ingress_class_name
+  enable_tls         = var.enable_tls
+  image              = var.espocrm_image
+  storage_size       = var.espocrm_storage_size
+  storage_class_name = var.espocrm_storage_class_name
+  db_host            = module.k8s-config.mariadb_service_fqdn
+  db_port            = var.espocrm_db_port
+  db_name            = local.espocrm_db_creds != null ? local.espocrm_db_creds.db_name : ""
+  db_user            = local.espocrm_db_creds != null ? local.espocrm_db_creds.user : ""
+  db_password        = local.espocrm_db_creds != null ? local.espocrm_db_creds.password : ""
+  admin_user         = var.espocrm_admin_user
+  admin_password     = var.espocrm_admin_password
+  admin_email        = var.espocrm_admin_email
+  crypt_key          = var.espocrm_crypt_key
+  hash_secret_key    = var.espocrm_hash_secret_key
+  password_salt      = var.espocrm_password_salt
+  enable_velero      = var.enable_velero
+  velero_namespace   = module.k8s-config.velero_namespace
+}
+//*/
 
 /*
     App: WordPress (external MariaDB, PVC wp-content)

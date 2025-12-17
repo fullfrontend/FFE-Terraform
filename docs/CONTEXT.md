@@ -27,7 +27,7 @@ Architecture
 Applications  
 - WordPress : MariaDB, PVC wp-content, S3 optionnel, ingress cert-manager (prod), FQDN `<root_domain>`.  
 - n8n : Postgres partagé, S3 optionnel, ingress, FQDN `n8n.<root_domain>` + webhooks.  
-- CRM : Postgres prioritaire (MariaDB si incompatibilité), S3 éventuel.  
+- CRM (EspoCRM) : MariaDB (DB dédiée), ingress `crm.<root_domain>`, S3 éventuel.  
 - Nextcloud : Postgres, PVC data, S3 externe optionnel, FQDN `cloud.<root_domain>` (déploiement en cours de dev).  
 - Analytics (Vince) : ingress `insights.<root_domain>`, admin bootstrap via Helm values.  
 - Registry : Zot via ingress, PVC, htpasswd optionnel.  
