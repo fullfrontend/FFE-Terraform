@@ -55,6 +55,41 @@ variable "n8n_encryption_key" {
   description = "Clé de chiffrement n8n (N8N_ENCRYPTION_KEY) ; si vide, le module doit en recevoir une via tfvars"
 }
 
+variable "n8n_enable_redis" {
+  type        = bool
+  default     = true
+  description = "Déployer un Redis dédié pour la queue n8n (chart officiel redis)"
+}
+
+variable "n8n_redis_port" {
+  type        = number
+  default     = 6379
+  description = "Port Redis externe pour la queue n8n"
+}
+
+variable "n8n_redis_db" {
+  type        = number
+  default     = 0
+  description = "Index de DB Redis pour la queue n8n"
+}
+
+variable "n8n_redis_password" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Mot de passe Redis externe pour la queue n8n"
+  validation {
+    condition     = !var.n8n_enable_redis || length(var.n8n_redis_password) > 0
+    error_message = "n8n_redis_password doit être renseigné si n8n_enable_redis=true."
+  }
+}
+
+variable "n8n_redis_storage_size" {
+  type        = string
+  default     = "1Gi"
+  description = "Taille du PVC Redis pour la queue n8n"
+}
+
 # WordPress (MariaDB externe)
 variable "wp_tls_secret_name" {
   type        = string

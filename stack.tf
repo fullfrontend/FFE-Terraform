@@ -126,8 +126,10 @@ module "n8n" {
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 
   host               = format("n8n.%s", local.root_domain)
+  webhook_host       = format("webhook.%s", local.root_domain)
   tls_secret_name    = "n8n-tls"
   ingress_class_name = local.ingress_class_name
+  enable_tls         = var.enable_tls
   chart_version      = var.n8n_chart_version
   db_host            = module.k8s-config.postgres_service_fqdn
   db_port            = var.n8n_db_port
@@ -135,6 +137,13 @@ module "n8n" {
   db_user            = local.postgres_app_map["n8n-ffe"].user
   db_password        = local.postgres_app_map["n8n-ffe"].password
   encryption_key     = var.n8n_encryption_key
+  enable_redis       = var.n8n_enable_redis
+  redis_port         = var.n8n_redis_port
+  redis_db           = var.n8n_redis_db
+  redis_password     = var.n8n_redis_password
+  redis_storage_size = var.n8n_redis_storage_size
+  enable_velero      = var.enable_velero
+  velero_namespace   = module.k8s-config.velero_namespace
 }
 //*/
 
