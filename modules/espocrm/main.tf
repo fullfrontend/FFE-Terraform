@@ -19,6 +19,9 @@ resource "kubernetes_deployment" "espocrm" {
   */
   spec {
     replicas = var.replicas
+    strategy {
+      type = "Recreate"
+    }
 
     selector {
       match_labels = {

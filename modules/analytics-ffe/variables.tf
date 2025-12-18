@@ -36,6 +36,12 @@ variable "chart_version" {
   description = "Version du chart Helm Vince (vide = dernière)"
 }
 
+variable "vince_image" {
+  type        = string
+  default     = "ghcr.io/vinceanalytics/vince:v1.7.1"
+  description = "Image Vince (pin recommandée pour déploiements reproductibles)"
+}
+
 variable "storage_size" {
   type        = string
   default     = "5Gi"

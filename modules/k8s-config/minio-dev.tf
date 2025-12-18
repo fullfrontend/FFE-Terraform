@@ -19,6 +19,9 @@ resource "kubernetes_deployment" "minio_dev" {
 
   spec {
     replicas = 1
+    strategy {
+      type = "Recreate"
+    }
 
     selector {
       match_labels = {

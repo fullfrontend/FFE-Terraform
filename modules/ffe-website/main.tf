@@ -38,6 +38,13 @@ resource "kubernetes_deployment" "wordpress" {
     }
   }
 
+  lifecycle {
+    precondition {
+      condition     = var.replicas == 1
+      error_message = "WordPress uses a ReadWriteOnce PVC; replicas must stay at 1 (otherwise volume multi-attach will break)."
+    }
+  }
+
   /*
       Vanilla WordPress deployment:
       - external MariaDB
@@ -45,6 +52,9 @@ resource "kubernetes_deployment" "wordpress" {
   */
   spec {
     replicas = var.replicas
+    strategy {
+      type = "Recreate"
+    }
 
     selector {
       match_labels = {

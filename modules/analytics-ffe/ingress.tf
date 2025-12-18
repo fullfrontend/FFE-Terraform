@@ -46,7 +46,7 @@ resource "kubernetes_ingress_v1" "analytics_https" {
           path_type = "Prefix"
           backend {
             service {
-              name = helm_release.vince.name
+              name = kubernetes_service.vince.metadata[0].name
               port {
                 number = 80
               }
@@ -79,7 +79,7 @@ resource "kubernetes_ingress_v1" "analytics_http_redirect" {
           path_type = "Prefix"
           backend {
             service {
-              name = helm_release.vince.name
+              name = kubernetes_service.vince.metadata[0].name
               port {
                 number = 80
               }
@@ -114,7 +114,7 @@ resource "kubernetes_ingress_v1" "analytics_http_plain" {
           path_type = "Prefix"
           backend {
             service {
-              name = helm_release.vince.name
+              name = kubernetes_service.vince.metadata[0].name
               port {
                 number = 80
               }

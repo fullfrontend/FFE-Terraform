@@ -1,87 +1,165 @@
 locals {
-  analytics_sets = concat(
-    [for idx, d in var.domains : { name = "domains[${idx}]", value = d }],
-    [
-      { name = "baseURL", value = "https://${var.host}" },
-      { name = "secret.adminName", value = var.admin_username }
-    ]
-  )
+  vince_scheme  = var.enable_tls ? "https" : "http"
+  vince_baseurl = format("%s://%s", local.vince_scheme, var.host)
+}
 
-  analytics_values = {
-    # Persistance des données Vince sur un PVC monté à /data
-    dataPath = "/data"
-    volumeMounts = [
-      {
-        name      = "analytics-data"
-        mountPath = "/data"
-      }
-    ]
-    volumes = [
-      {
-        name = "analytics-data"
-        persistentVolumeClaim = {
-          claimName = kubernetes_persistent_volume_claim.analytics_data.metadata[0].name
-        }
-      }
-    ]
+resource "kubernetes_secret" "vince_admin" {
+  metadata {
+    name      = "vince-admin"
+    namespace = kubernetes_namespace.analytics.metadata[0].name
+    labels = {
+      app = "vince"
+    }
+  }
+
+  data = {
+    VINCE_ADMIN_NAME     = var.admin_username
+    VINCE_ADMIN_PASSWORD = var.admin_password
   }
 }
 
-resource "helm_release" "vince" {
-  name      = "vince"
-  namespace = kubernetes_namespace.analytics.metadata[0].name
-
-  /*
-      Vince analytics helm chart with:
-      - pre-seeded domains
-      - admin credentials
-  */
-  repository      = "https://vinceanalytics.com/charts"
-  chart           = "vince"
-  version         = var.chart_version != "" ? var.chart_version : null
-  cleanup_on_fail = true
-  atomic          = true
-
-  set = concat(
-    local.analytics_sets,
-    var.enable_tls ? [
-      {
-        name  = "ingress.annotations.cert-manager\\.io/cluster-issuer"
-        value = "letsencrypt-prod"
-      },
-      {
-        name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.tls"
-        value = "true"
-      },
-      {
-        name  = "ingress.annotations.kubernetes\\.io/ingress\\.allow-http"
-        value = "true"
-      },
-      {
-        name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.entrypoints"
-        value = "web\\,websecure"
-      },
-      {
-        name  = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.middlewares"
-        value = "infra-redirect-https@kubernetescrd"
-      },
-      {
-        name  = "ingress.tls[0].hosts[0]"
-        value = var.host
-      },
-      {
-        name  = "ingress.tls[0].secretName"
-        value = var.tls_secret_name
-      }
-    ] : []
-  )
-  values = [
-    yamlencode(local.analytics_values)
-  ]
-  set_sensitive = [
-    {
-      name  = "secret.adminPassword"
-      value = var.admin_password
+resource "kubernetes_deployment" "vince" {
+  metadata {
+    name      = "vince"
+    namespace = kubernetes_namespace.analytics.metadata[0].name
+    labels = {
+      app = "vince"
     }
-  ]
+  }
+
+  spec {
+    replicas = 1
+    strategy {
+      type = "Recreate"
+    }
+
+    selector {
+      match_labels = {
+        app = "vince"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "vince"
+        }
+      }
+
+      spec {
+        container {
+          name  = "vince"
+          image = var.vince_image
+          args  = ["serve"]
+
+          port {
+            name           = "http"
+            container_port = 8080
+          }
+
+          env {
+            name  = "VINCE_URL"
+            value = local.vince_baseurl
+          }
+
+          env {
+            name  = "VINCE_DATA"
+            value = "/data"
+          }
+
+          env {
+            name  = "VINCE_DOMAINS"
+            value = join(",", var.domains)
+          }
+
+          env {
+            name = "VINCE_ADMIN_NAME"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.vince_admin.metadata[0].name
+                key  = "VINCE_ADMIN_NAME"
+              }
+            }
+          }
+
+          env {
+            name = "VINCE_ADMIN_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.vince_admin.metadata[0].name
+                key  = "VINCE_ADMIN_PASSWORD"
+              }
+            }
+          }
+
+          resources {
+            requests = {
+              cpu    = "100m"
+              memory = "128Mi"
+            }
+            limits = {
+              cpu    = "300m"
+              memory = "256Mi"
+            }
+          }
+
+          liveness_probe {
+            http_get {
+              path = "/"
+              port = "http"
+            }
+            initial_delay_seconds = 10
+            period_seconds        = 15
+            timeout_seconds       = 5
+            failure_threshold     = 6
+          }
+
+          readiness_probe {
+            http_get {
+              path = "/"
+              port = "http"
+            }
+            initial_delay_seconds = 5
+            period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 6
+          }
+
+          volume_mount {
+            name       = "analytics-data"
+            mount_path = "/data"
+          }
+        }
+
+        volume {
+          name = "analytics-data"
+          persistent_volume_claim {
+            claim_name = kubernetes_persistent_volume_claim.analytics_data.metadata[0].name
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "vince" {
+  metadata {
+    name      = "vince"
+    namespace = kubernetes_namespace.analytics.metadata[0].name
+    labels = {
+      app = "vince"
+    }
+  }
+
+  spec {
+    selector = {
+      app = "vince"
+    }
+
+    port {
+      name        = "http"
+      port        = 80
+      target_port = 8080
+    }
+  }
 }

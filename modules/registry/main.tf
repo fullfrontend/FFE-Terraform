@@ -43,6 +43,9 @@ resource "kubernetes_deployment" "registry" {
 
   spec {
     replicas = 1
+    strategy {
+      type = "Recreate"
+    }
 
     selector {
       match_labels = {
