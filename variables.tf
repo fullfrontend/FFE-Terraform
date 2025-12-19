@@ -36,86 +36,41 @@ variable "enable_n8n" {
   description = "Déployer n8n (Helm) si true"
 }
 
-variable "enable_espocrm" {
+variable "enable_twenty" {
   type        = bool
-  default     = true
-  description = "Déployer EspoCRM (Helm) si true"
+  default     = false
+  description = "Déployer Twenty (server + worker) si true"
 }
 
-variable "espocrm_host" {
+variable "twenty_host" {
   type        = string
   default     = ""
-  description = "FQDN pour l’ingress EspoCRM (ex: crm.example.com). Vide = dérivé du root_domain."
+  description = "FQDN pour l’ingress Twenty (ex: crm.example.com). Vide = dérivé du root_domain."
 }
 
-variable "espocrm_tls_secret_name" {
+variable "twenty_tls_secret_name" {
   type        = string
-  default     = "espocrm-tls"
-  description = "Secret TLS pour l’ingress EspoCRM"
+  default     = "twenty-tls"
+  description = "Secret TLS pour l’ingress Twenty"
 }
 
-variable "espocrm_db_port" {
+variable "twenty_image" {
+  type        = string
+  default     = "twentycrm/twenty:latest"
+  description = "Image Twenty"
+}
+
+variable "twenty_db_port" {
   type        = number
-  default     = 3306
-  description = "Port MariaDB pour EspoCRM"
+  default     = 5432
+  description = "Port Postgres pour Twenty"
 }
 
-variable "espocrm_image" {
-  type        = string
-  default     = "espocrm/espocrm:9.1"
-  description = "Image EspoCRM (officielle, non Bitnami)"
-}
-
-variable "espocrm_storage_size" {
-  type        = string
-  default     = "5Gi"
-  description = "Taille du PVC EspoCRM (/var/www/html)"
-}
-
-variable "espocrm_crypt_key" {
+variable "twenty_app_secret" {
   type        = string
   default     = ""
   sensitive   = true
-  description = "Clé de chiffrement EspoCRM (cryptKey) – doit être stable pour restaurer les données"
-}
-
-variable "espocrm_hash_secret_key" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "Clé de hash EspoCRM (hashSecretKey) – stable pour tokens/validation"
-}
-
-variable "espocrm_password_salt" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "Salt des mots de passe EspoCRM (passwordSalt) – stable pour restaurer"
-}
-
-variable "espocrm_admin_user" {
-  type        = string
-  default     = "admin"
-  description = "Utilisateur admin initial EspoCRM"
-}
-
-variable "espocrm_admin_password" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "Mot de passe admin EspoCRM"
-}
-
-variable "espocrm_admin_email" {
-  type        = string
-  default     = ""
-  description = "Email admin EspoCRM"
-}
-
-variable "espocrm_storage_class_name" {
-  type        = string
-  default     = ""
-  description = "StorageClass pour le PVC EspoCRM (vide = classe par défaut du cluster)"
+  description = "APP_SECRET pour Twenty (string aléatoire, stable pour JWT/crypto)"
 }
 
 variable "n8n_db_port" {
@@ -423,10 +378,6 @@ variable "mariadb_app_credentials" {
   }))
   default     = []
   description = "Liste des DB/users MariaDB par application"
-  validation {
-    condition     = !var.enable_espocrm || contains([for app in var.mariadb_app_credentials : app.name], "espocrm")
-    error_message = "Ajoutez une entrée EspoCRM dans mariadb_app_credentials (name=\"espocrm\") si enable_espocrm=true."
-  }
 }
 
 # DigitalOcean Kubernetes Cluster

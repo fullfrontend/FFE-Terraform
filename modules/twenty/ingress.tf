@@ -1,5 +1,5 @@
 locals {
-  espocrm_annotations = merge(
+  twenty_annotations = merge(
     {
       "kubernetes.io/ingress.class"                      = var.ingress_class_name
       "kubernetes.io/ingress.allow-http"                 = "true"
@@ -13,11 +13,11 @@ locals {
   )
 }
 
-resource "kubernetes_ingress_v1" "espocrm" {
+resource "kubernetes_ingress_v1" "twenty" {
   metadata {
-    name        = "espocrm"
-    namespace   = kubernetes_namespace.espocrm.metadata[0].name
-    annotations = local.espocrm_annotations
+    name        = "twenty"
+    namespace   = kubernetes_namespace.twenty.metadata[0].name
+    annotations = local.twenty_annotations
   }
 
   spec {
@@ -39,9 +39,9 @@ resource "kubernetes_ingress_v1" "espocrm" {
           path_type = "Prefix"
           backend {
             service {
-              name = kubernetes_service.espocrm.metadata[0].name
+              name = kubernetes_service.twenty.metadata[0].name
               port {
-                number = 80
+                number = 3000
               }
             }
           }

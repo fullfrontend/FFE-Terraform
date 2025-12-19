@@ -94,11 +94,7 @@ resource "kubernetes_deployment" "vince" {
 
           resources {
             requests = {
-              cpu    = "100m"
-              memory = "128Mi"
-            }
-            limits = {
-              cpu    = "300m"
+              cpu    = "200m"
               memory = "256Mi"
             }
           }
@@ -129,6 +125,11 @@ resource "kubernetes_deployment" "vince" {
             name       = "analytics-data"
             mount_path = "/data"
           }
+
+          volume_mount {
+            name       = "vince-buffers"
+            mount_path = "/data/buffers"
+          }
         }
 
         volume {
@@ -136,6 +137,11 @@ resource "kubernetes_deployment" "vince" {
           persistent_volume_claim {
             claim_name = kubernetes_persistent_volume_claim.analytics_data.metadata[0].name
           }
+        }
+
+        volume {
+          name = "vince-buffers"
+          empty_dir {}
         }
       }
     }

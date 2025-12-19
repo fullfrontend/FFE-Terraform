@@ -3,7 +3,7 @@
 Déploiement complet d’une stack Kubernetes via OpenTofu/Helm.
 - Prod : cluster DOKS.
 - Dev : cluster local (docker-desktop/minikube).
-- Composants : Traefik (prod) / ingress nginx (dev via minikube), cert-manager/external-dns (prod), Velero (prod: Spaces, dev: MinIO), Postgres, MariaDB, apps (WordPress, n8n, EspoCRM, Vince analytics, Nextcloud en cours, Zot registry).
+- Composants : Traefik (prod) / ingress nginx (dev via minikube), cert-manager/external-dns (prod), Velero (prod: Spaces, dev: MinIO), Postgres, MariaDB, apps (WordPress, n8n, Twenty CRM, Vince analytics, Nextcloud en cours, Zot registry).
 
 👉 Nouveaux arrivants : ce fichier est votre guide rapide.  
 👉 Contexte complet humain : [CONTEXT_INFRA.md](CONTEXT_INFRA.md).  
@@ -55,7 +55,7 @@ Déploiement complet d’une stack Kubernetes via OpenTofu/Helm.
 - Dashboards Grafana prêts à importer : [grafana/dashboards/](grafana/dashboards/) (cf. [grafana/dashboards/README.md](grafana/dashboards/README.md)).
 
 ## Applications
-- WordPress (prod) et n8n déployés ; EspoCRM optionnel (`crm.<root_domain>`), Nextcloud en cours de dev.  
+- WordPress (prod) et n8n déployés ; Twenty CRM optionnel (`twenty.<root_domain>`), Nextcloud en cours de dev.  
 - Analytics (Vince) activé par défaut (`insights.<root_domain>`).  
 - Mailu retiré (risque open relay sur DOKS / LB publics).
 
