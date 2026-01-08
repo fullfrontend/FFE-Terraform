@@ -264,6 +264,7 @@ module "analytics" {
     Private OCI/Docker registry (zot)
 */
 module "registry" {
+  count      = var.enable_registry ? 1 : 0
   source     = "./modules/registry"
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 

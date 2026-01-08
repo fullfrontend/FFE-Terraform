@@ -29,6 +29,13 @@ variable "enable_monitoring" {
   description = "Activer le module monitoring (kube-prometheus-stack/Grafana)"
 }
 
+variable "enable_registry" {
+  type        = bool
+  default     = true
+  description = "Déployer le module registry (zot) si true"
+}
+
+
 # N8N (base de données Postgres externe)
 variable "enable_n8n" {
   type        = bool
