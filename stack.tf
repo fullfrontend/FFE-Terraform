@@ -191,6 +191,8 @@ module "wordpress" {
   replicas           = var.wp_replicas
   storage_size       = var.wp_storage_size
   image              = var.wp_image
+  wp_cache           = var.wp_cache
+  wpms_on            = var.wpms_on
   ingress_class_name = local.ingress_class_name
   dockerhub_user     = var.dockerhub_user
   dockerhub_pat      = var.dockerhub_pat

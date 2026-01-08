@@ -158,6 +158,18 @@ variable "wp_image" {
   description = "Image WordPress (officielle, non Bitnami)"
 }
 
+variable "wp_cache" {
+  type        = bool
+  default     = true
+  description = "Activer WP_CACHE"
+}
+
+variable "wpms_on" {
+  type        = bool
+  default     = true
+  description = "Activer WPMS_ON (WP Mail SMTP)"
+}
+
 variable "wp_as3_provider" {
   type        = string
   default     = "do"

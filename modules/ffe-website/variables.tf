@@ -88,6 +88,18 @@ variable "as3_secret_key" {
   sensitive   = true
 }
 
+variable "wp_cache" {
+  type        = bool
+  default     = true
+  description = "Activer WP_CACHE"
+}
+
+variable "wpms_on" {
+  type        = bool
+  default     = true
+  description = "Activer WPMS_ON (WP Mail SMTP)"
+}
+
 variable "mail_from" {
   type        = string
   default     = ""

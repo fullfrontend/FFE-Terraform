@@ -10,7 +10,9 @@ locals {
         'secret-access-key' => '${var.as3_secret_key}',
     ]));
 
-    define('WPMS_ON', true);
+    define('WP_CACHE', ${var.wp_cache});
+
+    define('WPMS_ON', ${var.wpms_on});
     define('WPMS_MAIL_FROM', '${var.mail_from}');
     define('WPMS_MAIL_FROM_FORCE', true);
     define('WPMS_MAIL_FROM_NAME', '${var.mail_from_name}');
