@@ -19,6 +19,12 @@ variable "ingress_class_name" {
   description = "IngressClassName (traefik prod, nginx dev)"
 }
 
+variable "enable_twenty_worker" {
+  type        = bool
+  default     = false
+  description = "Démarrer le conteneur worker (yarn worker:prod) si true"
+}
+
 variable "enable_tls" {
   type        = bool
   default     = true

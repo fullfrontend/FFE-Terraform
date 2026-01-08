@@ -163,6 +163,7 @@ module "twenty" {
   ingress_class_name = local.ingress_class_name
   enable_tls         = var.enable_tls
   image              = var.twenty_image
+  enable_twenty_worker = var.enable_twenty_worker
   db_host            = module.k8s-config.postgres_service_fqdn
   db_port            = var.twenty_db_port
   db_name            = local.twenty_db_creds != null ? local.twenty_db_creds.db_name : ""

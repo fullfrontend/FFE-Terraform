@@ -55,6 +55,14 @@ resource "kubernetes_deployment" "twenty" {
       }
 
       spec {
+        security_context {
+          run_as_user                = 1000
+          run_as_group               = 1000
+          fs_group                   = 1000
+          fs_group_change_policy     = "OnRootMismatch"
+          run_as_non_root            = true
+        }
+
         volume {
           name = "local-data"
 
@@ -154,68 +162,71 @@ resource "kubernetes_deployment" "twenty" {
           }
         }
 
-        container {
-          name    = "worker"
-          image   = var.image
-          command = ["yarn", "worker:prod"]
+        dynamic "container" {
+          for_each = var.enable_twenty_worker ? [1] : []
+          content {
+            name    = "worker"
+            image   = var.image
+            command = ["yarn", "worker:prod"]
 
-          resources {
-            requests = {
-              cpu    = "100m"
-              memory = "256Mi"
-            }
-            limits = {
-              cpu    = "400m"
-              memory = "512Mi"
-            }
-          }
-
-          env {
-            name = "PG_DATABASE_URL"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.twenty_env.metadata[0].name
-                key  = "PG_DATABASE_URL"
+            resources {
+              requests = {
+                cpu    = "100m"
+                memory = "256Mi"
+              }
+              limits = {
+                cpu    = "400m"
+                memory = "512Mi"
               }
             }
-          }
-          env {
-            name  = "SERVER_URL"
-            value = local.server_url
-          }
-          env {
-            name  = "REDIS_URL"
-            value = local.redis_url
-          }
-          env {
-            name = "APP_SECRET"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.twenty_env.metadata[0].name
-                key  = "APP_SECRET"
+
+            env {
+              name = "PG_DATABASE_URL"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.twenty_env.metadata[0].name
+                  key  = "PG_DATABASE_URL"
+                }
               }
             }
-          }
-          env {
-            name  = "DISABLE_DB_MIGRATIONS"
-            value = "true"
-          }
-          env {
-            name  = "DISABLE_CRON_JOBS_REGISTRATION"
-            value = "true"
-          }
-          env {
-            name  = "LOCAL_STORAGE_PATH"
-            value = "/app/packages/twenty-server/.local-storage"
-          }
-          env {
-            name  = "NODE_OPTIONS"
-            value = "--max-old-space-size=2048"
-          }
+            env {
+              name  = "SERVER_URL"
+              value = local.server_url
+            }
+            env {
+              name  = "REDIS_URL"
+              value = local.redis_url
+            }
+            env {
+              name = "APP_SECRET"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.twenty_env.metadata[0].name
+                  key  = "APP_SECRET"
+                }
+              }
+            }
+            env {
+              name  = "DISABLE_DB_MIGRATIONS"
+              value = "true"
+            }
+            env {
+              name  = "DISABLE_CRON_JOBS_REGISTRATION"
+              value = "true"
+            }
+            env {
+              name  = "LOCAL_STORAGE_PATH"
+              value = "/app/packages/twenty-server/.local-storage"
+            }
+            env {
+              name  = "NODE_OPTIONS"
+              value = "--max-old-space-size=2048"
+            }
 
-          volume_mount {
-            name       = "local-data"
-            mount_path = "/app/packages/twenty-server/.local-storage"
+            volume_mount {
+              name       = "local-data"
+              mount_path = "/app/packages/twenty-server/.local-storage"
+            }
           }
         }
       }

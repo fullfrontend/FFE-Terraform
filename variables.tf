@@ -35,6 +35,11 @@ variable "enable_registry" {
   description = "Déployer le module registry (zot) si true"
 }
 
+variable "enable_twenty_worker" {
+  type        = bool
+  default     = false
+  description = "Démarrer le conteneur worker de Twenty (yarn worker:prod) si true"
+}
 
 # N8N (base de données Postgres externe)
 variable "enable_n8n" {
