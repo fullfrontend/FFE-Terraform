@@ -81,8 +81,8 @@ resource "kubernetes_deployment" "wordpress" {
 
       spec {
         container {
-          name  = "wordpress"
-          image = var.image
+          name    = "wordpress"
+          image   = var.image
           command = ["bash", "-c"]
           args    = ["a2enmod headers >/dev/null 2>&1 || true; apache2-foreground"]
 

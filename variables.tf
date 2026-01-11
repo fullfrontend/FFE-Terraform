@@ -224,7 +224,7 @@ variable "wp_security_txt_signature_url" {
   description = "URL du security.txt.sig (vide = https://<host>/security.txt.sig si sig presente)"
 }
 
-variable "wp_as3_provider" { 
+variable "wp_as3_provider" {
   type        = string
   default     = "do"
   description = "Provider pour AS3CF (ex: do)"
