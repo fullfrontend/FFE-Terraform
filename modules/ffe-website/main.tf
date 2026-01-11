@@ -27,6 +27,14 @@ locals {
     define('WPMS_SMTP_AUTOTLS', false);
     define('WPMS_MAILER', 'smtp');
 
+    // Begin AIOWPSEC Firewall
+    if (file_exists('/var/www/html/aios-bootstrap.php')) {
+        include_once('/var/www/html/aios-bootstrap.php');
+    }
+    // End AIOWPSEC Firewall
+
+    define('WPCACHEHOME', '/var/www/html/wp-content/plugins/wp-super-cache/');
+
     define('WPLANG', '${var.wp_lang}');
   EOT
 }
@@ -75,6 +83,8 @@ resource "kubernetes_deployment" "wordpress" {
         container {
           name  = "wordpress"
           image = var.image
+          command = ["bash", "-c"]
+          args    = ["a2enmod headers >/dev/null 2>&1 || true; apache2-foreground"]
 
           port {
             name           = "http"
@@ -161,9 +171,44 @@ resource "kubernetes_deployment" "wordpress" {
           }
 
           volume_mount {
+            name       = "apache-security"
+            mount_path = "/etc/apache2/conf-enabled/security.conf"
+            sub_path   = "security.conf"
+            read_only  = true
+          }
+
+          volume_mount {
             name       = "php-uploads"
             mount_path = "/usr/local/etc/php/conf.d/uploads.ini"
             sub_path   = "uploads.ini"
+            read_only  = true
+          }
+
+          volume_mount {
+            name       = "wordpress-htaccess"
+            mount_path = "/var/www/html/.htaccess"
+            sub_path   = ".htaccess"
+            read_only  = true
+          }
+
+          volume_mount {
+            name       = "wordpress-text-files"
+            mount_path = "/var/www/html/security.txt"
+            sub_path   = "security.txt"
+            read_only  = true
+          }
+
+          volume_mount {
+            name       = "wordpress-text-files"
+            mount_path = "/var/www/html/security.txt.sig"
+            sub_path   = "security.txt.sig"
+            read_only  = true
+          }
+
+          volume_mount {
+            name       = "wordpress-text-files"
+            mount_path = "/var/www/html/humans.txt"
+            sub_path   = "humans.txt"
             read_only  = true
           }
         }
@@ -193,10 +238,34 @@ resource "kubernetes_deployment" "wordpress" {
         }
 
         volume {
+          name = "apache-security"
+
+          config_map {
+            name = kubernetes_config_map.apache_security.metadata[0].name
+          }
+        }
+
+        volume {
           name = "php-uploads"
 
           config_map {
             name = kubernetes_config_map.php_uploads.metadata[0].name
+          }
+        }
+
+        volume {
+          name = "wordpress-htaccess"
+
+          config_map {
+            name = kubernetes_config_map.wordpress_htaccess.metadata[0].name
+          }
+        }
+
+        volume {
+          name = "wordpress-text-files"
+
+          config_map {
+            name = kubernetes_config_map.wordpress_text_files.metadata[0].name
           }
         }
 

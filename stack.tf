@@ -158,20 +158,20 @@ module "twenty" {
   source     = "./modules/twenty"
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 
-  host               = local.twenty_host
-  tls_secret_name    = var.twenty_tls_secret_name
-  ingress_class_name = local.ingress_class_name
-  enable_tls         = var.enable_tls
-  image              = var.twenty_image
+  host                 = local.twenty_host
+  tls_secret_name      = var.twenty_tls_secret_name
+  ingress_class_name   = local.ingress_class_name
+  enable_tls           = var.enable_tls
+  image                = var.twenty_image
   enable_twenty_worker = var.enable_twenty_worker
-  db_host            = module.k8s-config.postgres_service_fqdn
-  db_port            = var.twenty_db_port
-  db_name            = local.twenty_db_creds != null ? local.twenty_db_creds.db_name : ""
-  db_user            = local.twenty_db_creds != null ? local.twenty_db_creds.user : ""
-  db_password        = local.twenty_db_creds != null ? local.twenty_db_creds.password : ""
-  app_secret         = var.twenty_app_secret
-  enable_velero      = var.enable_velero
-  velero_namespace   = module.k8s-config.velero_namespace
+  db_host              = module.k8s-config.postgres_service_fqdn
+  db_port              = var.twenty_db_port
+  db_name              = local.twenty_db_creds != null ? local.twenty_db_creds.db_name : ""
+  db_user              = local.twenty_db_creds != null ? local.twenty_db_creds.user : ""
+  db_password          = local.twenty_db_creds != null ? local.twenty_db_creds.password : ""
+  app_secret           = var.twenty_app_secret
+  enable_velero        = var.enable_velero
+  velero_namespace     = module.k8s-config.velero_namespace
 }
 //*/
 
@@ -182,36 +182,43 @@ module "wordpress" {
   source     = "./modules/ffe-website"
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 
-  host               = local.root_domain
-  tls_secret_name    = var.wp_tls_secret_name
-  db_host            = module.k8s-config.mariadb_service_fqdn
-  db_port            = var.wp_db_port
-  db_name            = local.mariadb_app_map["ffe-website"].db_name
-  db_user            = local.mariadb_app_map["ffe-website"].user
-  db_password        = local.mariadb_app_map["ffe-website"].password
-  replicas           = var.wp_replicas
-  storage_size       = var.wp_storage_size
-  image              = var.wp_image
-  wp_cache           = var.wp_cache
-  wpms_on            = var.wpms_on
-  ingress_class_name = local.ingress_class_name
-  dockerhub_user     = var.dockerhub_user
-  dockerhub_pat      = var.dockerhub_pat
-  dockerhub_email    = var.dockerhub_email
-  velero_namespace   = module.k8s-config.velero_namespace
-  enable_velero      = var.enable_velero
-  as3_provider       = var.wp_as3_provider
-  as3_access_key     = var.wp_as3_access_key
-  as3_secret_key     = var.wp_as3_secret_key
-  mail_from          = var.wp_mail_from
-  mail_from_name     = var.wp_mail_from_name
-  smtp_host          = var.wp_smtp_host
-  smtp_port          = var.wp_smtp_port
-  smtp_ssl           = var.wp_smtp_ssl
-  smtp_auth          = var.wp_smtp_auth
-  smtp_user          = var.wp_smtp_user
-  smtp_pass          = var.wp_smtp_pass
-  wp_lang            = var.wp_lang
+  host                          = local.root_domain
+  tls_secret_name               = var.wp_tls_secret_name
+  db_host                       = module.k8s-config.mariadb_service_fqdn
+  db_port                       = var.wp_db_port
+  db_name                       = local.mariadb_app_map["ffe-website"].db_name
+  db_user                       = local.mariadb_app_map["ffe-website"].user
+  db_password                   = local.mariadb_app_map["ffe-website"].password
+  replicas                      = var.wp_replicas
+  storage_size                  = var.wp_storage_size
+  image                         = var.wp_image
+  wp_cache                      = var.wp_cache
+  wpms_on                       = var.wpms_on
+  wp_hsts_max_age               = var.wp_hsts_max_age
+  wp_hsts_preload               = var.wp_hsts_preload
+  wp_security_txt               = var.wp_security_txt
+  wp_humans_txt                 = var.wp_humans_txt
+  wp_security_contact_email     = var.wp_security_contact_email
+  wp_security_txt_sig           = var.wp_security_txt_sig
+  wp_security_txt_signature_url = var.wp_security_txt_signature_url
+  ingress_class_name            = local.ingress_class_name
+  dockerhub_user                = var.dockerhub_user
+  dockerhub_pat                 = var.dockerhub_pat
+  dockerhub_email               = var.dockerhub_email
+  velero_namespace              = module.k8s-config.velero_namespace
+  enable_velero                 = var.enable_velero
+  as3_provider                  = var.wp_as3_provider
+  as3_access_key                = var.wp_as3_access_key
+  as3_secret_key                = var.wp_as3_secret_key
+  mail_from                     = var.wp_mail_from
+  mail_from_name                = var.wp_mail_from_name
+  smtp_host                     = var.wp_smtp_host
+  smtp_port                     = var.wp_smtp_port
+  smtp_ssl                      = var.wp_smtp_ssl
+  smtp_auth                     = var.wp_smtp_auth
+  smtp_user                     = var.wp_smtp_user
+  smtp_pass                     = var.wp_smtp_pass
+  wp_lang                       = var.wp_lang
 }
 //*/
 
