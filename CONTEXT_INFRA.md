@@ -13,7 +13,7 @@ Public : personnes qui veulent comprendre l’architecture et les règles de la 
   - `data` (Postgres, MariaDB)  
   - `metrics` (kube-prometheus-stack)  
   - `apps/<app>` (wordpress, n8n, crm, nextcloud WIP, analytics, registry)
-- Ingress : Traefik en prod, nginx via minikube en dev. Certificats : cert-manager (Let’s Encrypt) en prod. DNS : external-dns (DO).
+- Ingress : Traefik en prod, nginx via minikube en dev. WAF global (ModSecurity + OWASP CRS via Traefik, prod). Certificats : cert-manager (Let’s Encrypt) en prod. DNS : external-dns (DO).
 - Backups : Velero (prod → DO Spaces, dev → MinIO hostPath). Planification 03:00, rétention 30 jours.
 - Registry : Zot exposé via ingress `registry.<root_domain>`.
 - Interdit : images/charts Bitnami.

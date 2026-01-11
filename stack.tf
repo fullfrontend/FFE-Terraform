@@ -65,6 +65,13 @@ module "k8s-config" {
   enable_tls           = var.enable_tls
 
   enable_velero     = var.enable_velero
+  enable_waf        = var.enable_waf
+  waf_plugin_module = var.waf_plugin_module
+  waf_plugin_version = var.waf_plugin_version
+  waf_modsecurity_image = var.waf_modsecurity_image
+  waf_dummy_image       = var.waf_dummy_image
+  waf_max_body_size     = var.waf_max_body_size
+  waf_timeout_ms        = var.waf_timeout_ms
   velero_bucket     = var.velero_bucket
   velero_s3_url     = local.velero_s3_url
   velero_access_key = var.velero_access_key

@@ -3,7 +3,7 @@ Objectif (IA)
 - Séparer bloc/objet, backups quotidiens, pas de services managés ni Bitnami.
 
 Plateforme  
-- Ingress : Traefik en prod, nginx via minikube en dev. Certificats : cert-manager (prod). DNS : external-dns (prod).  
+- Ingress : Traefik en prod, nginx via minikube en dev. WAF global (ModSecurity + OWASP CRS via Traefik, prod). Certificats : cert-manager (prod). DNS : external-dns (prod).  
 - Stockage : PVC bloc (DO CSI) pour tout le stateful ; objet Spaces/MinIO pour médias et backups.  
 - Backups : Velero (03:00, rétention 30 jours). Apps peuvent ajouter leur `Schedule` Velero.  
 - Registry : Zot via ingress `registry.<root_domain>`.

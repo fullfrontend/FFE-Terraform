@@ -3,7 +3,7 @@
 Déploiement complet d’une stack Kubernetes via OpenTofu/Helm.
 - Prod : cluster DOKS.
 - Dev : cluster local (docker-desktop/minikube).
-- Composants : Traefik (prod) / ingress nginx (dev via minikube), cert-manager/external-dns (prod), Velero (prod: Spaces, dev: MinIO), Postgres, MariaDB, apps (WordPress, n8n, Twenty CRM, Vince analytics, Nextcloud en cours, Zot registry).
+- Composants : Traefik (prod) / ingress nginx (dev via minikube), WAF global (ModSecurity + OWASP CRS via Traefik, prod), cert-manager/external-dns (prod), Velero (prod: Spaces, dev: MinIO), Postgres, MariaDB, apps (WordPress, n8n, Twenty CRM, Vince analytics, Nextcloud en cours, Zot registry).
 
 👉 Nouveaux arrivants : ce fichier est votre guide rapide.  
 👉 Contexte complet humain : [CONTEXT_INFRA.md](CONTEXT_INFRA.md).  
@@ -53,6 +53,11 @@ Déploiement complet d’une stack Kubernetes via OpenTofu/Helm.
 ## Monitoring
 - `kube-prometheus-stack` toggle : `enable_kube_prometheus_stack=true` (déployable en dev aussi, ingress class dérivée de l’env, TLS optionnel).
 - Dashboards Grafana prêts à importer : [grafana/dashboards/](grafana/dashboards/) (cf. [grafana/dashboards/README.md](grafana/dashboards/README.md)).
+
+## WAF (Traefik, prod)
+- WAF global basé sur ModSecurity + OWASP CRS via plugin Traefik.
+- Toggle : `enable_waf=true`. Par défaut activé en prod.
+- Paramètres : `waf_plugin_module`, `waf_plugin_version`, `waf_modsecurity_image`, `waf_max_body_size`, `waf_timeout_ms`.
 
 ## Applications
 - WordPress (prod) et n8n déployés ; Twenty CRM optionnel (`twenty.<root_domain>`), Nextcloud en cours de dev.  

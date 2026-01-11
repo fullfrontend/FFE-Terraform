@@ -11,6 +11,20 @@ locals {
       value = format("%s-traefik", var.cluster_name)
     }
   ]
+  traefik_sets_waf = var.enable_waf ? [
+    {
+      name  = "experimental.plugins.modsecurity.moduleName"
+      value = var.waf_plugin_module
+    },
+    {
+      name  = "experimental.plugins.modsecurity.version"
+      value = var.waf_plugin_version
+    },
+    {
+      name  = "entryPoints.websecure.http.middlewares"
+      value = "${kubernetes_namespace.infra.metadata[0].name}-waf@kubernetescrd"
+    },
+  ] : []
 }
 
 resource "helm_release" "traefik" {
@@ -92,5 +106,5 @@ resource "helm_release" "traefik" {
       name  = "crds.enabled"
       value = true
     },
-  ], var.is_prod ? local.traefik_sets_prod : [])
+  ], var.is_prod ? concat(local.traefik_sets_prod, local.traefik_sets_waf) : [])
 }
