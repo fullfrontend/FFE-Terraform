@@ -1,83 +1,119 @@
-# FFE Terraform
+<h1 align="center">FFE Terraform</h1>
 
-Déploiement complet d’une stack Kubernetes via OpenTofu/Helm.
-- Prod : cluster DOKS.
-- Dev : cluster local (docker-desktop/minikube).
-- Composants : Traefik (prod) / ingress nginx (dev via minikube), WAF global (ModSecurity + OWASP CRS via Traefik, prod), cert-manager/external-dns (prod), Velero (prod: Spaces, dev: MinIO), Postgres, MariaDB, apps (WordPress, n8n, Twenty CRM, Vince analytics, Nextcloud en cours, Zot registry).
+<p align="center">
+  <b><i>Déploiement complet d’une stack Kubernetes via OpenTofu/Helm</i></b><br />
+  <b>🌐 <a href="https://fullfrontend.be">fullfrontend.be</a></b><br />
+</p>
 
-👉 Nouveaux arrivants : ce fichier est votre guide rapide.  
-👉 Contexte complet humain : [CONTEXT_INFRA.md](CONTEXT_INFRA.md).  
-👉 Rappels et règles IA : [docs/CONTEXT.md](docs/CONTEXT.md).  
-👉 Blog post : [INITIAL_BLOG_POST.md](INITIAL_BLOG_POST.md).
+---
 
-## Prérequis
-- `age` et `sops` installés.
-- `tofu`/`helm`/`kubectl` installés, DO CLI (`doctl`) pour la prod.
-- Exports attendus : `SOPS_AGE_KEY_FILE`, `SOPS_AGE_RECIPIENTS`, `APP_ENV=dev|prod`.
+#### Contents
 
-## Secrets (SOPS/age)
-1. Générer la clé age : `bin/age-init.sh` puis exporter les variables.
-2. Copier l’exemple : `cp secrets.tfvars.example secrets.tfvars` et remplir.
-3. Chiffrer : `bin/sops-encrypt.sh secrets.tfvars secrets.tfvars.enc` (édition : `sops secrets.tfvars.enc`).
-4. Utiliser le wrapper tofu (décrypte/nettoie auto) : `APP_ENV=... ./scripts/tofu-secrets.sh plan|apply`.
+- **[About](#about)**
+  - [Stack Overview](#stack-overview)
+  - [Environments](#environments)
+  - [Domains](#domains)
+- **[Usage](#usage)**
+  - [Prerequisites](#prerequisites)
+  - [Secrets](#secrets)
+  - [Quick Start](#quick-start)
+  - [Configuration](#configuration)
+- **[Modules](#modules)**
+  - [Apps](#apps)
+  - [Observability](#observability)
+  - [Platform Security](#platform-security)
+- **[License](#license)**
+- **[Security](#security)**
 
-## Démarrage rapide
-1) `export APP_ENV=dev` (ou `prod`) et `export TF_VAR_app_env=$APP_ENV` si besoin.  
-2) `tofu init`.  
-3) Prod seulement (cluster absent) : `APP_ENV=prod ./scripts/tofu-secrets.sh apply -target=module.doks-cluster`.  
-4) Prod : récupérer le kubeconfig DO dans `./.kube/config` via `doctl kubernetes cluster kubeconfig save ...`.  
-5) Déployer : `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`).  
-6) Dev : minikube installe l’ingress nginx via la commande de launch ; vérifier la StorageClass (hostpath par défaut, overridable via `storage_class_name`).  
-7) Velero en dev : MinIO tourne en hostPath sous `./data/<cluster_name>` (git-ignoré).  
-8) Si le cluster DOKS existe déjà et doit être conservé hors Terraform, retirer la ressource du state avant apply (`tofu state rm ...`).
+---
 
-## Domaines par défaut (`root_domain`)
-- Prod : `root_domain_prod` (défaut `fullfrontend.be`)
-- Dev : `root_domain_dev` (défaut `fullfrontend.kube`)
-- FQDN dérivés uniquement du `root_domain` (pas d’override app) :  
-  WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Registry `registry.<root_domain>`.
+## About
+Stack Kubernetes complète, gérée en Infrastructure-as-Code avec OpenTofu + Helm. Le repo est conçu pour rester simple à opérer et 100% auto-hébergé (pas de services managés, pas de Bitnami).
 
-## Bonnes pratiques
-- Pas de charts/images Bitnami.
-- Un module dédié par app (namespace `apps/<app>`), ingress Traefik, credentials DB dans `postgres_app_credentials`/`mariadb_app_credentials`.
-- Jamais de secrets en clair ; privilégier SOPS/age ou `TF_VAR_*`.
-- Init Jobs Postgres/MariaDB créent DB/utilisateur en `IF NOT EXISTS` (recréés si manquant).
-- Stockage : toujours démarrer petit sur les PVC et n’agrandir qu’au besoin. Le shrink n’est pas supporté → recréation/migration obligatoire (sinon blood and tears).
+### Stack Overview
+- Ingress: Traefik en prod, nginx en dev (minikube)
+- WAF global: ModSecurity + OWASP CRS via Traefik (prod)
+- TLS: cert-manager (prod)
+- DNS: external-dns (prod)
+- Backups: Velero (prod: DO Spaces, dev: MinIO)
+- Data: Postgres + MariaDB (stateful en PVC)
 
-## TLS en dev
-- cert-manager off. Options :  
-  1) Cert local (`mkcert`) + secrets TLS par ingress (noms : `wordpress-tls`, `nextcloud-tls`, `analytics-tls`, `n8n-tls`).  
-  2) HTTP only (retirer les blocs TLS).  
-  3) Proxy local qui termine TLS.
+### Environments
+- **prod**: DOKS, kubeconfig dans `./.kube/config`, cert-manager & external-dns actifs
+- **dev**: cluster local (`~/.kube/config`), cert-manager & external-dns désactivés
 
-## Monitoring
-- `kube-prometheus-stack` toggle : `enable_kube_prometheus_stack=true` (déployable en dev aussi, ingress class dérivée de l’env, TLS optionnel).
-- Dashboards Grafana prêts à importer : [grafana/dashboards/](grafana/dashboards/) (cf. [grafana/dashboards/README.md](grafana/dashboards/README.md)).
+### Domains
+- Prod: `root_domain_prod` (défaut `fullfrontend.be`)
+- Dev: `root_domain_dev` (défaut `fullfrontend.kube`)
+- FQDN dérivés uniquement de `root_domain`:
+  - WordPress: `<root_domain>`
+  - n8n: `n8n.<root_domain>` + `webhook.<root_domain>`
+  - Analytics: `insights.<root_domain>`
+  - Registry: `registry.<root_domain>`
+  - Nextcloud: `cloud.<root_domain>` (WIP)
 
-## WAF (Traefik, prod)
-- WAF global basé sur ModSecurity + OWASP CRS via plugin Traefik.
-- Toggle : `enable_waf=true`. Par défaut activé en prod.
-- Paramètres : `waf_plugin_module`, `waf_plugin_version`, `waf_modsecurity_image`, `waf_max_body_size`, `waf_timeout_ms`.
+## Usage
 
-## Applications
-- WordPress (prod) et n8n déployés ; Twenty CRM optionnel (`twenty.<root_domain>`), Nextcloud en cours de dev.  
-- Analytics (Vince) activé par défaut (`insights.<root_domain>`).  
-- Mailu retiré (risque open relay sur DOKS / LB publics).
+### Prerequisites
+- `age` et `sops`
+- `tofu`, `helm`, `kubectl`
+- `doctl` (prod)
+- Exports requis: `SOPS_AGE_KEY_FILE`, `SOPS_AGE_RECIPIENTS`, `APP_ENV=dev|prod`
 
-## Besoin de creuser ?
-- Vision détaillée infra/humaine : [CONTEXT_INFRA.md](CONTEXT_INFRA.md).  
-- Règles et raccourcis pour l’IA : [docs/CONTEXT.md](docs/CONTEXT.md).
+### Secrets
+1. Générer la clé age: `bin/age-init.sh` puis exporter les variables.
+2. Copier l’exemple: `cp secrets.tfvars.example secrets.tfvars` et remplir.
+3. Chiffrer: `bin/sops-encrypt.sh secrets.tfvars secrets.tfvars.enc`.
+4. Utiliser le wrapper tofu: `APP_ENV=... ./scripts/tofu-secrets.sh plan|apply`.
 
-## Contribuer
-- Issues/PR bienvenues. Pas de secrets en clair, pas d’images/charts Bitnami.
-- Respecter le style existant (modules par app, commentaires multi-lignes si besoin).
-- Les contributions sont acceptées sous la même licence (WTFPL).
-- Voir aussi : [CONTRIBUTING.md](CONTRIBUTING.md) et [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+### Quick Start
+1) `export APP_ENV=dev` (ou `prod`) et `export TF_VAR_app_env=$APP_ENV` si besoin.
+2) `tofu init`.
+3) Prod (cluster absent): `APP_ENV=prod ./scripts/tofu-secrets.sh apply -target=module.doks-cluster`.
+4) Prod: récupérer le kubeconfig DO dans `./.kube/config` via `doctl kubernetes cluster kubeconfig save ...`.
+5) Déployer: `APP_ENV=... ./scripts/tofu-secrets.sh apply` (ou `plan`).
+6) Dev: minikube installe l’ingress nginx via la commande de launch.
 
-## Licence et avertissement
-- Tout le dépôt (code, dashboards, schémas) est sous WTFPL (`LICENSE`).
-- Aucune garantie ni support : auditez avant usage en prod.
-- Les dépendances externes restent sous leurs propres licences.
+### Configuration
+Principaux toggles:
+- `app_env`: `prod` / `dev`
+- `enable_tls`: active TLS + redirect HTTPS
+- `enable_velero`: backups Velero
+- `enable_waf`: WAF global Traefik
 
-## Sécurité
-- Pour signaler une vulnérabilité, suivre les instructions de [SECURITY.md](SECURITY.md). Pas de secrets ni données sensibles dans les issues/PR.
+WAF (prod):
+- `waf_plugin_module`
+- `waf_plugin_version`
+- `waf_modsecurity_image`
+- `waf_max_body_size`
+- `waf_timeout_ms`
+
+Docs utiles:
+- Contexte infra: [CONTEXT_INFRA.md](CONTEXT_INFRA.md)
+- Règles IA: [docs/CONTEXT.md](docs/CONTEXT.md)
+- Blog post: [INITIAL_BLOG_POST.md](INITIAL_BLOG_POST.md)
+
+## Modules
+
+### Apps
+- WordPress (MariaDB + PVC)
+- n8n (Postgres + Redis optionnel)
+- Twenty CRM (optionnel)
+- Analytics (Vince)
+- Nextcloud (WIP)
+- Registry (Zot)
+
+### Observability
+- Prometheus + Grafana (kube-prometheus-stack)
+- Dashboards: [grafana/dashboards/](grafana/dashboards/)
+
+### Platform Security
+- WAF global via Traefik (ModSecurity + OWASP CRS)
+- TLS via cert-manager en prod
+- Secrets chiffrés (SOPS/age)
+
+## License
+Tout le dépôt est sous WTFPL (`LICENSE`). Aucune garantie ni support.
+
+## Security
+Pour signaler une vulnérabilité, suivre [SECURITY.md](SECURITY.md). Pas de secrets ni données sensibles dans les issues/PR.
