@@ -63,6 +63,7 @@ module "k8s-config" {
   enable_cert_manager  = local.is_prod
   acme_email           = var.acme_email
   enable_tls           = var.enable_tls
+  enable_monitoring    = var.enable_monitoring
 
   enable_velero         = var.enable_velero
   enable_waf            = var.enable_waf

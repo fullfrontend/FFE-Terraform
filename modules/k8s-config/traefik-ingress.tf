@@ -11,6 +11,25 @@ locals {
       value = format("%s-traefik", var.cluster_name)
     }
   ]
+  traefik_sets_monitoring = var.enable_monitoring ? [
+    {
+      name  = "metrics.prometheus.serviceMonitor.enabled"
+      value = "true"
+    },
+    {
+      name  = "metrics.prometheus.serviceMonitor.namespace"
+      value = "monitoring"
+    },
+    {
+      name  = "metrics.prometheus.serviceMonitor.additionalLabels.release"
+      value = "kube-prometheus-stack"
+    },
+  ] : [
+    {
+      name  = "metrics.prometheus.serviceMonitor.enabled"
+      value = "false"
+    },
+  ]
   traefik_sets_waf = var.enable_waf ? [
     {
       name  = "experimental.plugins.modsecurity.moduleName"
@@ -91,20 +110,8 @@ resource "helm_release" "traefik" {
       value = "metrics"
     },
     {
-      name  = "metrics.prometheus.serviceMonitor.enabled"
-      value = true
-    },
-    {
-      name  = "metrics.prometheus.serviceMonitor.namespace"
-      value = "monitoring"
-    },
-    {
-      name  = "metrics.prometheus.serviceMonitor.additionalLabels.release"
-      value = "kube-prometheus-stack"
-    },
-    {
       name  = "crds.enabled"
       value = true
     },
-  ], var.is_prod ? concat(local.traefik_sets_prod, local.traefik_sets_waf) : [])
+  ], var.is_prod ? concat(local.traefik_sets_prod, local.traefik_sets_monitoring, local.traefik_sets_waf) : [])
 }

@@ -54,6 +54,12 @@ variable "enable_tls" {
   description = "Activer TLS/redirect sur les ingresses (false = HTTP seulement)"
 }
 
+variable "enable_monitoring" {
+  type        = bool
+  default     = true
+  description = "Activer le ServiceMonitor Traefik (kube-prometheus-stack)"
+}
+
 variable "enable_waf" {
   type        = bool
   default     = true
