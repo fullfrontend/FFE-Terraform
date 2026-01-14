@@ -2,16 +2,19 @@
     Secrets regroupés pour k8s-config (external-dns, Velero, Postgres/MariaDB, MinIO dev).
 */
 
-resource "kubernetes_secret" "external_dns_do_token" {
+resource "kubernetes_secret" "external_dns_ovh" {
   count = var.is_prod ? 1 : 0
 
   metadata {
-    name      = "external-dns-do-token"
+    name      = "external-dns-ovh"
     namespace = kubernetes_namespace.infra.metadata[0].name
   }
 
   data = {
-    DO_TOKEN = var.do_token
+    OVH_ENDPOINT           = var.ovh_endpoint
+    OVH_APPLICATION_KEY    = var.ovh_application_key
+    OVH_APPLICATION_SECRET = var.ovh_application_secret
+    OVH_CONSUMER_KEY       = var.ovh_consumer_key
   }
 }
 

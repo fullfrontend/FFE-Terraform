@@ -57,7 +57,6 @@ module "k8s-config" {
   region               = var.doks_region
   root_domain          = local.root_domain
   extra_domain_filters = var.extra_domain_filters
-  do_token             = var.do_token
   is_prod              = local.is_prod
   kubeconfig_path      = local.kubeconfig_path
   enable_cert_manager  = local.is_prod
@@ -91,6 +90,11 @@ module "k8s-config" {
   mariadb_storage_size    = var.mariadb_storage_size
   mariadb_root_password   = var.mariadb_root_password
   mariadb_app_credentials = var.mariadb_app_credentials
+
+  ovh_endpoint           = var.ovh_endpoint
+  ovh_application_key    = var.ovh_application_key
+  ovh_application_secret = var.ovh_application_secret
+  ovh_consumer_key       = var.ovh_consumer_key
 }
 //*/
 
