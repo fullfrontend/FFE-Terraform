@@ -49,6 +49,7 @@ Stack Kubernetes complète, gérée en Infrastructure-as-Code avec OpenTofu + He
   - WordPress: `<root_domain>`
   - n8n: `n8n.<root_domain>` + `webhook.<root_domain>`
   - Analytics: `insights.<root_domain>`
+  - Sentry: `sentry.<root_domain>`
   - Registry: `registry.<root_domain>`
   - Nextcloud: `cloud.<root_domain>` (WIP)
 
@@ -100,6 +101,7 @@ Docs utiles:
 - n8n (Postgres + Redis optionnel)
 - Twenty CRM (optionnel)
 - Analytics (Vince)
+- Sentry (optionnel)
 - Nextcloud (WIP)
 - Registry (Zot)
 

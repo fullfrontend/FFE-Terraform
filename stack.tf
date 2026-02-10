@@ -19,6 +19,8 @@ locals {
   postgres_app_map   = { for app in var.postgres_app_credentials : app.name => app }
   mariadb_app_map    = { for app in var.mariadb_app_credentials : app.name => app }
   twenty_host        = var.twenty_host != "" ? var.twenty_host : format("crm.%s", local.root_domain)
+  sentry_host        = var.sentry_host != "" ? var.sentry_host : format("sentry.%s", local.root_domain)
+  sentry_admin_email = var.sentry_admin_email != "" ? var.sentry_admin_email : format("ops@%s", local.root_domain)
   twenty_db_creds    = lookup(local.postgres_app_map, "twenty", null)
 }
 
@@ -273,6 +275,26 @@ module "analytics" {
   admin_password     = var.analytics_admin_password
   chart_version      = var.analytics_chart_version
   ingress_class_name = local.ingress_class_name
+  enable_velero      = var.enable_velero
+  velero_namespace   = module.k8s-config.velero_namespace
+}
+//*/
+
+/*
+    App: Sentry (errors tracking)
+*/
+module "sentry" {
+  count      = var.enable_sentry ? 1 : 0
+  source     = "./modules/sentry"
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
+
+  host               = local.sentry_host
+  tls_secret_name    = var.sentry_tls_secret_name
+  ingress_class_name = local.ingress_class_name
+  enable_tls         = var.enable_tls
+  chart_version      = var.sentry_chart_version
+  admin_email        = local.sentry_admin_email
+  admin_password     = var.sentry_admin_password
   enable_velero      = var.enable_velero
   velero_namespace   = module.k8s-config.velero_namespace
 }

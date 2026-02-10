@@ -22,7 +22,7 @@ Secrets (SOPS/age)
 Architecture  
 - Namespaces : infra (traefik, cert-manager, external-dns, velero), data (postgres, mariadb), metrics (kube-prometheus-stack), apps (wordpress, n8n, twenty, nextcloud WIP, analytics, registry).  
 - Stockage : PVC pour stateful, objet pour médias/backups/S3 externes Nextcloud.  
-- Domaines (`root_domain` uniquement, pas d’override) : prod défaut `fullfrontend.be`, dev défaut `fullfrontend.kube`. FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Registry `registry.<root_domain>`.
+- Domaines (`root_domain` uniquement, pas d’override) : prod défaut `fullfrontend.be`, dev défaut `fullfrontend.kube`. FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; Registry `registry.<root_domain>`.
 
 Applications  
 - WordPress : MariaDB, PVC wp-content, S3 optionnel, ingress cert-manager (prod), FQDN `<root_domain>`.  
@@ -30,6 +30,7 @@ Applications
 - CRM (Twenty) : Postgres (DB dédiée), ingress `twenty.<root_domain>`, Redis interne, stockage local éphémère (S3 optionnel non câblé).  
 - Nextcloud : Postgres, PVC data, S3 externe optionnel, FQDN `cloud.<root_domain>` (déploiement en cours de dev).  
 - Analytics (Vince) : ingress `insights.<root_domain>`, admin bootstrap via Helm values.  
+- Sentry : ingress `sentry.<root_domain>`, chart Helm officiel, backup namespace via Velero.  
 - Registry : Zot via ingress, PVC, htpasswd optionnel.  
 - Init Jobs Postgres/MariaDB (TTL 120s) créent DB/user en `IF NOT EXISTS`; si recréés, n’ajoutent que le manquant.
 

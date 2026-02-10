@@ -77,10 +77,22 @@ variable "enable_twenty" {
   description = "Déployer Twenty (server + worker) si true"
 }
 
+variable "enable_sentry" {
+  type        = bool
+  default     = false
+  description = "Déployer Sentry (self-hosted) si true"
+}
+
 variable "twenty_host" {
   type        = string
   default     = ""
   description = "FQDN pour l’ingress Twenty (ex: crm.example.com). Vide = dérivé du root_domain."
+}
+
+variable "sentry_host" {
+  type        = string
+  default     = ""
+  description = "FQDN pour l’ingress Sentry (ex: sentry.example.com). Vide = dérivé du root_domain."
 }
 
 variable "twenty_tls_secret_name" {
@@ -397,6 +409,36 @@ variable "analytics_chart_version" {
   type        = string
   default     = ""
   description = "Version du chart Helm Vince (vide = dernière)"
+}
+
+# Sentry (self-hosted)
+variable "sentry_tls_secret_name" {
+  type        = string
+  default     = "sentry-tls"
+  description = "Secret TLS pour l’ingress Sentry"
+}
+
+variable "sentry_chart_version" {
+  type        = string
+  default     = ""
+  description = "Version du chart Helm Sentry (vide = dernière)"
+}
+
+variable "sentry_admin_email" {
+  type        = string
+  default     = ""
+  description = "Email admin Sentry (vide = auto via ops@<root_domain>)"
+}
+
+variable "sentry_admin_password" {
+  type        = string
+  default     = ""
+  description = "Mot de passe admin Sentry"
+  sensitive   = true
+  validation {
+    condition     = !var.enable_sentry || length(var.sentry_admin_password) > 0
+    error_message = "sentry_admin_password doit être renseigné si enable_sentry=true."
+  }
 }
 
 # Postgres (data)

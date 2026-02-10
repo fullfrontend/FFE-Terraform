@@ -40,7 +40,7 @@ Ne jamais monter Spaces comme volume POSIX principal.
 
 ## Domaines et applications
 - Domaine par environnement (défauts : prod `fullfrontend.be`, dev `fullfrontend.kube`). Pas d’override app.
-- FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Registry `registry.<root_domain>`.
+- FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; Registry `registry.<root_domain>`.
 - Règles app :  
   - WordPress : MariaDB + PVC wp-content, plugin S3 optionnel, ingress cert-manager en prod.  
   - n8n : Postgres partagé, S3 optionnel, ingress.  
