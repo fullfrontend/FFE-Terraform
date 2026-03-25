@@ -635,6 +635,48 @@ variable "postiz_linkedin_client_secret" {
   sensitive   = true
 }
 
+variable "postiz_facebook_app_id" {
+  type        = string
+  default     = ""
+  description = "Facebook app ID pour Postiz (egalement utilise pour Instagram)"
+  sensitive   = true
+}
+
+variable "postiz_facebook_app_secret" {
+  type        = string
+  default     = ""
+  description = "Facebook app secret pour Postiz (egalement utilise pour Instagram)"
+  sensitive   = true
+}
+
+variable "postiz_youtube_client_id" {
+  type        = string
+  default     = ""
+  description = "YouTube client ID pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_youtube_client_secret" {
+  type        = string
+  default     = ""
+  description = "YouTube client secret pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_tiktok_client_id" {
+  type        = string
+  default     = ""
+  description = "TikTok client ID pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_tiktok_client_secret" {
+  type        = string
+  default     = ""
+  description = "TikTok client secret pour Postiz"
+  sensitive   = true
+}
+
 variable "postiz_reddit_client_id" {
   type        = string
   default     = ""

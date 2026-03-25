@@ -31,7 +31,7 @@ Applications
 - Nextcloud : Postgres, PVC data, S3 externe optionnel, FQDN `cloud.<root_domain>` (déploiement en cours de dev).  
 - Analytics (Vince) : ingress `insights.<root_domain>`, admin bootstrap via Helm values.  
 - Sentry : ingress `sentry.<root_domain>`, chart Helm officiel, backup namespace via Velero.  
-- Postiz : ingress `social.<root_domain>`, chart Helm OCI officiel, Postgres partagé, Redis officiel séparé + PVC uploads.  
+- Postiz : ingress `social.<root_domain>`, chart Helm OCI officiel, Postgres partagé, Redis officiel séparé + PVC uploads. Cible principale : Facebook/Instagram, LinkedIn, YouTube, TikTok.  
 - Registry : Zot via ingress, PVC, htpasswd optionnel.  
 - Init Jobs Postgres/MariaDB (TTL 120s) créent DB/user en `IF NOT EXISTS`; si recréés, n’ajoutent que le manquant.
 

@@ -47,7 +47,7 @@ Ne jamais monter Spaces comme volume POSIX principal.
   - CRM (à choisir) : Postgres par défaut, S3 si fichiers.  
   - Nextcloud : Postgres + PVC, S3 externe optionnel, WIP.  
   - Analytics (Vince) : ingress dédié, admin bootstrap Helm, PVC data.  
-  - Postiz : Postgres partagé, Redis dédié via chart officiel, PVC uploads, providers OAuth/API optionnels.  
+  - Postiz : Postgres partagé, Redis dédié via chart officiel, PVC uploads, providers OAuth/API optionnels. Usage principal prévu : Facebook/Instagram, LinkedIn, YouTube, TikTok.  
   - Registry (Zot) : ingress dédié, PVC, htpasswd optionnel.
 
 ## DNS

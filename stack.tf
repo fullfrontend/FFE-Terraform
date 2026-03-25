@@ -344,6 +344,12 @@ module "postiz" {
   x_api_secret                 = var.postiz_x_api_secret
   linkedin_client_id           = var.postiz_linkedin_client_id
   linkedin_client_secret       = var.postiz_linkedin_client_secret
+  facebook_app_id              = var.postiz_facebook_app_id
+  facebook_app_secret          = var.postiz_facebook_app_secret
+  youtube_client_id            = var.postiz_youtube_client_id
+  youtube_client_secret        = var.postiz_youtube_client_secret
+  tiktok_client_id             = var.postiz_tiktok_client_id
+  tiktok_client_secret         = var.postiz_tiktok_client_secret
   reddit_client_id             = var.postiz_reddit_client_id
   reddit_client_secret         = var.postiz_reddit_client_secret
   github_client_id             = var.postiz_github_client_id

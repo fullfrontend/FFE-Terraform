@@ -104,6 +104,7 @@ Docs utiles:
 - Analytics (Vince)
 - Sentry (optionnel)
 - Postiz (optionnel)
+  Providers cibles: Facebook/Instagram, LinkedIn, YouTube, TikTok
 - Nextcloud (WIP)
 - Registry (Zot)
 
