@@ -83,6 +83,12 @@ variable "enable_sentry" {
   description = "Déployer Sentry (self-hosted) si true"
 }
 
+variable "enable_postiz" {
+  type        = bool
+  default     = false
+  description = "Déployer Postiz (social scheduling) si true"
+}
+
 variable "twenty_host" {
   type        = string
   default     = ""
@@ -93,6 +99,12 @@ variable "sentry_host" {
   type        = string
   default     = ""
   description = "FQDN pour l’ingress Sentry (ex: sentry.example.com). Vide = dérivé du root_domain."
+}
+
+variable "postiz_host" {
+  type        = string
+  default     = ""
+  description = "FQDN pour l’ingress Postiz (ex: social.example.com). Vide = dérivé du root_domain."
 }
 
 variable "twenty_tls_secret_name" {
@@ -439,6 +451,258 @@ variable "sentry_admin_password" {
     condition     = !var.enable_sentry || length(var.sentry_admin_password) > 0
     error_message = "sentry_admin_password doit être renseigné si enable_sentry=true."
   }
+}
+
+# Postiz (social scheduling)
+variable "postiz_tls_secret_name" {
+  type        = string
+  default     = "postiz-tls"
+  description = "Secret TLS pour l’ingress Postiz"
+}
+
+variable "postiz_chart_version" {
+  type        = string
+  default     = ""
+  description = "Version du chart Helm Postiz (vide = dernière)"
+}
+
+variable "postiz_db_port" {
+  type        = number
+  default     = 5432
+  description = "Port Postgres pour Postiz"
+}
+
+variable "postiz_storage_size" {
+  type        = string
+  default     = "5Gi"
+  description = "Taille du PVC uploads Postiz"
+}
+
+variable "postiz_redis_storage_size" {
+  type        = string
+  default     = "1Gi"
+  description = "Taille du PVC Redis Postiz"
+}
+
+variable "postiz_jwt_secret" {
+  type        = string
+  default     = ""
+  description = "JWT secret pour Postiz"
+  sensitive   = true
+  validation {
+    condition     = !var.enable_postiz || length(var.postiz_jwt_secret) > 0
+    error_message = "postiz_jwt_secret doit être renseigné si enable_postiz=true."
+  }
+}
+
+variable "postiz_redis_password" {
+  type        = string
+  default     = ""
+  description = "Mot de passe Redis Postiz"
+  sensitive   = true
+  validation {
+    condition     = !var.enable_postiz || length(var.postiz_redis_password) > 0
+    error_message = "postiz_redis_password doit être renseigné si enable_postiz=true."
+  }
+}
+
+variable "postiz_disable_registration" {
+  type        = bool
+  default     = false
+  description = "Désactiver les nouvelles inscriptions Postiz après le premier compte"
+}
+
+variable "postiz_email_provider" {
+  type        = string
+  default     = ""
+  description = "Provider email Postiz: vide, resend ou nodemailer"
+}
+
+variable "postiz_email_from_name" {
+  type        = string
+  default     = ""
+  description = "Nom expéditeur des emails Postiz"
+}
+
+variable "postiz_email_from_address" {
+  type        = string
+  default     = ""
+  description = "Adresse expéditeur des emails Postiz"
+}
+
+variable "postiz_email_host" {
+  type        = string
+  default     = ""
+  description = "Host SMTP Postiz"
+}
+
+variable "postiz_email_port" {
+  type        = string
+  default     = "465"
+  description = "Port SMTP Postiz"
+}
+
+variable "postiz_email_secure" {
+  type        = string
+  default     = "true"
+  description = "SMTP secure Postiz"
+}
+
+variable "postiz_email_user" {
+  type        = string
+  default     = ""
+  description = "Utilisateur SMTP Postiz"
+}
+
+variable "postiz_email_pass" {
+  type        = string
+  default     = ""
+  description = "Mot de passe SMTP Postiz"
+  sensitive   = true
+}
+
+variable "postiz_resend_api_key" {
+  type        = string
+  default     = ""
+  description = "Clé API Resend pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_storage_provider" {
+  type        = string
+  default     = "local"
+  description = "Backend de stockage Postiz: local ou cloudflare"
+}
+
+variable "postiz_cloudflare_account_id" {
+  type        = string
+  default     = ""
+  description = "Cloudflare account ID pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_cloudflare_access_key" {
+  type        = string
+  default     = ""
+  description = "Cloudflare access key pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_cloudflare_secret_access_key" {
+  type        = string
+  default     = ""
+  description = "Cloudflare secret access key pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_cloudflare_bucketname" {
+  type        = string
+  default     = ""
+  description = "Bucket Cloudflare R2 pour Postiz"
+}
+
+variable "postiz_cloudflare_bucket_url" {
+  type        = string
+  default     = ""
+  description = "URL du bucket Cloudflare R2 pour Postiz"
+}
+
+variable "postiz_x_api_key" {
+  type        = string
+  default     = ""
+  description = "X API key pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_x_api_secret" {
+  type        = string
+  default     = ""
+  description = "X API secret pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_linkedin_client_id" {
+  type        = string
+  default     = ""
+  description = "LinkedIn client ID pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_linkedin_client_secret" {
+  type        = string
+  default     = ""
+  description = "LinkedIn client secret pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_facebook_app_id" {
+  type        = string
+  default     = ""
+  description = "Facebook app ID pour Postiz (egalement utilise pour Instagram)"
+  sensitive   = true
+}
+
+variable "postiz_facebook_app_secret" {
+  type        = string
+  default     = ""
+  description = "Facebook app secret pour Postiz (egalement utilise pour Instagram)"
+  sensitive   = true
+}
+
+variable "postiz_youtube_client_id" {
+  type        = string
+  default     = ""
+  description = "YouTube client ID pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_youtube_client_secret" {
+  type        = string
+  default     = ""
+  description = "YouTube client secret pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_tiktok_client_id" {
+  type        = string
+  default     = ""
+  description = "TikTok client ID pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_tiktok_client_secret" {
+  type        = string
+  default     = ""
+  description = "TikTok client secret pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_reddit_client_id" {
+  type        = string
+  default     = ""
+  description = "Reddit client ID pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_reddit_client_secret" {
+  type        = string
+  default     = ""
+  description = "Reddit client secret pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_github_client_id" {
+  type        = string
+  default     = ""
+  description = "GitHub client ID pour Postiz"
+  sensitive   = true
+}
+
+variable "postiz_github_client_secret" {
+  type        = string
+  default     = ""
+  description = "GitHub client secret pour Postiz"
+  sensitive   = true
 }
 
 # Postgres (data)

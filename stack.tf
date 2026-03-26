@@ -20,8 +20,10 @@ locals {
   mariadb_app_map    = { for app in var.mariadb_app_credentials : app.name => app }
   twenty_host        = var.twenty_host != "" ? var.twenty_host : format("crm.%s", local.root_domain)
   sentry_host        = var.sentry_host != "" ? var.sentry_host : format("sentry.%s", local.root_domain)
+  postiz_host        = var.postiz_host != "" ? var.postiz_host : format("social.%s", local.root_domain)
   sentry_admin_email = var.sentry_admin_email != "" ? var.sentry_admin_email : format("ops@%s", local.root_domain)
   twenty_db_creds    = lookup(local.postgres_app_map, "twenty", null)
+  postiz_db_creds    = lookup(local.postgres_app_map, "postiz", null)
 }
 
 /*
@@ -297,6 +299,63 @@ module "sentry" {
   admin_password     = var.sentry_admin_password
   enable_velero      = var.enable_velero
   velero_namespace   = module.k8s-config.velero_namespace
+}
+//*/
+
+/*
+    App: Postiz (social media scheduling)
+*/
+module "postiz" {
+  count      = var.enable_postiz ? 1 : 0
+  source     = "./modules/postiz"
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
+
+  host                         = local.postiz_host
+  tls_secret_name              = var.postiz_tls_secret_name
+  ingress_class_name           = local.ingress_class_name
+  enable_tls                   = var.enable_tls
+  chart_version                = var.postiz_chart_version
+  storage_size                 = var.postiz_storage_size
+  db_host                      = module.k8s-config.postgres_service_fqdn
+  db_port                      = var.postiz_db_port
+  db_name                      = local.postiz_db_creds != null ? local.postiz_db_creds.db_name : ""
+  db_user                      = local.postiz_db_creds != null ? local.postiz_db_creds.user : ""
+  db_password                  = local.postiz_db_creds != null ? local.postiz_db_creds.password : ""
+  jwt_secret                   = var.postiz_jwt_secret
+  redis_password               = var.postiz_redis_password
+  redis_storage_size           = var.postiz_redis_storage_size
+  disable_registration         = var.postiz_disable_registration
+  email_provider               = var.postiz_email_provider
+  email_from_name              = var.postiz_email_from_name
+  email_from_address           = var.postiz_email_from_address
+  email_host                   = var.postiz_email_host
+  email_port                   = var.postiz_email_port
+  email_secure                 = var.postiz_email_secure
+  email_user                   = var.postiz_email_user
+  email_pass                   = var.postiz_email_pass
+  resend_api_key               = var.postiz_resend_api_key
+  storage_provider             = var.postiz_storage_provider
+  cloudflare_account_id        = var.postiz_cloudflare_account_id
+  cloudflare_access_key        = var.postiz_cloudflare_access_key
+  cloudflare_secret_access_key = var.postiz_cloudflare_secret_access_key
+  cloudflare_bucketname        = var.postiz_cloudflare_bucketname
+  cloudflare_bucket_url        = var.postiz_cloudflare_bucket_url
+  x_api_key                    = var.postiz_x_api_key
+  x_api_secret                 = var.postiz_x_api_secret
+  linkedin_client_id           = var.postiz_linkedin_client_id
+  linkedin_client_secret       = var.postiz_linkedin_client_secret
+  facebook_app_id              = var.postiz_facebook_app_id
+  facebook_app_secret          = var.postiz_facebook_app_secret
+  youtube_client_id            = var.postiz_youtube_client_id
+  youtube_client_secret        = var.postiz_youtube_client_secret
+  tiktok_client_id             = var.postiz_tiktok_client_id
+  tiktok_client_secret         = var.postiz_tiktok_client_secret
+  reddit_client_id             = var.postiz_reddit_client_id
+  reddit_client_secret         = var.postiz_reddit_client_secret
+  github_client_id             = var.postiz_github_client_id
+  github_client_secret         = var.postiz_github_client_secret
+  enable_velero                = var.enable_velero
+  velero_namespace             = module.k8s-config.velero_namespace
 }
 //*/
 

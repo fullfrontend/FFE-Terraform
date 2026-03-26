@@ -50,6 +50,7 @@ Stack Kubernetes complète, gérée en Infrastructure-as-Code avec OpenTofu + He
   - n8n: `n8n.<root_domain>` + `webhook.<root_domain>`
   - Analytics: `insights.<root_domain>`
   - Sentry: `sentry.<root_domain>`
+  - Postiz: `social.<root_domain>`
   - Registry: `registry.<root_domain>`
   - Nextcloud: `cloud.<root_domain>` (WIP)
 
@@ -102,6 +103,8 @@ Docs utiles:
 - Twenty CRM (optionnel)
 - Analytics (Vince)
 - Sentry (optionnel)
+- Postiz (optionnel)
+  Providers cibles: Facebook/Instagram, LinkedIn, YouTube, TikTok
 - Nextcloud (WIP)
 - Registry (Zot)
 
