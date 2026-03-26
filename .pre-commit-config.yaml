@@ -1,6 +1,11 @@
 repos:
   - repo: local
     hooks:
+      - id: forbid-master-commit
+        name: forbid commits on master
+        entry: bash -c 'branch="$(git branch --show-current)"; if [ "$branch" = "master" ]; then echo "Direct commits on master are forbidden."; exit 1; fi'
+        language: system
+        pass_filenames: false
       - id: tofu-fmt
         name: tofu fmt
         entry: tofu fmt -recursive
