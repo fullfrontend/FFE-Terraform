@@ -14,6 +14,10 @@ Merci d’aider le projet ! Tout est sous WTFPL ; en contribuant vous acceptez c
 3) Lancer un plan : `APP_ENV=dev ./scripts/tofu-secrets.sh plan` (le wrapper gère le decrypt/cleanup).  
 4) Pour la prod, si besoin de créer le cluster DOKS : `APP_ENV=prod ./scripts/tofu-secrets.sh apply -target=module.doks-cluster`.
 
+## Hooks locaux
+- Installer `pre-commit` puis activer les hooks : `pre-commit install`
+- Le hook configuré lance `tofu fmt -recursive` sur tout le projet avant chaque commit.
+
 ## Style et structure
 - Un module par application (namespace `apps/<app>`), séparation bloc/objet respectée.
 - Commentaires multi-lignes si besoin :

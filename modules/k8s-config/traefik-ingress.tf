@@ -24,7 +24,7 @@ locals {
       name  = "metrics.prometheus.serviceMonitor.additionalLabels.release"
       value = "kube-prometheus-stack"
     },
-  ] : [
+    ] : [
     {
       name  = "metrics.prometheus.serviceMonitor.enabled"
       value = "false"
