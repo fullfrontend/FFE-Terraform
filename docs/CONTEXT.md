@@ -22,7 +22,7 @@ Secrets (SOPS/age)
 Architecture  
 - Namespaces : infra (traefik, cert-manager, external-dns, velero), data (postgres, mariadb), metrics (kube-prometheus-stack), apps (wordpress, n8n, twenty, nextcloud WIP, analytics, registry).  
 - Stockage : PVC pour stateful, objet pour médias/backups/S3 externes Nextcloud.  
-- Domaines (`root_domain` uniquement, pas d’override) : prod défaut `fullfrontend.be`, dev défaut `fullfrontend.kube`. FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; Postiz `social.<root_domain>` ; Registry `registry.<root_domain>`.
+- Domaines (`root_domain` uniquement, pas d’override) : prod défaut `fullfrontend.be`, dev défaut `fullfrontend.kube`. FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; FRP `frp.<root_domain>` ; dashboard `tunnels.<root_domain>` ; tunnel HTTP `postiz.<root_domain>` ; Registry `registry.<root_domain>`.
 
 Applications  
 - WordPress : MariaDB, PVC wp-content, S3 optionnel, ingress cert-manager (prod), FQDN `<root_domain>`.  
@@ -31,7 +31,7 @@ Applications
 - Nextcloud : Postgres, PVC data, S3 externe optionnel, FQDN `cloud.<root_domain>` (déploiement en cours de dev).  
 - Analytics (Vince) : ingress `insights.<root_domain>`, admin bootstrap via Helm values.  
 - Sentry : ingress `sentry.<root_domain>`, chart Helm officiel, backup namespace via Velero.  
-- Postiz : ingress `social.<root_domain>`, chart Helm OCI officiel, Postgres partagé, Redis officiel séparé + PVC uploads. Cible principale : Facebook/Instagram, LinkedIn, YouTube, TikTok.  
+- FRP : `frps` stateless, DNS `frp.<root_domain>`, dashboard HTTPS `tunnels.<root_domain>`, et routage HTTP via Traefik vers des hosts comme `postiz.<root_domain>`. Ports exposés : `7000/TCP` pour les clients et `7500/TCP` pour le dashboard.  
 - Registry : Zot via ingress, PVC, htpasswd optionnel.  
 - Init Jobs Postgres/MariaDB (TTL 120s) créent DB/user en `IF NOT EXISTS`; si recréés, n’ajoutent que le manquant.
 

@@ -40,14 +40,14 @@ Ne jamais monter Spaces comme volume POSIX principal.
 
 ## Domaines et applications
 - Domaine par environnement (défauts : prod `fullfrontend.be`, dev `fullfrontend.kube`). Pas d’override app.
-- FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; Postiz `social.<root_domain>` ; Registry `registry.<root_domain>`.
+- FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; FRP `frp.<root_domain>` ; dashboard `tunnels.<root_domain>` ; tunnel HTTP `postiz.<root_domain>` ; Registry `registry.<root_domain>`.
 - Règles app :  
   - WordPress : MariaDB + PVC wp-content, plugin S3 optionnel, ingress cert-manager en prod.  
   - n8n : Postgres partagé, S3 optionnel, ingress.  
   - CRM (à choisir) : Postgres par défaut, S3 si fichiers.  
   - Nextcloud : Postgres + PVC, S3 externe optionnel, WIP.  
   - Analytics (Vince) : ingress dédié, admin bootstrap Helm, PVC data.  
-  - Postiz : Postgres partagé, Redis dédié via chart officiel, PVC uploads, providers OAuth/API optionnels. Usage principal prévu : Facebook/Instagram, LinkedIn, YouTube, TikTok.  
+  - FRP : `frps` stateless, Service `LoadBalancer` en prod / `NodePort` en dev, port TCP `7000` pour les clients FRP, dashboard HTTPS via Traefik sur `tunnels.<root_domain>` et tunnels HTTP comme `postiz.<root_domain>`. D’autres hosts peuvent être ajoutés via `frp_additional_http_hosts`. Pas de Velero nécessaire.  
   - Registry (Zot) : ingress dédié, PVC, htpasswd optionnel.
 
 ## DNS
