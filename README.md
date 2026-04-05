@@ -50,7 +50,7 @@ Stack Kubernetes complète, gérée en Infrastructure-as-Code avec OpenTofu + He
   - n8n: `n8n.<root_domain>` + `webhook.<root_domain>`
   - Analytics: `insights.<root_domain>`
   - Sentry: `sentry.<root_domain>`
-  - Postiz: `social.<root_domain>`
+  - FRP server: `frp.<root_domain>` + dashboard `tunnels.<root_domain>` + tunnel HTTP `postiz.<root_domain>`
   - Registry: `registry.<root_domain>`
   - Nextcloud: `cloud.<root_domain>` (WIP)
 
@@ -103,8 +103,8 @@ Docs utiles:
 - Twenty CRM (optionnel)
 - Analytics (Vince)
 - Sentry (optionnel)
-- Postiz (optionnel)
-  Providers cibles: Facebook/Instagram, LinkedIn, YouTube, TikTok
+- FRP server (optionnel)
+  Usage cible: `frpc` tourne sur le NAS et publie `postiz.<root_domain>` ainsi que d’autres tunnels HTTP
 - Nextcloud (WIP)
 - Registry (Zot)
 
