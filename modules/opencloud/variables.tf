@@ -29,7 +29,7 @@ variable "enable_tls" {
 
 variable "image" {
   type        = string
-  default     = "opencloudeu/opencloud:6.1.0"
+  default     = "opencloudeu/opencloud:4.0.5"
   description = "Image OpenCloud officielle"
 }
 

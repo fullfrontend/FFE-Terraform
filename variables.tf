@@ -379,7 +379,7 @@ variable "opencloud_tls_secret_name" {
 
 variable "opencloud_image" {
   type        = string
-  default     = "opencloudeu/opencloud:6.1.0"
+  default     = "opencloudeu/opencloud:4.0.5"
   description = "Image OpenCloud officielle"
 }
 
