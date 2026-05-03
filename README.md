@@ -50,9 +50,9 @@ Stack Kubernetes complète, gérée en Infrastructure-as-Code avec OpenTofu + He
   - n8n: `n8n.<root_domain>` + `webhook.<root_domain>`
   - Analytics: `insights.<root_domain>`
   - Sentry: `sentry.<root_domain>`
-  - FRP server: `frp.<root_domain>` + dashboard `tunnels.<root_domain>` + tunnel HTTP `postiz.<root_domain>`
+  - FRP server: `frp.<root_domain>` + dashboard `tunnels.<root_domain>` + tunnel HTTP `social.<root_domain>`
   - Registry: `registry.<root_domain>`
-  - Nextcloud: `cloud.<root_domain>` (WIP)
+  - OpenCloud + Radicale: `cloud.<root_domain>` (CalDAV/CardDAV via OpenCloud proxy)
 
 ## Usage
 
@@ -104,8 +104,8 @@ Docs utiles:
 - Analytics (Vince)
 - Sentry (optionnel)
 - FRP server (optionnel)
-  Usage cible: `frpc` tourne sur le NAS et publie `postiz.<root_domain>` ainsi que d’autres tunnels HTTP
-- Nextcloud (WIP)
+  Usage cible: `frpc` tourne sur le NAS et publie `social.<root_domain>` ainsi que d’autres tunnels HTTP
+- OpenCloud + Radicale (optionnel)
 - Registry (Zot)
 
 ### Observability

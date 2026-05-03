@@ -22,7 +22,7 @@ locals {
   sentry_host        = var.sentry_host != "" ? var.sentry_host : format("sentry.%s", local.root_domain)
   frp_host           = var.frp_host != "" ? var.frp_host : format("frp.%s", local.root_domain)
   frp_dashboard_host = var.frp_dashboard_host != "" ? var.frp_dashboard_host : format("tunnels.%s", local.root_domain)
-  frp_http_hosts     = distinct(concat([format("postiz.%s", local.root_domain)], var.frp_additional_http_hosts))
+  frp_http_hosts     = distinct(concat([format("social.%s", local.root_domain)], var.frp_additional_http_hosts))
   sentry_admin_email = var.sentry_admin_email != "" ? var.sentry_admin_email : format("ops@%s", local.root_domain)
   twenty_db_creds    = lookup(local.postgres_app_map, "twenty", null)
 }
@@ -241,25 +241,29 @@ module "wordpress" {
 
 
 /*
-    App: Nextcloud (external Postgres, PVC data)
+    App: OpenCloud + Radicale (files, contacts, calendars)
 */
-module "nextcloud" {
-  # Nextcloud désactivé (sera remis en ligne plus tard)
-  count      = 0
-  source     = "./modules/nextcloud-ffe"
+module "opencloud" {
+  count      = var.enable_opencloud ? 1 : 0
+  source     = "./modules/opencloud"
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 
-  host               = format("cloud.%s", local.root_domain)
-  tls_secret_name    = var.nextcloud_tls_secret_name
-  db_host            = module.k8s-config.postgres_service_fqdn
-  db_port            = var.nextcloud_db_port
-  db_name            = local.postgres_app_map["nextcloud-ffe"].db_name
-  db_user            = local.postgres_app_map["nextcloud-ffe"].user
-  db_password        = local.postgres_app_map["nextcloud-ffe"].password
-  replicas           = var.nextcloud_replicas
-  storage_size       = var.nextcloud_storage_size
-  chart_version      = var.nextcloud_chart_version
-  ingress_class_name = local.ingress_class_name
+  host                           = var.opencloud_host != "" ? var.opencloud_host : format("cloud.%s", local.root_domain)
+  tls_secret_name                = var.opencloud_tls_secret_name
+  ingress_class_name             = local.ingress_class_name
+  enable_tls                     = var.enable_tls
+  image                          = var.opencloud_image
+  radicale_image                 = var.opencloud_radicale_image
+  admin_password                 = var.opencloud_admin_password
+  config_storage_size            = var.opencloud_config_storage_size
+  data_storage_size              = var.opencloud_data_storage_size
+  radicale_storage_size          = var.opencloud_radicale_storage_size
+  enable_radicale_debug_ui       = var.opencloud_enable_radicale_debug_ui
+  radicale_debug_host            = var.opencloud_radicale_debug_host != "" ? var.opencloud_radicale_debug_host : format("radicale.%s", local.root_domain)
+  radicale_debug_tls_secret_name = var.opencloud_radicale_debug_tls_secret_name
+  radicale_debug_remote_user     = var.opencloud_radicale_debug_remote_user
+  enable_velero                  = var.enable_velero
+  velero_namespace               = module.k8s-config.velero_namespace
 }
 //*/
 

@@ -116,7 +116,7 @@ variable "frp_dashboard_host" {
 variable "frp_additional_http_hosts" {
   type        = list(string)
   default     = []
-  description = "Hosts HTTP supplémentaires routés vers frps via Traefik, en plus de postiz.<root_domain>."
+  description = "Hosts HTTP supplémentaires routés vers frps via Traefik, en plus de social.<root_domain>."
 }
 
 variable "twenty_tls_secret_name" {
@@ -358,35 +358,94 @@ variable "wp_lang" {
   description = "Langue WordPress (constante WPLANG)"
 }
 
-# Nextcloud (Postgres externe)
-variable "nextcloud_tls_secret_name" {
-  type        = string
-  default     = "nextcloud-tls"
-  description = "Secret TLS pour l’ingress Nextcloud"
+# OpenCloud + Radicale
+variable "enable_opencloud" {
+  type        = bool
+  default     = false
+  description = "Déployer OpenCloud et Radicale si true"
 }
 
-variable "nextcloud_db_port" {
-  type        = number
-  default     = 5432
-  description = "Port Postgres pour Nextcloud"
-}
-
-variable "nextcloud_replicas" {
-  type        = number
-  default     = 1
-  description = "Réplicas Nextcloud"
-}
-
-variable "nextcloud_storage_size" {
-  type        = string
-  default     = "50Gi"
-  description = "Taille du PVC Nextcloud"
-}
-
-variable "nextcloud_chart_version" {
+variable "opencloud_host" {
   type        = string
   default     = ""
-  description = "Version du chart Nextcloud (vide = dernière)"
+  description = "FQDN pour l’ingress OpenCloud (ex: cloud.example.com). Vide = dérivé du root_domain."
+}
+
+variable "opencloud_tls_secret_name" {
+  type        = string
+  default     = "opencloud-tls"
+  description = "Secret TLS pour l’ingress OpenCloud"
+}
+
+variable "opencloud_image" {
+  type        = string
+  default     = "opencloudeu/opencloud:4.0.5"
+  description = "Image OpenCloud officielle"
+}
+
+variable "opencloud_radicale_image" {
+  type        = string
+  default     = "opencloudeu/radicale:latest"
+  description = "Image Radicale utilisée avec OpenCloud"
+}
+
+variable "opencloud_admin_password" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Mot de passe initial de l’admin OpenCloud"
+  validation {
+    condition     = !var.enable_opencloud || length(var.opencloud_admin_password) > 0
+    error_message = "opencloud_admin_password doit être renseigné si enable_opencloud=true."
+  }
+}
+
+variable "opencloud_config_storage_size" {
+  type        = string
+  default     = "2Gi"
+  description = "Taille du PVC de configuration OpenCloud"
+}
+
+variable "opencloud_data_storage_size" {
+  type        = string
+  default     = "50Gi"
+  description = "Taille du PVC de données OpenCloud"
+}
+
+variable "opencloud_radicale_storage_size" {
+  type        = string
+  default     = "5Gi"
+  description = "Taille du PVC de données Radicale"
+}
+
+
+variable "opencloud_enable_radicale_debug_ui" {
+  type        = bool
+  default     = false
+  description = "Expose temporairement l'UI web interne de Radicale"
+}
+
+variable "opencloud_radicale_debug_host" {
+  type        = string
+  default     = ""
+  description = "FQDN pour l'UI debug Radicale. Vide = derive de root_domain."
+}
+
+variable "opencloud_radicale_debug_tls_secret_name" {
+  type        = string
+  default     = "radicale-debug-tls"
+  description = "Secret TLS pour l'ingress debug Radicale"
+}
+
+variable "opencloud_radicale_debug_remote_user" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Valeur injectee dans X-Remote-User pour l'UI debug Radicale"
+  validation {
+    condition     = !var.opencloud_enable_radicale_debug_ui || length(var.opencloud_radicale_debug_remote_user) > 0
+    error_message = "opencloud_radicale_debug_remote_user doit etre renseigne si opencloud_enable_radicale_debug_ui=true."
+  }
 }
 
 # Monitoring / Grafana

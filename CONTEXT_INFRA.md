@@ -12,7 +12,7 @@ Public : personnes qui veulent comprendre l’architecture et les règles de la 
   - `infra` (Traefik, cert-manager, external-dns, Velero)  
   - `data` (Postgres, MariaDB)  
   - `metrics` (kube-prometheus-stack)  
-  - `apps/<app>` (wordpress, n8n, crm, nextcloud WIP, analytics, registry)
+  - `apps/<app>` (wordpress, n8n, crm, opencloud, analytics, registry)
 - Ingress : Traefik en prod, nginx via minikube en dev. WAF global (ModSecurity + OWASP CRS via Traefik, prod). Certificats : cert-manager (Let’s Encrypt) en prod. DNS : external-dns (DO).
 - Backups : Velero (prod → DO Spaces, dev → MinIO hostPath). Planification 03:00, rétention 30 jours.
 - Registry : Zot exposé via ingress `registry.<root_domain>`.
@@ -29,8 +29,8 @@ Public : personnes qui veulent comprendre l’architecture et les règles de la 
 - Wrapper tofu : `APP_ENV=... ./scripts/tofu-secrets.sh plan|apply` (décrypte `.secrets.auto.tfvars`, nettoie). Jamais de secrets en clair (tfvars clairs hors git, `.secrets.auto.tfvars` ignoré).
 
 ## Stockage
-1) Block storage (PVC) pour tout le stateful : Postgres/MariaDB, Nextcloud data, wp-content.  
-2) Objet (DO Spaces ou MinIO) pour médias, backups DB/Nextcloud, stockage externe optionnel Nextcloud.  
+1) Block storage (PVC) pour tout le stateful : Postgres/MariaDB, OpenCloud data/config, Radicale data, wp-content.  
+2) Objet (DO Spaces ou MinIO) pour médias et backups. OpenCloud reste ici en stockage bloc local au namespace, sans S3 câblé.  
 Ne jamais monter Spaces comme volume POSIX principal.
 
 ## Bases de données
@@ -40,14 +40,14 @@ Ne jamais monter Spaces comme volume POSIX principal.
 
 ## Domaines et applications
 - Domaine par environnement (défauts : prod `fullfrontend.be`, dev `fullfrontend.kube`). Pas d’override app.
-- FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; Nextcloud `cloud.<root_domain>` (WIP) ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; FRP `frp.<root_domain>` ; dashboard `tunnels.<root_domain>` ; tunnel HTTP `postiz.<root_domain>` ; Registry `registry.<root_domain>`.
+- FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; OpenCloud `cloud.<root_domain>` ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; FRP `frp.<root_domain>` ; dashboard `tunnels.<root_domain>` ; tunnel HTTP `social.<root_domain>` ; Registry `registry.<root_domain>`.
 - Règles app :  
   - WordPress : MariaDB + PVC wp-content, plugin S3 optionnel, ingress cert-manager en prod.  
   - n8n : Postgres partagé, S3 optionnel, ingress.  
   - CRM (à choisir) : Postgres par défaut, S3 si fichiers.  
-  - Nextcloud : Postgres + PVC, S3 externe optionnel, WIP.  
+  - OpenCloud + Radicale : OpenCloud en conteneur unique avec LDAP embarqué et PVC config/data ; Radicale séparé en CalDAV/CardDAV, routé via le proxy OpenCloud sur `/caldav`, `/carddav`, `/.well-known/caldav` et `/.well-known/carddav`.  
   - Analytics (Vince) : ingress dédié, admin bootstrap Helm, PVC data.  
-  - FRP : `frps` stateless, Service `LoadBalancer` en prod / `NodePort` en dev, port TCP `7000` pour les clients FRP, dashboard HTTPS via Traefik sur `tunnels.<root_domain>` et tunnels HTTP comme `postiz.<root_domain>`. D’autres hosts peuvent être ajoutés via `frp_additional_http_hosts`. Pas de Velero nécessaire.  
+  - FRP : `frps` stateless, Service `LoadBalancer` en prod / `NodePort` en dev, port TCP `7000` pour les clients FRP, dashboard HTTPS via Traefik sur `tunnels.<root_domain>` et tunnels HTTP comme `social.<root_domain>`. D’autres hosts peuvent être ajoutés via `frp_additional_http_hosts`. Pas de Velero nécessaire.  
   - Registry (Zot) : ingress dédié, PVC, htpasswd optionnel.
 
 ## DNS
@@ -66,7 +66,7 @@ Ne jamais monter Spaces comme volume POSIX principal.
 4) WordPress  
 5) n8n  
 6) DNS DigitalOcean  
-7) Nextcloud
+7) OpenCloud + Radicale
 
 ## Références utiles
 - Providers OpenTofu : DigitalOcean / Kubernetes / Helm.  
