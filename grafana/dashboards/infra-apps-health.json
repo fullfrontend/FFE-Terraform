@@ -333,7 +333,7 @@
         "type": "stat"
       },
       {
-        "description": "Deployment Nextcloud ready",
+        "description": "Deployment OpenCloud ready",
         "fieldConfig": {
           "defaults": {
             "color": {
@@ -398,13 +398,13 @@
         "pluginVersion": "12.3.0",
         "targets": [
           {
-            "expr": "scalar(count(kube_deployment_status_replicas_available{namespace=\"nextcloud\", deployment=\"nextcloud\"} > 0) or on() vector(0))",
+            "expr": "scalar(count(kube_deployment_status_replicas_available{namespace=\"opencloud\", deployment=\"opencloud\"} > 0) or on() vector(0))",
             "instant": true,
-            "legendFormat": "nextcloud",
+            "legendFormat": "opencloud",
             "refId": "A"
           }
         ],
-        "title": "Nextcloud",
+        "title": "OpenCloud",
         "type": "stat"
       },
       {
@@ -907,7 +907,7 @@
       "kubernetes",
       "pvc",
       "n8n",
-      "nextcloud"
+      "opencloud"
     ],
     "templating": {
       "list": []

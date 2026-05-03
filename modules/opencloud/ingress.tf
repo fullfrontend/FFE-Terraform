@@ -1,5 +1,5 @@
 locals {
-  nextcloud_annotations_https = {
+  opencloud_annotations_https = {
     "kubernetes.io/ingress.class"                      = var.ingress_class_name
     "kubernetes.io/ingress.allow-http"                 = "true"
     "traefik.ingress.kubernetes.io/router.entrypoints" = "web,websecure"
@@ -8,7 +8,7 @@ locals {
     "traefik.ingress.kubernetes.io/router.tls"         = "true"
   }
 
-  nextcloud_annotations_http_redirect = {
+  opencloud_annotations_http_redirect = {
     "kubernetes.io/ingress.class"                      = var.ingress_class_name
     "kubernetes.io/ingress.allow-http"                 = "true"
     "traefik.ingress.kubernetes.io/router.entrypoints" = "web"
@@ -16,14 +16,13 @@ locals {
   }
 }
 
-# HTTPS ingress when TLS enabled
-resource "kubernetes_ingress_v1" "nextcloud_https" {
+resource "kubernetes_ingress_v1" "opencloud_https" {
   count = var.enable_tls ? 1 : 0
 
   metadata {
-    name        = "nextcloud"
-    namespace   = kubernetes_namespace.nextcloud.metadata[0].name
-    annotations = local.nextcloud_annotations_https
+    name        = "opencloud"
+    namespace   = kubernetes_namespace.opencloud.metadata[0].name
+    annotations = local.opencloud_annotations_https
   }
 
   spec {
@@ -42,9 +41,9 @@ resource "kubernetes_ingress_v1" "nextcloud_https" {
           path_type = "Prefix"
           backend {
             service {
-              name = "nextcloud"
+              name = kubernetes_service_v1.opencloud.metadata[0].name
               port {
-                number = 8080
+                number = 9200
               }
             }
           }
@@ -54,14 +53,13 @@ resource "kubernetes_ingress_v1" "nextcloud_https" {
   }
 }
 
-# HTTP-only ingress that redirects to HTTPS when TLS enabled
-resource "kubernetes_ingress_v1" "nextcloud_http_redirect" {
+resource "kubernetes_ingress_v1" "opencloud_http_redirect" {
   count = var.enable_tls ? 1 : 0
 
   metadata {
-    name        = "nextcloud-http"
-    namespace   = kubernetes_namespace.nextcloud.metadata[0].name
-    annotations = local.nextcloud_annotations_http_redirect
+    name        = "opencloud-http"
+    namespace   = kubernetes_namespace.opencloud.metadata[0].name
+    annotations = local.opencloud_annotations_http_redirect
   }
 
   spec {
@@ -75,9 +73,9 @@ resource "kubernetes_ingress_v1" "nextcloud_http_redirect" {
           path_type = "Prefix"
           backend {
             service {
-              name = "nextcloud"
+              name = kubernetes_service_v1.opencloud.metadata[0].name
               port {
-                number = 8080
+                number = 9200
               }
             }
           }
@@ -87,13 +85,12 @@ resource "kubernetes_ingress_v1" "nextcloud_http_redirect" {
   }
 }
 
-# Plain HTTP ingress when TLS disabled
-resource "kubernetes_ingress_v1" "nextcloud_http_plain" {
+resource "kubernetes_ingress_v1" "opencloud_http_plain" {
   count = var.enable_tls ? 0 : 1
 
   metadata {
-    name      = "nextcloud"
-    namespace = kubernetes_namespace.nextcloud.metadata[0].name
+    name      = "opencloud"
+    namespace = kubernetes_namespace.opencloud.metadata[0].name
     annotations = {
       "kubernetes.io/ingress.class" = var.ingress_class_name
     }
@@ -110,9 +107,9 @@ resource "kubernetes_ingress_v1" "nextcloud_http_plain" {
           path_type = "Prefix"
           backend {
             service {
-              name = "nextcloud"
+              name = kubernetes_service_v1.opencloud.metadata[0].name
               port {
-                number = 8080
+                number = 9200
               }
             }
           }

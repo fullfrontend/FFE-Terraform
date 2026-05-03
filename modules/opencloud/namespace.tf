@@ -1,8 +1,8 @@
-resource "kubernetes_namespace" "nextcloud" {
+resource "kubernetes_namespace" "opencloud" {
   metadata {
     name = var.namespace
     labels = {
-      "app.kubernetes.io/name"    = "nextcloud"
+      "app.kubernetes.io/name"    = "opencloud"
       "app.kubernetes.io/part-of" = "apps"
     }
   }
