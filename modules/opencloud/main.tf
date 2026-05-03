@@ -52,7 +52,7 @@ locals {
       }
 
     [web]
-    type = none
+    type = ${var.enable_radicale_debug_ui ? "internal" : "none"}
   EOT
 }
 

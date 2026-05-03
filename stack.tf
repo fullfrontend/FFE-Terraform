@@ -248,18 +248,22 @@ module "opencloud" {
   source     = "./modules/opencloud"
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 
-  host                  = var.opencloud_host != "" ? var.opencloud_host : format("cloud.%s", local.root_domain)
-  tls_secret_name       = var.opencloud_tls_secret_name
-  ingress_class_name    = local.ingress_class_name
-  enable_tls            = var.enable_tls
-  image                 = var.opencloud_image
-  radicale_image        = var.opencloud_radicale_image
-  admin_password        = var.opencloud_admin_password
-  config_storage_size   = var.opencloud_config_storage_size
-  data_storage_size     = var.opencloud_data_storage_size
-  radicale_storage_size = var.opencloud_radicale_storage_size
-  enable_velero         = var.enable_velero
-  velero_namespace      = module.k8s-config.velero_namespace
+  host                           = var.opencloud_host != "" ? var.opencloud_host : format("cloud.%s", local.root_domain)
+  tls_secret_name                = var.opencloud_tls_secret_name
+  ingress_class_name             = local.ingress_class_name
+  enable_tls                     = var.enable_tls
+  image                          = var.opencloud_image
+  radicale_image                 = var.opencloud_radicale_image
+  admin_password                 = var.opencloud_admin_password
+  config_storage_size            = var.opencloud_config_storage_size
+  data_storage_size              = var.opencloud_data_storage_size
+  radicale_storage_size          = var.opencloud_radicale_storage_size
+  enable_radicale_debug_ui       = var.opencloud_enable_radicale_debug_ui
+  radicale_debug_host            = var.opencloud_radicale_debug_host != "" ? var.opencloud_radicale_debug_host : format("radicale.%s", local.root_domain)
+  radicale_debug_tls_secret_name = var.opencloud_radicale_debug_tls_secret_name
+  radicale_debug_remote_user     = var.opencloud_radicale_debug_remote_user
+  enable_velero                  = var.enable_velero
+  velero_namespace               = module.k8s-config.velero_namespace
 }
 //*/
 

@@ -418,6 +418,36 @@ variable "opencloud_radicale_storage_size" {
   description = "Taille du PVC de données Radicale"
 }
 
+
+variable "opencloud_enable_radicale_debug_ui" {
+  type        = bool
+  default     = false
+  description = "Expose temporairement l'UI web interne de Radicale"
+}
+
+variable "opencloud_radicale_debug_host" {
+  type        = string
+  default     = ""
+  description = "FQDN pour l'UI debug Radicale. Vide = derive de root_domain."
+}
+
+variable "opencloud_radicale_debug_tls_secret_name" {
+  type        = string
+  default     = "radicale-debug-tls"
+  description = "Secret TLS pour l'ingress debug Radicale"
+}
+
+variable "opencloud_radicale_debug_remote_user" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Valeur injectee dans X-Remote-User pour l'UI debug Radicale"
+  validation {
+    condition     = !var.opencloud_enable_radicale_debug_ui || length(var.opencloud_radicale_debug_remote_user) > 0
+    error_message = "opencloud_radicale_debug_remote_user doit etre renseigne si opencloud_enable_radicale_debug_ui=true."
+  }
+}
+
 # Monitoring / Grafana
 variable "grafana_admin_user" {
   type        = string

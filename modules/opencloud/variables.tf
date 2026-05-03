@@ -74,3 +74,28 @@ variable "velero_namespace" {
   default     = "velero"
   description = "Namespace Velero (pour le Schedule)"
 }
+
+
+variable "enable_radicale_debug_ui" {
+  type        = bool
+  default     = false
+  description = "Expose temporairement l'UI web interne de Radicale via un ingress dédié"
+}
+
+variable "radicale_debug_host" {
+  type        = string
+  default     = ""
+  description = "FQDN pour l'UI debug Radicale"
+}
+
+variable "radicale_debug_tls_secret_name" {
+  type        = string
+  default     = "radicale-debug-tls"
+  description = "Secret TLS pour l'ingress debug Radicale"
+}
+
+variable "radicale_debug_remote_user" {
+  type        = string
+  default     = ""
+  description = "Valeur injectée dans X-Remote-User pour accéder temporairement à l'UI Radicale"
+}
