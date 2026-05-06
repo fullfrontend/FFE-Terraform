@@ -622,7 +622,7 @@ variable "postgres_app_credentials" {
 # MariaDB (data)
 variable "mariadb_image" {
   type        = string
-  default     = "mariadb:11.4"
+  default     = "mariadb:11.4.10"
   description = "Image MariaDB (officielle)"
 }
 
