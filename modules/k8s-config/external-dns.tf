@@ -37,6 +37,7 @@ resource "helm_release" "external_dns" {
 
   repository      = "https://kubernetes-sigs.github.io/external-dns/"
   chart           = "external-dns"
+  version         = "1.21.1"
   cleanup_on_fail = true
   atomic          = true
 

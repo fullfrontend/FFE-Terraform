@@ -12,6 +12,7 @@ resource "helm_release" "velero" {
 
   repository      = "https://vmware-tanzu.github.io/helm-charts"
   chart           = "velero"
+  version         = "12.0.1"
   cleanup_on_fail = true
   atomic          = true
 

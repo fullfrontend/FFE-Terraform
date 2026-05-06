@@ -102,13 +102,13 @@ resource "kubernetes_deployment" "waf_modsecurity" {
           image = var.waf_modsecurity_image
 
           env {
-            name  = "PROXY_UPSTREAM"
+            name  = "BACKEND"
             value = "http://waf-dummy.${kubernetes_namespace.infra.metadata[0].name}.svc.cluster.local"
           }
 
           port {
             name           = "http"
-            container_port = 80
+            container_port = 8080
           }
         }
       }

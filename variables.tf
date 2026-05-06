@@ -127,7 +127,7 @@ variable "twenty_tls_secret_name" {
 
 variable "twenty_image" {
   type        = string
-  default     = "twentycrm/twenty:latest"
+  default     = "twentycrm/twenty:v2.2.0"
   description = "Image Twenty"
 }
 
@@ -152,7 +152,7 @@ variable "n8n_db_port" {
 
 variable "n8n_chart_version" {
   type        = string
-  default     = ""
+  default     = "1.16.39"
   description = "Version du chart n8n (vide = dernière)"
 }
 
@@ -225,7 +225,7 @@ variable "wp_storage_size" {
 
 variable "wp_image" {
   type        = string
-  default     = "wordpress:6.9-php8.2-apache"
+  default     = "wordpress:6.9.4-php8.2-apache"
   description = "Image WordPress (officielle, non Bitnami)"
 }
 
@@ -379,7 +379,7 @@ variable "opencloud_tls_secret_name" {
 
 variable "opencloud_image" {
   type        = string
-  default     = "opencloudeu/opencloud:4.0.5"
+  default     = "opencloudeu/opencloud:4.0.6"
   description = "Image OpenCloud officielle"
 }
 
@@ -455,7 +455,7 @@ variable "analytics_admin_password" {
 
 variable "analytics_chart_version" {
   type        = string
-  default     = ""
+  default     = "1.7.1"
   description = "Version du chart Helm Vince (vide = dernière)"
 }
 
@@ -468,7 +468,7 @@ variable "sentry_tls_secret_name" {
 
 variable "sentry_chart_version" {
   type        = string
-  default     = ""
+  default     = "30.4.0"
   description = "Version du chart Helm Sentry (vide = dernière)"
 }
 
@@ -504,7 +504,7 @@ variable "frp_dashboard_tls_secret_name" {
 
 variable "frp_image" {
   type        = string
-  default     = "ghcr.io/fatedier/frps:v0.68.0"
+  default     = "ghcr.io/fatedier/frps:v0.68.1"
   description = "Image officielle frps"
 }
 
@@ -587,7 +587,7 @@ variable "frp_transport_tls_force" {
 # Postgres (data)
 variable "postgres_image" {
   type        = string
-  default     = "postgres:16-alpine"
+  default     = "postgres:16.13-alpine"
   description = "Image Postgres (officielle)"
 }
 
@@ -622,7 +622,7 @@ variable "postgres_app_credentials" {
 # MariaDB (data)
 variable "mariadb_image" {
   type        = string
-  default     = "mariadb:11.4"
+  default     = "mariadb:11.4.10"
   description = "Image MariaDB (officielle)"
 }
 

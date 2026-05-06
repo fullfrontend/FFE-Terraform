@@ -63,7 +63,7 @@ resource "kubernetes_deployment" "registry" {
       spec {
         container {
           name  = "zot"
-          image = "ghcr.io/project-zot/zot-linux-amd64:latest"
+          image = "ghcr.io/project-zot/zot-linux-amd64:v2.1.16"
 
 
           port {
