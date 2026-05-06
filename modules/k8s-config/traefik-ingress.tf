@@ -44,10 +44,6 @@ locals {
       name  = "experimental.plugins.modsecurity.version"
       value = var.waf_plugin_version
     },
-    {
-      name  = "ports.websecure.http.middlewares[0]"
-      value = "${kubernetes_namespace.infra.metadata[0].name}-waf@kubernetescrd"
-    },
   ] : []
 }
 
