@@ -225,7 +225,7 @@ variable "wp_storage_size" {
 
 variable "wp_image" {
   type        = string
-  default     = "wordpress:6.9-php8.2-apache"
+  default     = "wordpress:6.9.4-php8.2-apache"
   description = "Image WordPress (officielle, non Bitnami)"
 }
 
