@@ -587,7 +587,7 @@ variable "frp_transport_tls_force" {
 # Postgres (data)
 variable "postgres_image" {
   type        = string
-  default     = "postgres:16-alpine"
+  default     = "postgres:16.13-alpine"
   description = "Image Postgres (officielle)"
 }
 
