@@ -152,7 +152,7 @@ variable "n8n_db_port" {
 
 variable "n8n_chart_version" {
   type        = string
-  default     = ""
+  default     = "1.16.39"
   description = "Version du chart n8n (vide = dernière)"
 }
 
