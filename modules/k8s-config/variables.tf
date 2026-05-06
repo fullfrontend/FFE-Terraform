@@ -52,6 +52,12 @@ variable "root_domain" {
   description = "Domaine racine (utilisé par external-dns pour filtrer/ownership TXT)"
 }
 
+variable "traefik_lb_hostnames" {
+  type        = list(string)
+  default     = []
+  description = "Hostnames DNS additionnels à publier sur le LoadBalancer Traefik (ex: endpoint TCP FRP)."
+}
+
 # Velero (Spaces S3 pour backups)
 variable "enable_velero" {
   type        = bool

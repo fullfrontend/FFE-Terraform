@@ -5,12 +5,17 @@
 */
 locals {
   traefik_service_type = var.is_prod ? "LoadBalancer" : "NodePort"
-  traefik_sets_prod = [
+  traefik_sets_prod = concat([
     {
       name  = "service.annotations.service\\.beta\\.kubernetes\\.io/do-loadbalancer-name"
       value = format("%s-traefik", var.cluster_name)
     }
-  ]
+    ], length(var.traefik_lb_hostnames) > 0 ? [
+    {
+      name  = "service.annotations.external-dns\\.alpha\\.kubernetes\\.io/hostname"
+      value = join(",", var.traefik_lb_hostnames)
+    }
+  ] : [])
   traefik_sets_monitoring = var.enable_monitoring ? [
     {
       name  = "metrics.prometheus.serviceMonitor.enabled"
@@ -78,7 +83,23 @@ resource "helm_release" "traefik" {
       value = 443
     },
     {
-      name  = "service.type"
+      name  = "ports.frp.port"
+      value = 7000
+    },
+    {
+      name  = "ports.frp.expose.default"
+      value = "true"
+    },
+    {
+      name  = "ports.frp.exposedPort"
+      value = 7000
+    },
+    {
+      name  = "ports.frp.protocol"
+      value = "TCP"
+    },
+    {
+      name  = "service.spec.type"
       value = local.traefik_service_type
     },
     {
@@ -98,7 +119,7 @@ resource "helm_release" "traefik" {
       value = true
     },
     {
-      name  = "ports.websecure.tls.enabled"
+      name  = "ports.websecure.http.tls.enabled"
       value = true
     },
     {
@@ -108,10 +129,6 @@ resource "helm_release" "traefik" {
     {
       name  = "metrics.prometheus.entryPoint"
       value = "metrics"
-    },
-    {
-      name  = "crds.enabled"
-      value = true
     },
   ], var.is_prod ? concat(local.traefik_sets_prod, local.traefik_sets_monitoring, local.traefik_sets_waf) : [])
 }

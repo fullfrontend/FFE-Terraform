@@ -52,7 +52,7 @@ Stack Kubernetes complète, gérée en Infrastructure-as-Code avec OpenTofu + He
   - Sentry: `sentry.<root_domain>`
   - FRP server: `frp.<root_domain>` + dashboard `tunnels.<root_domain>` + tunnel HTTP `social.<root_domain>`
   - Registry: `registry.<root_domain>`
-  - OpenCloud + Radicale: `cloud.<root_domain>` (CalDAV/CardDAV via OpenCloud proxy)
+  - OpenCloud: `cloud.<root_domain>`
 
 ## Usage
 
@@ -105,7 +105,7 @@ Docs utiles:
 - Sentry (optionnel)
 - FRP server (optionnel)
   Usage cible: `frpc` tourne sur le NAS et publie `social.<root_domain>` ainsi que d’autres tunnels HTTP
-- OpenCloud + Radicale (optionnel)
+- OpenCloud (optionnel)
 - Registry (Zot)
 
 ### Observability
@@ -122,3 +122,5 @@ Tout le dépôt est sous WTFPL (`LICENSE`). Aucune garantie ni support.
 
 ## Security
 Pour signaler une vulnérabilité, suivre [SECURITY.md](SECURITY.md). Pas de secrets ni données sensibles dans les issues/PR.
+
+- Domaine additionnel possible via OVH/external-dns: `he8us.be` avec redirect `(www.)he8us.be -> https://fullfrontend.be`.

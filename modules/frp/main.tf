@@ -219,6 +219,40 @@ resource "kubernetes_service_v1" "frps" {
   }
 }
 
+resource "kubernetes_manifest" "frps_tcp" {
+  count = lower(var.ingress_class_name) == "traefik" ? 1 : 0
+
+  manifest = {
+    apiVersion = "traefik.io/v1alpha1"
+    kind       = "IngressRouteTCP"
+    metadata = {
+      name      = "frps-tcp"
+      namespace = kubernetes_namespace.frp.metadata[0].name
+    }
+    spec = merge(
+      {
+        entryPoints = ["frp"]
+        routes = [
+          {
+            match = "HostSNI(`*`)"
+            services = [
+              {
+                name = kubernetes_service_v1.frps.metadata[0].name
+                port = var.bind_port
+              }
+            ]
+          }
+        ]
+      },
+      var.transport_tls_force ? {
+        tls = {
+          passthrough = true
+        }
+      } : {}
+    )
+  }
+}
+
 resource "kubernetes_ingress_v1" "dashboard_https" {
   count = var.enable_tls ? 1 : 0
 

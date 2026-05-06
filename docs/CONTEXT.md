@@ -21,14 +21,14 @@ Secrets (SOPS/age)
 
 Architecture  
 - Namespaces : infra (traefik, cert-manager, external-dns, velero), data (postgres, mariadb), metrics (kube-prometheus-stack), apps (wordpress, n8n, twenty, opencloud, analytics, registry).  
-- Stockage : PVC pour stateful, objet pour médias/backups ; OpenCloud utilise ici des PVC dédiés pour sa config et ses données, Radicale un PVC dédié.  
+- Stockage : PVC pour stateful, objet pour médias/backups ; OpenCloud utilise ici des PVC dédiés pour sa config et ses données.  
 - Domaines (`root_domain` uniquement, pas d’override) : prod défaut `fullfrontend.be`, dev défaut `fullfrontend.kube`. FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; OpenCloud `cloud.<root_domain>` ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; FRP `frp.<root_domain>` ; dashboard `tunnels.<root_domain>` ; tunnel HTTP `social.<root_domain>` ; Registry `registry.<root_domain>`.
 
 Applications  
 - WordPress : MariaDB, PVC wp-content, S3 optionnel, ingress cert-manager (prod), FQDN `<root_domain>`.  
 - n8n : Postgres partagé, S3 optionnel, ingress, FQDN `n8n.<root_domain>` + webhooks.  
 - CRM (Twenty) : Postgres (DB dédiée), ingress `twenty.<root_domain>`, Redis interne, stockage local éphémère (S3 optionnel non câblé).  
-- OpenCloud + Radicale : OpenCloud en conteneur unique avec PVC config/data et FQDN `cloud.<root_domain>` ; Radicale reste privé au cluster et est publié via le proxy OpenCloud sur `/caldav` et `/carddav`.  
+- OpenCloud : OpenCloud en conteneur unique avec PVC config/data et FQDN `cloud.<root_domain>`  
 - Analytics (Vince) : ingress `insights.<root_domain>`, admin bootstrap via Helm values.  
 - Sentry : ingress `sentry.<root_domain>`, chart Helm officiel, backup namespace via Velero.  
 - FRP : `frps` stateless, DNS `frp.<root_domain>`, dashboard HTTPS `tunnels.<root_domain>`, et routage HTTP via Traefik vers des hosts comme `social.<root_domain>`. Ports exposés : `7000/TCP` pour les clients et `7500/TCP` pour le dashboard.  
@@ -42,3 +42,5 @@ Règles IA (ne pas oublier)
 - Architecture modulaire (infra, data, apps).  
 - Postgres par défaut ; MariaDB seulement si requis (WordPress).  
 - kubectl OK pour debug ponctuel.
+
+- Domaine additionnel possible via OVH/external-dns: `he8us.be` avec redirect `(www.)he8us.be -> https://fullfrontend.be`.

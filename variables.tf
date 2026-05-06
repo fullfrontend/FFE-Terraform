@@ -358,11 +358,11 @@ variable "wp_lang" {
   description = "Langue WordPress (constante WPLANG)"
 }
 
-# OpenCloud + Radicale
+# OpenCloud
 variable "enable_opencloud" {
   type        = bool
   default     = false
-  description = "Déployer OpenCloud et Radicale si true"
+  description = "Déployer OpenCloud si true"
 }
 
 variable "opencloud_host" {
@@ -383,11 +383,6 @@ variable "opencloud_image" {
   description = "Image OpenCloud officielle"
 }
 
-variable "opencloud_radicale_image" {
-  type        = string
-  default     = "opencloudeu/radicale:latest"
-  description = "Image Radicale utilisée avec OpenCloud"
-}
 
 variable "opencloud_admin_password" {
   type        = string
@@ -412,41 +407,11 @@ variable "opencloud_data_storage_size" {
   description = "Taille du PVC de données OpenCloud"
 }
 
-variable "opencloud_radicale_storage_size" {
-  type        = string
-  default     = "5Gi"
-  description = "Taille du PVC de données Radicale"
-}
 
 
-variable "opencloud_enable_radicale_debug_ui" {
-  type        = bool
-  default     = false
-  description = "Expose temporairement l'UI web interne de Radicale"
-}
 
-variable "opencloud_radicale_debug_host" {
-  type        = string
-  default     = ""
-  description = "FQDN pour l'UI debug Radicale. Vide = derive de root_domain."
-}
 
-variable "opencloud_radicale_debug_tls_secret_name" {
-  type        = string
-  default     = "radicale-debug-tls"
-  description = "Secret TLS pour l'ingress debug Radicale"
-}
 
-variable "opencloud_radicale_debug_remote_user" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "Valeur injectee dans X-Remote-User pour l'UI debug Radicale"
-  validation {
-    condition     = !var.opencloud_enable_radicale_debug_ui || length(var.opencloud_radicale_debug_remote_user) > 0
-    error_message = "opencloud_radicale_debug_remote_user doit etre renseigne si opencloud_enable_radicale_debug_ui=true."
-  }
-}
 
 # Monitoring / Grafana
 variable "grafana_admin_user" {
@@ -787,6 +752,25 @@ variable "extra_domain_filters" {
   type        = list(string)
   default     = ["perinatalite.be", "cloud.perinatalite.be"]
   description = "Domaines additionnels gérés par external-dns (ex: perinatalite.be, cloud.perinatalite.be)"
+}
+
+
+variable "enable_he8us_redirect" {
+  type        = bool
+  default     = false
+  description = "Déployer un redirect pour he8us.be et www.he8us.be vers fullfrontend.be"
+}
+
+variable "he8us_redirect_target_url" {
+  type        = string
+  default     = "https://fullfrontend.be"
+  description = "URL cible du redirect he8us.be"
+}
+
+variable "he8us_redirect_tls_secret_name" {
+  type        = string
+  default     = "he8us-redirect-tls"
+  description = "Secret TLS pour l'ingress he8us.be"
 }
 
 variable "velero_s3_url" {
