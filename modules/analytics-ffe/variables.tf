@@ -38,7 +38,7 @@ variable "chart_version" {
 
 variable "vince_image" {
   type        = string
-  default     = "ghcr.io/vinceanalytics/vince:v1.7.1"
+  default     = "ghcr.io/vinceanalytics/vince:v1.11.8"
   description = "Image Vince (pin recommandée pour déploiements reproductibles)"
 }
 

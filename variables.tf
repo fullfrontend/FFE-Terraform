@@ -455,7 +455,7 @@ variable "analytics_admin_password" {
 
 variable "analytics_chart_version" {
   type        = string
-  default     = ""
+  default     = "1.7.1"
   description = "Version du chart Helm Vince (vide = dernière)"
 }
 
