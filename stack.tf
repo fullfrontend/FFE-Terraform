@@ -62,6 +62,7 @@ module "k8s-config" {
   region               = var.doks_region
   root_domain          = local.root_domain
   extra_domain_filters = var.extra_domain_filters
+  traefik_lb_hostnames = var.enable_frp ? [local.frp_host] : []
   is_prod              = local.is_prod
   kubeconfig_path      = local.kubeconfig_path
   enable_cert_manager  = local.is_prod
@@ -134,6 +135,23 @@ module "cert_manager_issuer" {
 }
 //*/
 
+/*
+    Domain redirect: he8us.be -> fullfrontend.be
+*/
+module "he8us_redirect" {
+  count      = var.enable_he8us_redirect ? 1 : 0
+  source     = "./modules/domain-redirect"
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
+
+  namespace          = "infra"
+  name               = "he8us-redirect"
+  source_domain      = "he8us.be"
+  target_url         = var.he8us_redirect_target_url
+  ingress_class_name = local.ingress_class_name
+  enable_tls         = var.enable_tls
+  tls_secret_name    = var.he8us_redirect_tls_secret_name
+}
+//*/
 
 
 /*
@@ -241,29 +259,24 @@ module "wordpress" {
 
 
 /*
-    App: OpenCloud + Radicale (files, contacts, calendars)
+    App: OpenCloud (files)
 */
 module "opencloud" {
   count      = var.enable_opencloud ? 1 : 0
   source     = "./modules/opencloud"
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 
-  host                           = var.opencloud_host != "" ? var.opencloud_host : format("cloud.%s", local.root_domain)
-  tls_secret_name                = var.opencloud_tls_secret_name
-  ingress_class_name             = local.ingress_class_name
-  enable_tls                     = var.enable_tls
-  image                          = var.opencloud_image
-  radicale_image                 = var.opencloud_radicale_image
-  admin_password                 = var.opencloud_admin_password
-  config_storage_size            = var.opencloud_config_storage_size
-  data_storage_size              = var.opencloud_data_storage_size
-  radicale_storage_size          = var.opencloud_radicale_storage_size
-  enable_radicale_debug_ui       = var.opencloud_enable_radicale_debug_ui
-  radicale_debug_host            = var.opencloud_radicale_debug_host != "" ? var.opencloud_radicale_debug_host : format("radicale.%s", local.root_domain)
-  radicale_debug_tls_secret_name = var.opencloud_radicale_debug_tls_secret_name
-  radicale_debug_remote_user     = var.opencloud_radicale_debug_remote_user
-  enable_velero                  = var.enable_velero
-  velero_namespace               = module.k8s-config.velero_namespace
+  namespace           = "opencloud"
+  host                = var.opencloud_host != "" ? var.opencloud_host : format("cloud.%s", local.root_domain)
+  tls_secret_name     = var.opencloud_tls_secret_name
+  ingress_class_name  = local.ingress_class_name
+  enable_tls          = var.enable_tls
+  image               = var.opencloud_image
+  admin_password      = var.opencloud_admin_password
+  config_storage_size = var.opencloud_config_storage_size
+  data_storage_size   = var.opencloud_data_storage_size
+  enable_velero       = var.enable_velero
+  velero_namespace    = module.k8s-config.velero_namespace
 }
 //*/
 
@@ -317,7 +330,7 @@ module "frp" {
 
   host                      = local.frp_host
   dashboard_host            = local.frp_dashboard_host
-  service_type              = local.is_prod ? "LoadBalancer" : "NodePort"
+  service_type              = local.is_prod ? "ClusterIP" : "NodePort"
   ingress_class_name        = local.ingress_class_name
   enable_tls                = var.enable_tls
   tunnel_tls_secret_name    = var.frp_tunnel_tls_secret_name

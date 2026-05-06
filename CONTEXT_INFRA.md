@@ -29,7 +29,7 @@ Public : personnes qui veulent comprendre l’architecture et les règles de la 
 - Wrapper tofu : `APP_ENV=... ./scripts/tofu-secrets.sh plan|apply` (décrypte `.secrets.auto.tfvars`, nettoie). Jamais de secrets en clair (tfvars clairs hors git, `.secrets.auto.tfvars` ignoré).
 
 ## Stockage
-1) Block storage (PVC) pour tout le stateful : Postgres/MariaDB, OpenCloud data/config, Radicale data, wp-content.  
+1) Block storage (PVC) pour tout le stateful : Postgres/MariaDB, OpenCloud data/config, wp-content.  
 2) Objet (DO Spaces ou MinIO) pour médias et backups. OpenCloud reste ici en stockage bloc local au namespace, sans S3 câblé.  
 Ne jamais monter Spaces comme volume POSIX principal.
 
@@ -45,7 +45,7 @@ Ne jamais monter Spaces comme volume POSIX principal.
   - WordPress : MariaDB + PVC wp-content, plugin S3 optionnel, ingress cert-manager en prod.  
   - n8n : Postgres partagé, S3 optionnel, ingress.  
   - CRM (à choisir) : Postgres par défaut, S3 si fichiers.  
-  - OpenCloud + Radicale : OpenCloud en conteneur unique avec LDAP embarqué et PVC config/data ; Radicale séparé en CalDAV/CardDAV, routé via le proxy OpenCloud sur `/caldav`, `/carddav`, `/.well-known/caldav` et `/.well-known/carddav`.  
+  - OpenCloud : OpenCloud en conteneur unique avec LDAP embarqué et PVC config/data.  
   - Analytics (Vince) : ingress dédié, admin bootstrap Helm, PVC data.  
   - FRP : `frps` stateless, Service `LoadBalancer` en prod / `NodePort` en dev, port TCP `7000` pour les clients FRP, dashboard HTTPS via Traefik sur `tunnels.<root_domain>` et tunnels HTTP comme `social.<root_domain>`. D’autres hosts peuvent être ajoutés via `frp_additional_http_hosts`. Pas de Velero nécessaire.  
   - Registry (Zot) : ingress dédié, PVC, htpasswd optionnel.
@@ -66,9 +66,11 @@ Ne jamais monter Spaces comme volume POSIX principal.
 4) WordPress  
 5) n8n  
 6) DNS DigitalOcean  
-7) OpenCloud + Radicale
+7) OpenCloud
 
 ## Références utiles
 - Providers OpenTofu : DigitalOcean / Kubernetes / Helm.  
 - Diagramme : `docs/architecture-prod.png`.  
 - Blog post : `INITIAL_BLOG_POST.md`.
+
+- Domaine additionnel possible via OVH/external-dns: `he8us.be` avec redirect `(www.)he8us.be -> https://fullfrontend.be`.

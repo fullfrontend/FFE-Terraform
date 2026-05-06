@@ -1,7 +1,7 @@
 variable "namespace" {
   type        = string
   default     = "opencloud"
-  description = "Namespace K8S pour OpenCloud et Radicale"
+  description = "Namespace K8S pour OpenCloud"
 }
 
 variable "host" {
@@ -33,11 +33,6 @@ variable "image" {
   description = "Image OpenCloud officielle"
 }
 
-variable "radicale_image" {
-  type        = string
-  default     = "opencloudeu/radicale:latest"
-  description = "Image Radicale utilisée avec OpenCloud"
-}
 
 variable "admin_password" {
   type        = string
@@ -57,11 +52,6 @@ variable "data_storage_size" {
   description = "Taille du PVC de données OpenCloud"
 }
 
-variable "radicale_storage_size" {
-  type        = string
-  default     = "5Gi"
-  description = "Taille du PVC de données Radicale"
-}
 
 variable "enable_velero" {
   type        = bool
@@ -76,26 +66,6 @@ variable "velero_namespace" {
 }
 
 
-variable "enable_radicale_debug_ui" {
-  type        = bool
-  default     = false
-  description = "Expose temporairement l'UI web interne de Radicale via un ingress dédié"
-}
 
-variable "radicale_debug_host" {
-  type        = string
-  default     = ""
-  description = "FQDN pour l'UI debug Radicale"
-}
 
-variable "radicale_debug_tls_secret_name" {
-  type        = string
-  default     = "radicale-debug-tls"
-  description = "Secret TLS pour l'ingress debug Radicale"
-}
 
-variable "radicale_debug_remote_user" {
-  type        = string
-  default     = ""
-  description = "Valeur injectée dans X-Remote-User pour accéder temporairement à l'UI Radicale"
-}
