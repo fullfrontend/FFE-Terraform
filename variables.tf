@@ -468,7 +468,7 @@ variable "sentry_tls_secret_name" {
 
 variable "sentry_chart_version" {
   type        = string
-  default     = ""
+  default     = "30.4.0"
   description = "Version du chart Helm Sentry (vide = dernière)"
 }
 
