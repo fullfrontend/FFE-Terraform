@@ -504,7 +504,7 @@ variable "frp_dashboard_tls_secret_name" {
 
 variable "frp_image" {
   type        = string
-  default     = "ghcr.io/fatedier/frps:v0.68.0"
+  default     = "ghcr.io/fatedier/frps:v0.68.1"
   description = "Image officielle frps"
 }
 
