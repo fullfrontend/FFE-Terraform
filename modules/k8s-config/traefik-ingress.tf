@@ -45,7 +45,7 @@ locals {
       value = var.waf_plugin_version
     },
     {
-      name  = "entryPoints.websecure.http.middlewares"
+      name  = "ports.websecure.http.middlewares[0]"
       value = "${kubernetes_namespace.infra.metadata[0].name}-waf@kubernetescrd"
     },
   ] : []
@@ -104,6 +104,10 @@ resource "helm_release" "traefik" {
     },
     {
       name  = "providers.kubernetesCRD.enabled"
+      value = true
+    },
+    {
+      name  = "providers.kubernetesCRD.allowCrossNamespace"
       value = true
     },
     {
