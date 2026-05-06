@@ -44,6 +44,10 @@ locals {
       name  = "experimental.plugins.modsecurity.version"
       value = var.waf_plugin_version
     },
+    {
+      name  = "ports.websecure.http.middlewares[0]"
+      value = "${kubernetes_namespace.infra.metadata[0].name}-waf@kubernetescrd"
+    },
   ] : []
 }
 
@@ -54,6 +58,7 @@ resource "helm_release" "traefik" {
 
   repository      = "https://traefik.github.io/charts"
   chart           = "traefik"
+  version         = "40.0.0"
   cleanup_on_fail = true
   atomic          = true
 
