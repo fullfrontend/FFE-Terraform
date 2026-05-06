@@ -127,7 +127,7 @@ variable "twenty_tls_secret_name" {
 
 variable "twenty_image" {
   type        = string
-  default     = "twentycrm/twenty:latest"
+  default     = "twentycrm/twenty:v2.2.0"
   description = "Image Twenty"
 }
 
