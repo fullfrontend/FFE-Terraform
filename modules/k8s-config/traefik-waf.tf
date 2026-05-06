@@ -1,8 +1,31 @@
 /*
     Global WAF via Traefik plugin (ModSecurity + OWASP CRS)
     - ModSecurity container acts as inspection engine
-    - Dummy upstream keeps WAF responses 200 on allow
+    - Dummy upstream must always answer 200 on any path so Traefik can continue to the real backend
 */
+resource "kubernetes_config_map" "waf_dummy_nginx" {
+  count = var.is_prod && var.enable_waf ? 1 : 0
+
+  metadata {
+    name      = "waf-dummy-nginx"
+    namespace = kubernetes_namespace.infra.metadata[0].name
+  }
+
+  data = {
+    "default.conf" = <<-EOF
+      server {
+        listen 80 default_server;
+        server_name _;
+
+        location / {
+          add_header Content-Type text/plain;
+          return 200 "ok\n";
+        }
+      }
+    EOF
+  }
+}
+
 resource "kubernetes_deployment" "waf_dummy" {
   count = var.is_prod && var.enable_waf ? 1 : 0
 
@@ -38,6 +61,21 @@ resource "kubernetes_deployment" "waf_dummy" {
           port {
             name           = "http"
             container_port = 80
+          }
+
+          volume_mount {
+            name       = "nginx-config"
+            mount_path = "/etc/nginx/conf.d/default.conf"
+            sub_path   = "default.conf"
+            read_only  = true
+          }
+        }
+
+        volume {
+          name = "nginx-config"
+
+          config_map {
+            name = kubernetes_config_map.waf_dummy_nginx[0].metadata[0].name
           }
         }
       }
