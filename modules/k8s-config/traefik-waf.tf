@@ -26,6 +26,30 @@ resource "kubernetes_config_map" "waf_dummy_nginx" {
   }
 }
 
+resource "kubernetes_config_map" "waf_modsecurity_override" {
+  count = var.is_prod && var.enable_waf ? 1 : 0
+
+  metadata {
+    name      = "waf-modsecurity-override"
+    namespace = kubernetes_namespace.infra.metadata[0].name
+  }
+
+  data = {
+    "modsecurity-override.conf" = <<-EOF
+      # OpenCloud relies heavily on WebDAV/CardDAV/CalDAV semantics, custom methods and
+      # special headers such as Lock-Token / If. Keeping CRS enabled there creates
+      # repeated false positives. Bypass the WAF for this single hostname.
+      SecRule REQUEST_HEADERS:X-Forwarded-Host "@streq cloud.fullfrontend.be" \
+        "id:1001001,phase:1,pass,nolog,t:none,ctl:ruleEngine=Off"
+
+      # Vince analytics posts JSON payloads with text/plain; allow it only on the analytics frontend.
+      SecRule REQUEST_HEADERS:X-Forwarded-Host "@streq insights.fullfrontend.be" \
+        "id:1001002,phase:1,pass,nolog,t:none,\
+        setvar:'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |text/xml| |application/xml| |application/soap+xml| |application/json| |text/plain|'"
+    EOF
+  }
+}
+
 resource "kubernetes_deployment" "waf_dummy" {
   count = var.is_prod && var.enable_waf ? 1 : 0
 
@@ -147,6 +171,21 @@ resource "kubernetes_deployment" "waf_modsecurity" {
           port {
             name           = "http"
             container_port = 8080
+          }
+
+          volume_mount {
+            name       = "modsecurity-override"
+            mount_path = "/etc/modsecurity.d/modsecurity-override.conf"
+            sub_path   = "modsecurity-override.conf"
+            read_only  = true
+          }
+        }
+
+        volume {
+          name = "modsecurity-override"
+
+          config_map {
+            name = kubernetes_config_map.waf_modsecurity_override[0].metadata[0].name
           }
         }
       }
