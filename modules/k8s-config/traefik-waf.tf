@@ -36,9 +36,16 @@ resource "kubernetes_config_map" "waf_modsecurity_override" {
 
   data = {
     "modsecurity-override.conf" = <<-EOF
-      # OpenCloud relies heavily on WebDAV/CardDAV/CalDAV semantics, custom methods and
-      # special headers such as Lock-Token / If. Keeping CRS enabled there creates
-      # repeated false positives. Bypass the WAF for this single hostname.
+      # WordPress media uploads legitimately send image payloads that CRS 920420
+      # flags as unsupported content types. Let WordPress handle those endpoints.
+      SecRule REQUEST_HEADERS:X-Forwarded-Host "@pm fullfrontend.be www.fullfrontend.be" \
+        "id:1001000,phase:1,pass,nolog,t:none,chain"
+      SecRule REQUEST_URI "@rx ^/(wp-admin/async-upload\\.php|wp-admin/admin-ajax\\.php|wp-json/wp/v2/media|wp-json/elementor/.*)$" \
+        "t:none,setvar:'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |text/xml| |application/xml| |application/soap+xml| |application/json| |image/jpeg| |image/png| |image/gif| |image/webp| |image/svg+xml| |application/zip| |application/x-zip-compressed| |application/gzip| |application/x-gzip| |application/x-tar| |application/octet-stream|',ctl:ruleRemoveById=920420"
+
+      # OpenCloud relies heavily on WebDAV/CardDAV/CalDAV semantics, custom methods,
+      # special headers such as Lock-Token / If, and binary uploads. Keeping CRS
+      # enabled there creates fragile false positives, so bypass WAF for this host.
       SecRule REQUEST_HEADERS:X-Forwarded-Host "@streq cloud.fullfrontend.be" \
         "id:1001001,phase:1,pass,nolog,t:none,ctl:ruleEngine=Off"
 
