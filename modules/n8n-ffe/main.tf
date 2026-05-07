@@ -39,7 +39,7 @@ resource "helm_release" "n8n" {
     # Main node config
     { name = "main.persistence.enabled", value = true },
     { name = "main.persistence.accessMode", value = "ReadWriteOnce" },
-    { name = "main.persistence.volumeName", value = "n8n-main-data" },
+    { name = "main.persistence.existingClaim", value = "n8n-main-persistence" },
     { name = "main.persistence.size", value = "5Gi" },
     { name = "main.resources.requests.cpu", value = "250m" },
     { name = "main.resources.limits.cpu", value = "500m" },

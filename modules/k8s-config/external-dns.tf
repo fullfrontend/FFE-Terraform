@@ -12,7 +12,10 @@ locals {
       { name = "sources[0]", value = "service" },
       { name = "sources[1]", value = "ingress" },
       { name = "txtOwnerId", value = var.cluster_name },
-      { name = "txtPrefix", value = "_extdns." },
+      // Apex domains with the TXT registry require a record-type-aware prefix.
+      // Without %{record_type}, external-dns generates invalid names like
+      // "_extdns.a-example.com" for apex A records and the OVH provider rejects them.
+      { name = "txtPrefix", value = "_extdns-%%{record_type}." },
       { name = "env[0].name", value = "OVH_ENDPOINT" },
       { name = "env[0].valueFrom.secretKeyRef.name", value = kubernetes_secret.external_dns_ovh[0].metadata[0].name },
       { name = "env[0].valueFrom.secretKeyRef.key", value = "OVH_ENDPOINT" },
