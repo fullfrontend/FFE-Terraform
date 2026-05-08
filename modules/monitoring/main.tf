@@ -114,29 +114,6 @@ resource "helm_release" "kube_prometheus_stack" {
       value = "512Mi"
     },
     /*
-        Default Prometheus datasource (points to the in-cluster Prometheus service).
-    */
-    {
-      name  = "grafana.additionalDataSources[0].name"
-      value = "Prometheus"
-    },
-    {
-      name  = "grafana.additionalDataSources[0].type"
-      value = "prometheus"
-    },
-    {
-      name  = "grafana.additionalDataSources[0].access"
-      value = "proxy"
-    },
-    {
-      name  = "grafana.additionalDataSources[0].url"
-      value = "http://kube-prometheus-stack-prometheus.monitoring.svc:9090"
-    },
-    {
-      name  = "grafana.additionalDataSources[0].isDefault"
-      value = "true"
-    },
-    /*
         Kubelet ServiceMonitor: ensure cadvisor/resource metrics (PVC usage) are scraped over HTTPS.
     */
     {

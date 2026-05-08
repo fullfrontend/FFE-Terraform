@@ -699,7 +699,7 @@
         "targets": [
           {
             "expr": "topk(10, 100 * pvc_used_bytes / clamp_min(pvc_capacity_bytes, 1))",
-            "legendFormat": "{{pvc}} ({{namespace}}/{{node}})",
+            "legendFormat": "{{pvc}}",
             "refId": "A"
           }
         ],
