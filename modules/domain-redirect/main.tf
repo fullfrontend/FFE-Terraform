@@ -5,7 +5,7 @@ locals {
     "kubernetes.io/ingress.class"                      = var.ingress_class_name
     "kubernetes.io/ingress.allow-http"                 = "true"
     "traefik.ingress.kubernetes.io/router.entrypoints" = "web,websecure"
-    "traefik.ingress.kubernetes.io/router.middlewares" = "${var.namespace}-${var.name}-redirect@kubernetescrd,infra-redirect-https@kubernetescrd"
+    "traefik.ingress.kubernetes.io/router.priority"    = "1"
     "cert-manager.io/cluster-issuer"                   = "letsencrypt-prod"
     "traefik.ingress.kubernetes.io/router.tls"         = "true"
   }
@@ -14,25 +14,27 @@ locals {
     "kubernetes.io/ingress.class"                      = var.ingress_class_name
     "kubernetes.io/ingress.allow-http"                 = "true"
     "traefik.ingress.kubernetes.io/router.entrypoints" = "web"
-    "traefik.ingress.kubernetes.io/router.middlewares" = "${var.namespace}-${var.name}-redirect@kubernetescrd"
+    "traefik.ingress.kubernetes.io/router.priority"    = "1"
   }
 }
 
-resource "kubernetes_manifest" "redirect" {
-  manifest = {
-    apiVersion = "traefik.io/v1alpha1"
-    kind       = "Middleware"
-    metadata = {
-      name      = "${var.name}-redirect"
-      namespace = var.namespace
-    }
-    spec = {
-      redirectRegex = {
-        regex       = "https?://(?:www\\.)?${replace(replace(var.source_domain, ".", "\\."), "-", "\\-")}/?(.*)"
-        replacement = "${trim(var.target_url, "/")}/$1"
-        permanent   = true
+resource "kubernetes_config_map_v1" "redirect_nginx" {
+  metadata {
+    name      = "${var.name}-nginx"
+    namespace = var.namespace
+  }
+
+  data = {
+    "default.conf" = <<-EOT
+      server {
+        listen 80 default_server;
+        server_name _;
+
+        location / {
+          return 301 ${trim(var.target_url, "/")}$request_uri;
+        }
       }
-    }
+    EOT
   }
 }
 
@@ -62,6 +64,14 @@ resource "kubernetes_deployment" "dummy" {
       }
 
       spec {
+        volume {
+          name = "nginx-config"
+
+          config_map {
+            name = kubernetes_config_map_v1.redirect_nginx.metadata[0].name
+          }
+        }
+
         container {
           name  = "dummy"
           image = "nginx:alpine"
@@ -80,6 +90,13 @@ resource "kubernetes_deployment" "dummy" {
               cpu    = "50m"
               memory = "64Mi"
             }
+          }
+
+          volume_mount {
+            name       = "nginx-config"
+            mount_path = "/etc/nginx/conf.d/default.conf"
+            sub_path   = "default.conf"
+            read_only  = true
           }
         }
       }
