@@ -74,6 +74,7 @@ resource "helm_release" "n8n" {
 
     # Misc
     { name = "serviceMonitor.enabled", value = true },
+    { name = "serviceMonitor.labels.release", value = "kube-prometheus-stack" },
     { name = "encryptionKey", value = var.encryption_key },
     { name = "db.logging.enabled", value = true },
     { name = "db.logging.options", value = "error" },

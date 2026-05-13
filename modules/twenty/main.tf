@@ -71,6 +71,63 @@ resource "kubernetes_deployment" "twenty" {
           }
         }
 
+        init_container {
+          name    = "db-migrate"
+          image   = var.image
+          command = ["sh", "-lc", "cd /app/packages/twenty-server && yarn database:init:prod"]
+
+          resources {
+            requests = {
+              cpu    = "100m"
+              memory = "512Mi"
+            }
+            limits = {
+              cpu    = "400m"
+              memory = "1Gi"
+            }
+          }
+
+          env {
+            name = "PG_DATABASE_URL"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.twenty_env.metadata[0].name
+                key  = "PG_DATABASE_URL"
+              }
+            }
+          }
+          env {
+            name  = "SERVER_URL"
+            value = local.server_url
+          }
+          env {
+            name  = "REDIS_URL"
+            value = local.redis_url
+          }
+          env {
+            name = "APP_SECRET"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.twenty_env.metadata[0].name
+                key  = "APP_SECRET"
+              }
+            }
+          }
+          env {
+            name  = "LOCAL_STORAGE_PATH"
+            value = "/app/packages/twenty-server/.local-storage"
+          }
+          env {
+            name  = "NODE_OPTIONS"
+            value = "--max-old-space-size=768"
+          }
+
+          volume_mount {
+            name       = "local-data"
+            mount_path = "/app/packages/twenty-server/.local-storage"
+          }
+        }
+
         container {
           name  = "server"
           image = var.image
@@ -132,6 +189,10 @@ resource "kubernetes_deployment" "twenty" {
           env {
             name  = "NODE_OPTIONS"
             value = "--max-old-space-size=2048"
+          }
+          env {
+            name  = "DISABLE_DB_MIGRATIONS"
+            value = "true"
           }
 
           volume_mount {

@@ -47,7 +47,13 @@ resource "kubernetes_config_map" "waf_modsecurity_override" {
       # special headers such as Lock-Token / If, and binary uploads. Keeping CRS
       # enabled there creates fragile false positives, so bypass WAF for this host.
       SecRule REQUEST_HEADERS:X-Forwarded-Host "@streq cloud.fullfrontend.be" \
-        "id:1001001,phase:1,pass,nolog,t:none,ctl:ruleEngine=Off"
+        "id:1001001,phase:1,allow,nolog,t:none,ctl:ruleEngine=Off"
+
+      # Twenty sends GraphQL payloads to /metadata and other JSON endpoints that
+      # CRS regularly misclassifies as command injection. Let the application
+      # validate those requests directly.
+      SecRule REQUEST_HEADERS:X-Forwarded-Host "@streq crm.fullfrontend.be" \
+        "id:1001003,phase:1,allow,nolog,t:none,ctl:ruleEngine=Off"
 
       # Vince analytics posts JSON payloads with text/plain; allow it only on the analytics frontend.
       SecRule REQUEST_HEADERS:X-Forwarded-Host "@streq insights.fullfrontend.be" \

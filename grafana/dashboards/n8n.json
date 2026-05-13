@@ -17,7 +17,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "iteration": 1,
+  "iteration": 3,
   "links": [],
   "panels": [
     {
@@ -26,11 +26,17 @@
         "defaults": {
           "color": { "mode": "palette-classic" },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "gridPos": { "h": 9, "w": 16, "x": 0, "y": 0 },
       "id": 1,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -38,31 +44,12 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(n8n_queue_jobs_total[5m])) by (status)",
+          "expr": "sum(rate(n8n_workflow_execution_duration_seconds_count[5m])) by (status)",
           "legendFormat": "{{status}}",
           "refId": "A"
         }
       ],
-      "title": "Jobs traités (5m)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": "Prometheus",
-      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "id": 2,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single", "sort": "none" }
-      },
-      "targets": [
-        {
-          "expr": "max(n8n_queue_jobs_active) by (queue)",
-          "legendFormat": "{{queue}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Jobs actifs (queue)",
+      "title": "Exécutions workflow (5m)",
       "type": "timeseries"
     },
     {
@@ -75,15 +62,15 @@
             "mode": "absolute",
             "steps": [
               { "color": "green", "value": null },
-              { "color": "yellow", "value": 0.5 },
-              { "color": "red", "value": 0.9 }
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 5 }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
-      "id": 3,
+      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 0 },
+      "id": 2,
       "options": {
         "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
         "showThresholdLabels": false,
@@ -91,11 +78,11 @@
       },
       "targets": [
         {
-          "expr": "n8n_queue_jobs_waiting",
+          "expr": "n8n_active_workflow_count",
           "refId": "A"
         }
       ],
-      "title": "Jobs en attente",
+      "title": "Workflows actifs",
       "type": "gauge"
     },
     {
@@ -103,11 +90,43 @@
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 0.8 }] }
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 0.8 }
+            ]
+          },
+          "unit": "cores"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 9 },
+      "id": 3,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "expr": "rate(n8n_process_cpu_seconds_total[5m])",
+          "legendFormat": "process cpu",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU n8n",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 9 },
       "id": 4,
       "options": {
         "legend": { "displayMode": "list", "placement": "bottom" },
@@ -115,24 +134,29 @@
       },
       "targets": [
         {
-          "expr": "rate(container_cpu_usage_seconds_total{pod=~\"n8n-.*\"}[5m])",
-          "legendFormat": "{{pod}}",
+          "expr": "n8n_process_resident_memory_bytes",
+          "legendFormat": "resident memory",
           "refId": "A"
+        },
+        {
+          "expr": "n8n_nodejs_heap_size_used_bytes",
+          "legendFormat": "heap used",
+          "refId": "B"
         }
       ],
-      "title": "CPU pod n8n",
+      "title": "Mémoire n8n",
       "type": "timeseries"
     }
   ],
   "refresh": "",
   "schemaVersion": 39,
   "style": "dark",
-  "tags": ["n8n", "queue"],
+  "tags": ["n8n", "automation"],
   "templating": { "list": [] },
   "time": { "from": "now-1h", "to": "now" },
   "timezone": "",
   "title": "n8n",
   "uid": "n8n-overview",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }
