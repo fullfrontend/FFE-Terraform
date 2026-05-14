@@ -16,6 +16,7 @@ resource "kubernetes_config_map" "waf_dummy_nginx" {
       server {
         listen 80 default_server;
         server_name _;
+        client_max_body_size 2g;
 
         location / {
           add_header Content-Type text/plain;
@@ -36,6 +37,14 @@ resource "kubernetes_config_map" "waf_modsecurity_override" {
 
   data = {
     "modsecurity-override.conf" = <<-EOF
+      # Match Traefik's WAF middleware body limit. This is required for large
+      # WebDAV uploads; otherwise ModSecurity/Apache returns 413 before the
+      # OpenCloud host bypass rule can help.
+      LimitRequestBody 0
+      SecRequestBodyLimit ${var.waf_max_body_size}
+      SecRequestBodyNoFilesLimit ${var.waf_max_body_size}
+      SecRequestBodyLimitAction Reject
+
       # WordPress media uploads legitimately send image payloads that CRS 920420
       # flags as unsupported content types. Let WordPress handle those endpoints.
       SecRule REQUEST_HEADERS:X-Forwarded-Host "@pm fullfrontend.be www.fullfrontend.be" \
@@ -54,6 +63,12 @@ resource "kubernetes_config_map" "waf_modsecurity_override" {
       # validate those requests directly.
       SecRule REQUEST_HEADERS:X-Forwarded-Host "@streq crm.fullfrontend.be" \
         "id:1001003,phase:1,allow,nolog,t:none,ctl:ruleEngine=Off"
+
+      # n8n workflow saves and executions send arbitrary user-authored JSON/JS
+      # snippets. CRS blocks legitimate workflow payloads, so let n8n enforce
+      # auth and validation for both the editor and webhook hosts.
+      SecRule REQUEST_HEADERS:X-Forwarded-Host "@pm n8n.fullfrontend.be webhook.fullfrontend.be" \
+        "id:1001004,phase:1,allow,nolog,t:none,ctl:ruleEngine=Off"
 
       # Vince analytics posts JSON payloads with text/plain; allow it only on the analytics frontend.
       SecRule REQUEST_HEADERS:X-Forwarded-Host "@streq insights.fullfrontend.be" \
@@ -179,6 +194,21 @@ resource "kubernetes_deployment" "waf_modsecurity" {
           env {
             name  = "BACKEND"
             value = "http://waf-dummy.${kubernetes_namespace.infra.metadata[0].name}.svc.cluster.local"
+          }
+
+          env {
+            name  = "MODSEC_REQ_BODY_LIMIT"
+            value = tostring(var.waf_max_body_size)
+          }
+
+          env {
+            name  = "MODSEC_REQ_BODY_NOFILES_LIMIT"
+            value = tostring(var.waf_max_body_size)
+          }
+
+          env {
+            name  = "MODSEC_REQ_BODY_LIMIT_ACTION"
+            value = "Reject"
           }
 
           port {
