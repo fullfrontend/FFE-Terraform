@@ -115,13 +115,13 @@ variable "waf_dummy_image" {
 
 variable "waf_max_body_size" {
   type        = number
-  default     = 10485760
+  default     = 2147483648
   description = "Max body size pour le WAF (bytes)"
 }
 
 variable "waf_timeout_ms" {
   type        = number
-  default     = 2000
+  default     = 3600000
   description = "Timeout WAF (ms)"
 }
 
