@@ -115,7 +115,7 @@ variable "waf_dummy_image" {
 
 variable "waf_max_body_size" {
   type        = number
-  default     = 2147483648
+  default     = 5368709120
   description = "Max body size pour le WAF (bytes)"
 }
 
