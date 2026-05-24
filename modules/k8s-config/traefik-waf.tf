@@ -16,7 +16,7 @@ resource "kubernetes_config_map" "waf_dummy_nginx" {
       server {
         listen 80 default_server;
         server_name _;
-        client_max_body_size 2g;
+        client_max_body_size 5g;
 
         location / {
           add_header Content-Type text/plain;
@@ -45,6 +45,16 @@ resource "kubernetes_config_map" "waf_modsecurity_override" {
       SecRequestBodyNoFilesLimit ${var.waf_max_body_size}
       SecRequestBodyLimitAction Reject
 
+      # The WAF subrequest is handled by Apache before it reaches the dummy
+      # backend. WebDAV/TUS clients legitimately send conditional headers, but
+      # Apache evaluates If-Match against the WAF URL itself and returns 412.
+      # Strip them only from the WAF inspection request; Traefik still forwards
+      # the original headers to OpenCloud.
+      RequestHeader unset If-Match early
+      RequestHeader unset If-None-Match early
+      RequestHeader unset If-Modified-Since early
+      RequestHeader unset If-Unmodified-Since early
+
       # WordPress media uploads legitimately send image payloads that CRS 920420
       # flags as unsupported content types. Let WordPress handle those endpoints.
       SecRule REQUEST_HEADERS:X-Forwarded-Host "@pm fullfrontend.be www.fullfrontend.be" \
@@ -69,6 +79,12 @@ resource "kubernetes_config_map" "waf_modsecurity_override" {
       # auth and validation for both the editor and webhook hosts.
       SecRule REQUEST_HEADERS:X-Forwarded-Host "@pm n8n.fullfrontend.be webhook.fullfrontend.be" \
         "id:1001004,phase:1,allow,nolog,t:none,ctl:ruleEngine=Off"
+
+      # FRP tunnels may expose arbitrary application payloads. The social host
+      # must pass through untouched; let the service behind the tunnel enforce
+      # its own validation and authentication.
+      SecRule REQUEST_HEADERS:X-Forwarded-Host "@streq social.fullfrontend.be" \
+        "id:1001005,phase:1,allow,nolog,t:none,ctl:ruleEngine=Off"
 
       # Vince analytics posts JSON payloads with text/plain; allow it only on the analytics frontend.
       SecRule REQUEST_HEADERS:X-Forwarded-Host "@streq insights.fullfrontend.be" \

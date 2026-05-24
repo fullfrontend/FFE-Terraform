@@ -29,7 +29,7 @@ variable "enable_tls" {
 
 variable "image" {
   type        = string
-  default     = "opencloudeu/opencloud:4.0.5"
+  default     = "opencloudeu/opencloud:4.0.7"
   description = "Image OpenCloud officielle"
 }
 
@@ -64,7 +64,6 @@ variable "velero_namespace" {
   default     = "velero"
   description = "Namespace Velero (pour le Schedule)"
 }
-
 
 
 

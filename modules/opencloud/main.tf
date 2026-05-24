@@ -53,6 +53,10 @@ resource "kubernetes_deployment" "opencloud" {
   spec {
     replicas = 1
 
+    strategy {
+      type = "Recreate"
+    }
+
     selector {
       match_labels = {
         app = "opencloud"

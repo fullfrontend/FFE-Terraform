@@ -379,7 +379,7 @@ variable "opencloud_tls_secret_name" {
 
 variable "opencloud_image" {
   type        = string
-  default     = "opencloudeu/opencloud:4.0.6"
+  default     = "opencloudeu/opencloud:4.0.7"
   description = "Image OpenCloud officielle"
 }
 
@@ -738,7 +738,7 @@ variable "waf_dummy_image" {
 
 variable "waf_max_body_size" {
   type        = number
-  default     = 2147483648
+  default     = 5368709120
   description = "Max body size pour le WAF (bytes)"
 }
 
