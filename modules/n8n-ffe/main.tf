@@ -37,6 +37,7 @@ resource "helm_release" "n8n" {
     { name = "webhook.url", value = format("%s://%s", var.enable_tls ? "https" : "http", var.webhook_host) },
 
     # Main node config
+    { name = "strategy.type", value = "Recreate" },
     { name = "main.persistence.enabled", value = true },
     { name = "main.persistence.accessMode", value = "ReadWriteOnce" },
     { name = "main.persistence.existingClaim", value = "n8n-main-persistence" },
