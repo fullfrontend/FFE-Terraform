@@ -68,6 +68,42 @@ variable "app_secret" {
   description = "APP_SECRET Twenty (string aléatoire et stable)"
 }
 
+variable "email_from_address" {
+  type        = string
+  description = "Adresse d'expédition Twenty"
+}
+
+variable "email_from_name" {
+  type        = string
+  description = "Nom d'expédition Twenty"
+}
+
+variable "email_system_address" {
+  type        = string
+  description = "Adresse système Twenty"
+}
+
+variable "smtp_host" {
+  type        = string
+  description = "Host SMTP Twenty"
+}
+
+variable "smtp_port" {
+  type        = number
+  description = "Port SMTP Twenty"
+}
+
+variable "smtp_user" {
+  type        = string
+  description = "Utilisateur SMTP Twenty"
+}
+
+variable "smtp_password" {
+  type        = string
+  sensitive   = true
+  description = "Mot de passe SMTP Twenty"
+}
+
 variable "enable_velero" {
   type        = bool
   default     = true

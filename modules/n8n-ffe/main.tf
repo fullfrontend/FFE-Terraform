@@ -85,6 +85,13 @@ resource "helm_release" "n8n" {
     { name = "main.extraEnvVars.N8N_GIT_NODE_DISABLE_BARE_REPOS", value = "true" },
     { name = "main.extraEnvVars.N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE", value = true },
     { name = "main.extraEnvVars.N8N_COMMUNITY_PACKAGES_ENABLED", value = true },
+    { name = "main.extraEnvVars.N8N_EMAIL_MODE", value = "smtp" },
+    { name = "main.extraEnvVars.N8N_SMTP_HOST", value = var.smtp_host },
+    { name = "main.extraEnvVars.N8N_SMTP_PORT", value = var.smtp_port },
+    { name = "main.extraEnvVars.N8N_SMTP_SSL", value = var.smtp_ssl },
+    { name = "main.extraEnvVars.N8N_SMTP_STARTTLS", value = var.smtp_starttls },
+    { name = "main.extraEnvVars.N8N_SMTP_USER", value = var.smtp_user },
+    { name = "main.extraEnvVars.N8N_SMTP_SENDER", value = var.smtp_sender },
     ], var.enable_tls ? [
     { name = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.entrypoints", value = "web\\,websecure" },
     { name = "ingress.annotations.traefik\\.ingress\\.kubernetes\\.io/router\\.middlewares", value = "infra-redirect-https@kubernetescrd" },
@@ -99,12 +106,20 @@ resource "helm_release" "n8n" {
     { name = "externalRedis.database", value = var.redis_db },
   ] : [])
 
-  set_sensitive = local.use_queue ? [
-    {
-      name  = "externalRedis.password"
-      value = var.redis_password
-    }
-  ] : []
+  set_sensitive = concat(
+    [
+      {
+        name  = "main.extraEnvVars.N8N_SMTP_PASS"
+        value = var.smtp_password
+      }
+    ],
+    local.use_queue ? [
+      {
+        name  = "externalRedis.password"
+        value = var.redis_password
+      }
+    ] : []
+  )
 }
 
 /*

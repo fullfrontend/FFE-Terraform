@@ -29,7 +29,7 @@ variable "enable_tls" {
 
 variable "image" {
   type        = string
-  default     = "opencloudeu/opencloud:4.0.7"
+  default     = "opencloudeu/opencloud-rolling:7.0.0"
   description = "Image OpenCloud officielle"
 }
 
@@ -38,6 +38,54 @@ variable "admin_password" {
   type        = string
   sensitive   = true
   description = "Mot de passe initial de l'admin OpenCloud"
+}
+
+variable "service_account_id" {
+  type        = string
+  sensitive   = true
+  description = "ID du service account interne OpenCloud"
+}
+
+variable "service_account_secret" {
+  type        = string
+  sensitive   = true
+  description = "Secret du service account interne OpenCloud"
+}
+
+variable "smtp_host" {
+  type        = string
+  description = "Host SMTP pour les notifications OpenCloud"
+}
+
+variable "smtp_port" {
+  type        = number
+  description = "Port SMTP pour les notifications OpenCloud"
+}
+
+variable "smtp_sender" {
+  type        = string
+  description = "Adresse d'expédition SMTP OpenCloud"
+}
+
+variable "smtp_username" {
+  type        = string
+  description = "Utilisateur SMTP OpenCloud"
+}
+
+variable "smtp_password" {
+  type        = string
+  sensitive   = true
+  description = "Mot de passe SMTP OpenCloud"
+}
+
+variable "smtp_encryption" {
+  type        = string
+  description = "Chiffrement SMTP OpenCloud (starttls, ssltls ou none)"
+}
+
+variable "smtp_authentication" {
+  type        = string
+  description = "Méthode d'auth SMTP OpenCloud (login ou none)"
 }
 
 variable "config_storage_size" {
@@ -64,7 +112,4 @@ variable "velero_namespace" {
   default     = "velero"
   description = "Namespace Velero (pour le Schedule)"
 }
-
-
-
 
