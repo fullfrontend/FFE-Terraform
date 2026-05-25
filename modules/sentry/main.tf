@@ -17,6 +17,13 @@ resource "helm_release" "sentry" {
   set = concat([
     { name = "system.url", value = local.sentry_url },
     { name = "system.adminEmail", value = var.admin_email },
+    { name = "mail.backend", value = "smtp" },
+    { name = "mail.host", value = var.smtp_host },
+    { name = "mail.port", value = var.smtp_port },
+    { name = "mail.useTls", value = var.smtp_use_tls },
+    { name = "mail.useSsl", value = var.smtp_use_ssl },
+    { name = "mail.username", value = var.smtp_username },
+    { name = "mail.from", value = var.mail_from },
 
     { name = "ingress.enabled", value = true },
     { name = "ingress.ingressClassName", value = var.ingress_class_name },
@@ -42,6 +49,10 @@ resource "helm_release" "sentry" {
     {
       name  = "user.password"
       value = var.admin_password
+    },
+    {
+      name  = "mail.password"
+      value = var.smtp_password
     }
   ]
 }

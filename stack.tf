@@ -25,6 +25,26 @@ locals {
   frp_http_hosts     = distinct(concat([format("social.%s", local.root_domain)], var.frp_additional_http_hosts))
   sentry_admin_email = var.sentry_admin_email != "" ? var.sentry_admin_email : format("ops@%s", local.root_domain)
   twenty_db_creds    = lookup(local.postgres_app_map, "twenty", null)
+  smtp_port          = tonumber(var.wp_smtp_port)
+  smtp_mode          = lower(var.wp_smtp_ssl)
+  smtp_is_ssl        = local.smtp_mode == "ssl"
+  smtp_is_starttls   = local.smtp_mode == "tls"
+  smtp_oc_encryption = local.smtp_is_ssl ? "ssltls" : local.smtp_is_starttls ? "starttls" : "none"
+
+  n8n_smtp_sender             = var.n8n_smtp_sender != "" ? var.n8n_smtp_sender : var.wp_mail_from
+  n8n_smtp_user               = var.n8n_smtp_user != "" ? var.n8n_smtp_user : var.wp_smtp_user
+  n8n_smtp_password           = var.n8n_smtp_password != "" ? var.n8n_smtp_password : var.wp_smtp_pass
+  opencloud_smtp_sender       = var.opencloud_smtp_sender != "" ? var.opencloud_smtp_sender : var.wp_mail_from
+  opencloud_smtp_user         = var.opencloud_smtp_user != "" ? var.opencloud_smtp_user : var.wp_smtp_user
+  opencloud_smtp_password     = var.opencloud_smtp_password != "" ? var.opencloud_smtp_password : var.wp_smtp_pass
+  twenty_email_from_address   = var.twenty_email_from_address != "" ? var.twenty_email_from_address : var.wp_mail_from
+  twenty_email_from_name      = var.twenty_email_from_name != "" ? var.twenty_email_from_name : var.wp_mail_from_name
+  twenty_email_system_address = var.twenty_email_system_address != "" ? var.twenty_email_system_address : local.twenty_email_from_address
+  twenty_smtp_user            = var.twenty_smtp_user != "" ? var.twenty_smtp_user : var.wp_smtp_user
+  twenty_smtp_password        = var.twenty_smtp_password != "" ? var.twenty_smtp_password : var.wp_smtp_pass
+  sentry_mail_from            = var.sentry_mail_from != "" ? var.sentry_mail_from : var.wp_mail_from
+  sentry_smtp_user            = var.sentry_smtp_user != "" ? var.sentry_smtp_user : var.wp_smtp_user
+  sentry_smtp_password        = var.sentry_smtp_password != "" ? var.sentry_smtp_password : var.wp_smtp_pass
 }
 
 /*
@@ -179,6 +199,13 @@ module "n8n" {
   redis_db           = var.n8n_redis_db
   redis_password     = var.n8n_redis_password
   redis_storage_size = var.n8n_redis_storage_size
+  smtp_host          = var.wp_smtp_host
+  smtp_port          = local.smtp_port
+  smtp_ssl           = local.smtp_is_ssl
+  smtp_starttls      = local.smtp_is_starttls
+  smtp_user          = local.n8n_smtp_user
+  smtp_password      = local.n8n_smtp_password
+  smtp_sender        = local.n8n_smtp_sender
   enable_velero      = var.enable_velero
   velero_namespace   = module.k8s-config.velero_namespace
 }
@@ -205,6 +232,13 @@ module "twenty" {
   db_user              = local.twenty_db_creds != null ? local.twenty_db_creds.user : ""
   db_password          = local.twenty_db_creds != null ? local.twenty_db_creds.password : ""
   app_secret           = var.twenty_app_secret
+  email_from_address   = local.twenty_email_from_address
+  email_from_name      = local.twenty_email_from_name
+  email_system_address = local.twenty_email_system_address
+  smtp_host            = var.wp_smtp_host
+  smtp_port            = local.smtp_port
+  smtp_user            = local.twenty_smtp_user
+  smtp_password        = local.twenty_smtp_password
   enable_velero        = var.enable_velero
   velero_namespace     = module.k8s-config.velero_namespace
 }
@@ -266,17 +300,26 @@ module "opencloud" {
   source     = "./modules/opencloud"
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 
-  namespace           = "opencloud"
-  host                = var.opencloud_host != "" ? var.opencloud_host : format("cloud.%s", local.root_domain)
-  tls_secret_name     = var.opencloud_tls_secret_name
-  ingress_class_name  = local.ingress_class_name
-  enable_tls          = var.enable_tls
-  image               = var.opencloud_image
-  admin_password      = var.opencloud_admin_password
-  config_storage_size = var.opencloud_config_storage_size
-  data_storage_size   = var.opencloud_data_storage_size
-  enable_velero       = var.enable_velero
-  velero_namespace    = module.k8s-config.velero_namespace
+  namespace              = "opencloud"
+  host                   = var.opencloud_host != "" ? var.opencloud_host : format("cloud.%s", local.root_domain)
+  tls_secret_name        = var.opencloud_tls_secret_name
+  ingress_class_name     = local.ingress_class_name
+  enable_tls             = var.enable_tls
+  image                  = var.opencloud_image
+  admin_password         = var.opencloud_admin_password
+  service_account_id     = var.opencloud_service_account_id
+  service_account_secret = var.opencloud_service_account_secret
+  smtp_host              = var.wp_smtp_host
+  smtp_port              = local.smtp_port
+  smtp_sender            = local.opencloud_smtp_sender
+  smtp_username          = local.opencloud_smtp_user
+  smtp_password          = local.opencloud_smtp_password
+  smtp_encryption        = local.smtp_oc_encryption
+  smtp_authentication    = var.wp_smtp_auth ? "auto" : "none"
+  config_storage_size    = var.opencloud_config_storage_size
+  data_storage_size      = var.opencloud_data_storage_size
+  enable_velero          = var.enable_velero
+  velero_namespace       = module.k8s-config.velero_namespace
 }
 //*/
 
@@ -315,6 +358,13 @@ module "sentry" {
   chart_version      = var.sentry_chart_version
   admin_email        = local.sentry_admin_email
   admin_password     = var.sentry_admin_password
+  smtp_host          = var.wp_smtp_host
+  smtp_port          = local.smtp_port
+  smtp_use_tls       = local.smtp_is_starttls
+  smtp_use_ssl       = local.smtp_is_ssl
+  smtp_username      = local.sentry_smtp_user
+  smtp_password      = local.sentry_smtp_password
+  mail_from          = local.sentry_mail_from
   enable_velero      = var.enable_velero
   velero_namespace   = module.k8s-config.velero_namespace
 }

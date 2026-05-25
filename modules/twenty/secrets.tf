@@ -18,12 +18,14 @@ resource "kubernetes_secret" "twenty_env" {
   }
 
   data = {
-    PG_DATABASE_URL = local.pg_url
-    APP_SECRET      = var.app_secret
-    DB_HOST         = var.db_host
-    DB_PORT         = tostring(var.db_port)
-    DB_NAME         = var.db_name
-    DB_USER         = var.db_user
-    DB_PASSWORD     = var.db_password
+    PG_DATABASE_URL     = local.pg_url
+    APP_SECRET          = var.app_secret
+    DB_HOST             = var.db_host
+    DB_PORT             = tostring(var.db_port)
+    DB_NAME             = var.db_name
+    DB_USER             = var.db_user
+    DB_PASSWORD         = var.db_password
+    EMAIL_SMTP_USER     = var.smtp_user
+    EMAIL_SMTP_PASSWORD = var.smtp_password
   }
 }

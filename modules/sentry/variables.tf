@@ -45,6 +45,42 @@ variable "admin_password" {
   description = "Mot de passe admin Sentry"
 }
 
+variable "smtp_host" {
+  type        = string
+  description = "Host SMTP Sentry"
+}
+
+variable "smtp_port" {
+  type        = number
+  description = "Port SMTP Sentry"
+}
+
+variable "smtp_use_tls" {
+  type        = bool
+  description = "Utiliser STARTTLS pour SMTP Sentry"
+}
+
+variable "smtp_use_ssl" {
+  type        = bool
+  description = "Utiliser SSL direct pour SMTP Sentry"
+}
+
+variable "smtp_username" {
+  type        = string
+  description = "Utilisateur SMTP Sentry"
+}
+
+variable "smtp_password" {
+  type        = string
+  sensitive   = true
+  description = "Mot de passe SMTP Sentry"
+}
+
+variable "mail_from" {
+  type        = string
+  description = "Adresse d'expédition Sentry"
+}
+
 variable "enable_velero" {
   type        = bool
   default     = true

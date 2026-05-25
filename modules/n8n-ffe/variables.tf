@@ -65,6 +65,42 @@ variable "webhook_host" {
   description = "FQDN dédié aux webhooks (ex: webhook.<root_domain>)"
 }
 
+variable "smtp_host" {
+  type        = string
+  description = "Host SMTP pour les emails système n8n"
+}
+
+variable "smtp_port" {
+  type        = number
+  description = "Port SMTP pour les emails système n8n"
+}
+
+variable "smtp_ssl" {
+  type        = bool
+  description = "Utiliser SSL direct pour SMTP n8n"
+}
+
+variable "smtp_starttls" {
+  type        = bool
+  description = "Utiliser STARTTLS pour SMTP n8n"
+}
+
+variable "smtp_user" {
+  type        = string
+  description = "Utilisateur SMTP n8n"
+}
+
+variable "smtp_password" {
+  type        = string
+  sensitive   = true
+  description = "Mot de passe SMTP n8n"
+}
+
+variable "smtp_sender" {
+  type        = string
+  description = "Adresse d'expédition SMTP n8n"
+}
+
 # Queue / Redis
 variable "enable_redis" {
   type        = bool

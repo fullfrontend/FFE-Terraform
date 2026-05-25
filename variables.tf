@@ -358,6 +358,56 @@ variable "wp_lang" {
   description = "Langue WordPress (constante WPLANG)"
 }
 
+variable "n8n_smtp_sender" {
+  type        = string
+  default     = ""
+  description = "Adresse expéditeur SMTP n8n (vide = wp_mail_from)"
+}
+
+variable "n8n_smtp_user" {
+  type        = string
+  default     = ""
+  description = "Utilisateur SMTP n8n (vide = wp_smtp_user)"
+}
+
+variable "n8n_smtp_password" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Mot de passe SMTP n8n (vide = wp_smtp_pass)"
+}
+
+variable "twenty_email_from_address" {
+  type        = string
+  default     = ""
+  description = "Adresse expéditeur Twenty (vide = wp_mail_from)"
+}
+
+variable "twenty_email_from_name" {
+  type        = string
+  default     = ""
+  description = "Nom expéditeur Twenty (vide = wp_mail_from_name)"
+}
+
+variable "twenty_email_system_address" {
+  type        = string
+  default     = ""
+  description = "Adresse système Twenty (vide = twenty_email_from_address)"
+}
+
+variable "twenty_smtp_user" {
+  type        = string
+  default     = ""
+  description = "Utilisateur SMTP Twenty (vide = wp_smtp_user)"
+}
+
+variable "twenty_smtp_password" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Mot de passe SMTP Twenty (vide = wp_smtp_pass)"
+}
+
 # OpenCloud
 variable "enable_opencloud" {
   type        = bool
@@ -379,7 +429,7 @@ variable "opencloud_tls_secret_name" {
 
 variable "opencloud_image" {
   type        = string
-  default     = "opencloudeu/opencloud:4.0.7"
+  default     = "opencloudeu/opencloud-rolling:7.0.0"
   description = "Image OpenCloud officielle"
 }
 
@@ -393,6 +443,47 @@ variable "opencloud_admin_password" {
     condition     = !var.enable_opencloud || length(var.opencloud_admin_password) > 0
     error_message = "opencloud_admin_password doit être renseigné si enable_opencloud=true."
   }
+}
+
+variable "opencloud_service_account_id" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "ID du service account interne OpenCloud"
+  validation {
+    condition     = !var.enable_opencloud || length(var.opencloud_service_account_id) > 0
+    error_message = "opencloud_service_account_id doit être renseigné si enable_opencloud=true."
+  }
+}
+
+variable "opencloud_service_account_secret" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Secret du service account interne OpenCloud"
+  validation {
+    condition     = !var.enable_opencloud || length(var.opencloud_service_account_secret) > 0
+    error_message = "opencloud_service_account_secret doit être renseigné si enable_opencloud=true."
+  }
+}
+
+variable "opencloud_smtp_sender" {
+  type        = string
+  default     = ""
+  description = "Adresse expéditeur SMTP OpenCloud (vide = wp_mail_from)"
+}
+
+variable "opencloud_smtp_user" {
+  type        = string
+  default     = ""
+  description = "Utilisateur SMTP OpenCloud (vide = wp_smtp_user)"
+}
+
+variable "opencloud_smtp_password" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Mot de passe SMTP OpenCloud (vide = wp_smtp_pass)"
 }
 
 variable "opencloud_config_storage_size" {
@@ -487,6 +578,25 @@ variable "sentry_admin_password" {
     condition     = !var.enable_sentry || length(var.sentry_admin_password) > 0
     error_message = "sentry_admin_password doit être renseigné si enable_sentry=true."
   }
+}
+
+variable "sentry_mail_from" {
+  type        = string
+  default     = ""
+  description = "Adresse expéditeur Sentry (vide = wp_mail_from)"
+}
+
+variable "sentry_smtp_user" {
+  type        = string
+  default     = ""
+  description = "Utilisateur SMTP Sentry (vide = wp_smtp_user)"
+}
+
+variable "sentry_smtp_password" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Mot de passe SMTP Sentry (vide = wp_smtp_pass)"
 }
 
 # FRP (frps)

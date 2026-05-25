@@ -194,6 +194,52 @@ resource "kubernetes_deployment" "twenty" {
             name  = "DISABLE_DB_MIGRATIONS"
             value = "true"
           }
+          env {
+            name  = "EMAIL_DRIVER"
+            value = "smtp"
+          }
+          env {
+            name  = "IS_CONFIG_VARIABLES_IN_DB_ENABLED"
+            value = "false"
+          }
+          env {
+            name  = "EMAIL_SMTP_HOST"
+            value = var.smtp_host
+          }
+          env {
+            name  = "EMAIL_SMTP_PORT"
+            value = tostring(var.smtp_port)
+          }
+          env {
+            name  = "EMAIL_FROM_ADDRESS"
+            value = var.email_from_address
+          }
+          env {
+            name  = "EMAIL_FROM_NAME"
+            value = var.email_from_name
+          }
+          env {
+            name  = "EMAIL_SYSTEM_ADDRESS"
+            value = var.email_system_address
+          }
+          env {
+            name = "EMAIL_SMTP_USER"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.twenty_env.metadata[0].name
+                key  = "EMAIL_SMTP_USER"
+              }
+            }
+          }
+          env {
+            name = "EMAIL_SMTP_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.twenty_env.metadata[0].name
+                key  = "EMAIL_SMTP_PASSWORD"
+              }
+            }
+          }
 
           volume_mount {
             name       = "local-data"
@@ -282,6 +328,52 @@ resource "kubernetes_deployment" "twenty" {
             env {
               name  = "NODE_OPTIONS"
               value = "--max-old-space-size=2048"
+            }
+            env {
+              name  = "EMAIL_DRIVER"
+              value = "smtp"
+            }
+            env {
+              name  = "IS_CONFIG_VARIABLES_IN_DB_ENABLED"
+              value = "false"
+            }
+            env {
+              name  = "EMAIL_SMTP_HOST"
+              value = var.smtp_host
+            }
+            env {
+              name  = "EMAIL_SMTP_PORT"
+              value = tostring(var.smtp_port)
+            }
+            env {
+              name  = "EMAIL_FROM_ADDRESS"
+              value = var.email_from_address
+            }
+            env {
+              name  = "EMAIL_FROM_NAME"
+              value = var.email_from_name
+            }
+            env {
+              name  = "EMAIL_SYSTEM_ADDRESS"
+              value = var.email_system_address
+            }
+            env {
+              name = "EMAIL_SMTP_USER"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.twenty_env.metadata[0].name
+                  key  = "EMAIL_SMTP_USER"
+                }
+              }
+            }
+            env {
+              name = "EMAIL_SMTP_PASSWORD"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.twenty_env.metadata[0].name
+                  key  = "EMAIL_SMTP_PASSWORD"
+                }
+              }
             }
 
             volume_mount {
