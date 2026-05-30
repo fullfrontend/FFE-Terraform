@@ -62,6 +62,14 @@ resource "kubernetes_config_map" "waf_modsecurity_override" {
       SecRule REQUEST_URI "@rx ^/(wp-admin/async-upload\\.php|wp-admin/admin-ajax\\.php|wp-json/wp/v2/media|wp-json/elementor/.*)$" \
         "t:none,setvar:'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |text/xml| |application/xml| |application/soap+xml| |application/json| |image/jpeg| |image/png| |image/gif| |image/webp| |image/svg+xml| |application/zip| |application/x-zip-compressed| |application/gzip| |application/x-gzip| |application/x-tar| |application/octet-stream|',ctl:ruleRemoveById=920420"
 
+      # Gutenberg serializes blocks as HTML comments in JSON content. CRS 941180
+      # treats "<!--" as XSS, so ignore that target only on authenticated editor
+      # save/autosave endpoints.
+      SecRule REQUEST_HEADERS:X-Forwarded-Host "@pm fullfrontend.be www.fullfrontend.be" \
+        "id:1001006,phase:1,pass,nolog,t:none,chain"
+      SecRule REQUEST_URI "@rx ^/wp-json/wp/v2/(posts|pages)(/[0-9]+)?(/autosaves)?(\\?.*)?$" \
+        "t:none,ctl:ruleRemoveTargetById=941180;ARGS:content"
+
       # OpenCloud relies heavily on WebDAV/CardDAV/CalDAV semantics, custom methods,
       # special headers such as Lock-Token / If, and binary uploads. Keeping CRS
       # enabled there creates fragile false positives, so bypass WAF for this host.
