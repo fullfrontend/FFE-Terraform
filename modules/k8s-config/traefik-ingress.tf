@@ -5,64 +5,7 @@
 */
 locals {
   traefik_service_type = var.is_prod ? "LoadBalancer" : "NodePort"
-  traefik_sets_prod = concat([
-    {
-      name  = "service.annotations.service\\.beta\\.kubernetes\\.io/do-loadbalancer-name"
-      value = format("%s-traefik", var.cluster_name)
-    }
-    ], length(var.traefik_lb_hostnames) > 0 ? [
-    {
-      name  = "service.annotations.external-dns\\.alpha\\.kubernetes\\.io/hostname"
-      value = join(",", var.traefik_lb_hostnames)
-    }
-  ] : [])
-  traefik_sets_monitoring = var.enable_monitoring ? [
-    {
-      name  = "metrics.prometheus.serviceMonitor.enabled"
-      value = "true"
-    },
-    {
-      name  = "metrics.prometheus.serviceMonitor.namespace"
-      value = "monitoring"
-    },
-    {
-      name  = "metrics.prometheus.serviceMonitor.additionalLabels.release"
-      value = "kube-prometheus-stack"
-    },
-    ] : [
-    {
-      name  = "metrics.prometheus.serviceMonitor.enabled"
-      value = "false"
-    },
-  ]
-  traefik_sets_waf = var.enable_waf ? [
-    {
-      name  = "experimental.plugins.modsecurity.moduleName"
-      value = var.waf_plugin_module
-    },
-    {
-      name  = "experimental.plugins.modsecurity.version"
-      value = var.waf_plugin_version
-    },
-    {
-      name  = "ports.websecure.http.middlewares[0]"
-      value = "${kubernetes_namespace.infra.metadata[0].name}-waf@kubernetescrd"
-    },
-  ] : []
-}
-
-resource "helm_release" "traefik" {
-  count     = var.is_prod ? 1 : 0
-  name      = "traefik"
-  namespace = kubernetes_namespace.infra.metadata[0].name
-
-  repository      = "https://traefik.github.io/charts"
-  chart           = "traefik"
-  version         = "40.0.0"
-  cleanup_on_fail = true
-  atomic          = true
-
-  set = concat([
+  traefik_sets_base = [
     {
       name  = "deployment.replicas"
       value = 2
@@ -135,5 +78,52 @@ resource "helm_release" "traefik" {
       name  = "metrics.prometheus.entryPoint"
       value = "metrics"
     },
-  ], var.is_prod ? concat(local.traefik_sets_prod, local.traefik_sets_monitoring, local.traefik_sets_waf) : [])
+  ]
+  traefik_sets_prod = concat([
+    {
+      name  = "service.annotations.service\\.beta\\.kubernetes\\.io/do-loadbalancer-name"
+      value = format("%s-traefik", var.cluster_name)
+    }
+    ], length(var.traefik_lb_hostnames) > 0 ? [
+    {
+      name  = "service.annotations.external-dns\\.alpha\\.kubernetes\\.io/hostname"
+      value = join(",", var.traefik_lb_hostnames)
+    }
+  ] : [])
+  traefik_sets_monitoring = var.enable_monitoring ? [
+    {
+      name  = "metrics.prometheus.serviceMonitor.enabled"
+      value = "true"
+    },
+    {
+      name  = "metrics.prometheus.serviceMonitor.namespace"
+      value = "monitoring"
+    },
+    {
+      name  = "metrics.prometheus.serviceMonitor.additionalLabels.release"
+      value = "kube-prometheus-stack"
+    },
+    ] : [
+    {
+      name  = "metrics.prometheus.serviceMonitor.enabled"
+      value = "false"
+    },
+  ]
+}
+
+resource "helm_release" "traefik" {
+  count     = var.is_prod ? 1 : 0
+  name      = "traefik"
+  namespace = kubernetes_namespace.infra.metadata[0].name
+
+  repository      = "https://traefik.github.io/charts"
+  chart           = "traefik"
+  version         = "40.0.0"
+  cleanup_on_fail = true
+  atomic          = true
+
+  set = concat(local.traefik_sets_base, var.is_prod ? concat(
+    local.traefik_sets_prod,
+    local.traefik_sets_monitoring,
+  ) : [])
 }

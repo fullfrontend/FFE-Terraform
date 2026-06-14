@@ -1,4 +1,8 @@
 locals {
+  opencloud_tls_options = lower(var.ingress_class_name) == "traefik" ? {
+    "traefik.ingress.kubernetes.io/router.tls.options" = "${var.namespace}-opencloud-http1@kubernetescrd"
+  } : {}
+
   opencloud_annotations_https = {
     "kubernetes.io/ingress.class"                      = var.ingress_class_name
     "kubernetes.io/ingress.allow-http"                 = "true"
@@ -22,7 +26,7 @@ resource "kubernetes_ingress_v1" "opencloud_https" {
   metadata {
     name        = "opencloud"
     namespace   = kubernetes_namespace.opencloud.metadata[0].name
-    annotations = local.opencloud_annotations_https
+    annotations = merge(local.opencloud_annotations_https, local.opencloud_tls_options)
   }
 
   spec {
@@ -49,6 +53,25 @@ resource "kubernetes_ingress_v1" "opencloud_https" {
           }
         }
       }
+    }
+  }
+}
+
+resource "kubernetes_manifest" "opencloud_http1_tls_option" {
+  count = var.enable_tls && lower(var.ingress_class_name) == "traefik" ? 1 : 0
+
+  manifest = {
+    apiVersion = "traefik.io/v1alpha1"
+    kind       = "TLSOption"
+    metadata = {
+      name      = "opencloud-http1"
+      namespace = kubernetes_namespace.opencloud.metadata[0].name
+    }
+    spec = {
+      alpnProtocols = [
+        "http/1.1",
+        "acme-tls/1",
+      ]
     }
   }
 }

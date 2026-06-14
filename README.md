@@ -32,7 +32,6 @@ Stack Kubernetes complète, gérée en Infrastructure-as-Code avec OpenTofu + He
 
 ### Stack Overview
 - Ingress: Traefik en prod, nginx en dev (minikube)
-- WAF global: ModSecurity + OWASP CRS via Traefik (prod)
 - TLS: cert-manager (prod)
 - DNS: external-dns (prod)
 - Backups: Velero (prod: DO Spaces, dev: MinIO)
@@ -81,14 +80,6 @@ Principaux toggles:
 - `app_env`: `prod` / `dev`
 - `enable_tls`: active TLS + redirect HTTPS
 - `enable_velero`: backups Velero
-- `enable_waf`: WAF global Traefik
-
-WAF (prod):
-- `waf_plugin_module`
-- `waf_plugin_version`
-- `waf_modsecurity_image`
-- `waf_max_body_size`
-- `waf_timeout_ms`
 
 Docs utiles:
 - Contexte infra: [CONTEXT_INFRA.md](CONTEXT_INFRA.md)
@@ -113,7 +104,6 @@ Docs utiles:
 - Dashboards: [grafana/dashboards/](grafana/dashboards/)
 
 ### Platform Security
-- WAF global via Traefik (ModSecurity + OWASP CRS)
 - TLS via cert-manager en prod
 - Secrets chiffrés (SOPS/age)
 

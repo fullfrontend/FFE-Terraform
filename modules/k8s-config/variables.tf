@@ -83,48 +83,6 @@ variable "enable_monitoring" {
   description = "Activer le ServiceMonitor Traefik (kube-prometheus-stack)"
 }
 
-variable "enable_waf" {
-  type        = bool
-  default     = true
-  description = "Activer le WAF (ModSecurity + OWASP CRS) via Traefik"
-}
-
-variable "waf_plugin_module" {
-  type        = string
-  default     = "github.com/acouvreur/traefik-modsecurity-plugin"
-  description = "Module Traefik plugin pour le WAF"
-}
-
-variable "waf_plugin_version" {
-  type        = string
-  default     = "v1.3.0"
-  description = "Version du plugin WAF Traefik"
-}
-
-variable "waf_modsecurity_image" {
-  type        = string
-  default     = "owasp/modsecurity-crs:apache"
-  description = "Image ModSecurity CRS (Apache)"
-}
-
-variable "waf_dummy_image" {
-  type        = string
-  default     = "nginx:alpine"
-  description = "Image du backend dummy (WAF upstream)"
-}
-
-variable "waf_max_body_size" {
-  type        = number
-  default     = 5368709120
-  description = "Max body size pour le WAF (bytes)"
-}
-
-variable "waf_timeout_ms" {
-  type        = number
-  default     = 3600000
-  description = "Timeout WAF (ms)"
-}
-
 variable "acme_email" {
   type        = string
   default     = ""
