@@ -40,8 +40,12 @@ resource "helm_release" "kube_prometheus_stack" {
       value = "15d"
     },
     {
+      name  = "prometheus.prometheusSpec.retentionSize"
+      value = "16GB"
+    },
+    {
       name  = "prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage"
-      value = "5Gi"
+      value = "20Gi"
     },
     {
       name  = "prometheus.prometheusSpec.resources.requests.cpu"
