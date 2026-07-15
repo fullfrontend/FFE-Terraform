@@ -1,5 +1,5 @@
 locals {
-  hosts = [var.source_domain, "www.${var.source_domain}"]
+  hosts = var.include_www ? [var.source_domain, "www.${var.source_domain}"] : [var.source_domain]
 
   https_annotations = {
     "kubernetes.io/ingress.class"                      = var.ingress_class_name

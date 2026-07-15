@@ -44,8 +44,10 @@ Stack Kubernetes complète, gérée en Infrastructure-as-Code avec OpenTofu + He
 ### Domains
 - Prod: `root_domain_prod` (défaut `fullfrontend.be`)
 - Dev: `root_domain_dev` (défaut `fullfrontend.kube`)
-- FQDN dérivés uniquement de `root_domain`:
+- FQDN principaux dérivés de `root_domain`, avec les exceptions de staging indiquées :
   - WordPress: `<root_domain>`
+  - WordPress Granges du Tilleul (staging): `grangesdutilleul.staging.fullfrontend.be`
+  - Redirect staging: `staging.fullfrontend.be` → `https://fullfrontend.be`
   - n8n: `n8n.<root_domain>` + `webhook.<root_domain>`
   - Analytics: `insights.<root_domain>`
   - Sentry: `sentry.<root_domain>`
@@ -90,6 +92,9 @@ Docs utiles:
 
 ### Apps
 - WordPress (MariaDB + PVC)
+- WordPress Granges du Tilleul en staging (PHP-FPM 8.3 + Caddy, `APP_ENV=dev`, MariaDB et sauvegarde dédiées)
+
+Convention : tout hostname sous `*.staging.fullfrontend.be` est un environnement applicatif DEV et doit recevoir `APP_ENV=dev`. Ces workloads peuvent être hébergés sur le cluster public DOKS pour bénéficier du DNS et de TLS sans devenir des environnements applicatifs de production.
 - n8n (Postgres + Redis optionnel)
 - Twenty CRM (optionnel)
 - Analytics (Vince)

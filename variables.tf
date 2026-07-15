@@ -358,6 +358,37 @@ variable "wp_lang" {
   description = "Langue WordPress (constante WPLANG)"
 }
 
+# WordPress de staging pour Granges du Tilleul
+variable "enable_grangesdutilleul_stage" {
+  type        = bool
+  default     = true
+  description = "Déployer le staging public Granges du Tilleul sur DOKS; le workload reçoit APP_ENV=dev"
+}
+
+variable "grangesdutilleul_stage_host" {
+  type        = string
+  default     = "grangesdutilleul.staging.fullfrontend.be"
+  description = "FQDN du WordPress de staging Granges du Tilleul"
+}
+
+variable "grangesdutilleul_stage_storage_size" {
+  type        = string
+  default     = "2Gi"
+  description = "Taille du PVC uploads du WordPress de staging Granges du Tilleul"
+}
+
+variable "grangesdutilleul_stage_image" {
+  type        = string
+  default     = "fullfrontend/grangesdutilleul:stage"
+  description = "Image PHP-FPM du staging, construite avec Dockerfile.stage dans le projet client"
+}
+
+variable "grangesdutilleul_stage_caddy_image" {
+  type        = string
+  default     = "caddy:2.9-alpine"
+  description = "Image Caddy du staging Granges du Tilleul"
+}
+
 variable "n8n_smtp_sender" {
   type        = string
   default     = ""
