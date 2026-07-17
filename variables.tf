@@ -374,19 +374,7 @@ variable "grangesdutilleul_stage_host" {
 variable "grangesdutilleul_stage_storage_size" {
   type        = string
   default     = "2Gi"
-  description = "Taille du PVC uploads du WordPress de staging Granges du Tilleul"
-}
-
-variable "grangesdutilleul_stage_image" {
-  type        = string
-  default     = "fullfrontend/grangesdutilleul:stage"
-  description = "Image PHP-FPM du staging, construite avec Dockerfile.stage dans le projet client"
-}
-
-variable "grangesdutilleul_stage_caddy_image" {
-  type        = string
-  default     = "caddy:2.9-alpine"
-  description = "Image Caddy du staging Granges du Tilleul"
+  description = "Taille du PVC WordPress de staging Granges du Tilleul"
 }
 
 variable "n8n_smtp_sender" {

@@ -150,6 +150,13 @@ resource "kubernetes_deployment" "wordpress" {
             name  = "WORDPRESS_CONFIG_EXTRA"
             value = local.wordpress_config_extra
           }
+          dynamic "env" {
+            for_each = var.app_env != "" ? [var.app_env] : []
+            content {
+              name  = "APP_ENV"
+              value = env.value
+            }
+          }
 
           volume_mount {
             name       = "wordpress-content"

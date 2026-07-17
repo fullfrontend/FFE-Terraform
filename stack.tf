@@ -279,6 +279,7 @@ module "wordpress" {
   wp_security_txt_sig           = var.wp_security_txt_sig
   wp_security_txt_signature_url = var.wp_security_txt_signature_url
   ingress_class_name            = local.ingress_class_name
+  enable_tls                    = var.enable_tls
   dockerhub_user                = var.dockerhub_user
   dockerhub_pat                 = var.dockerhub_pat
   dockerhub_email               = var.dockerhub_email
@@ -304,29 +305,50 @@ module "wordpress" {
 */
 module "grangesdutilleul_stage" {
   count      = local.enable_grangesdutilleul_stage ? 1 : 0
-  source     = "./modules/grangesdutilleul-stage"
+  source     = "./modules/ffe-website"
   depends_on = [module.k8s-config, module.cert_manager_issuer]
 
-  namespace              = "grangesdutilleul-stage"
-  host                   = var.grangesdutilleul_stage_host
-  tls_secret_name        = "grangesdutilleul-stage-tls"
-  ingress_class_name     = local.ingress_class_name
-  enable_tls             = var.enable_tls
-  app_image              = var.grangesdutilleul_stage_image
-  caddy_image            = var.grangesdutilleul_stage_caddy_image
-  mariadb_image          = var.mariadb_image
-  db_host                = module.k8s-config.mariadb_service_fqdn
-  db_port                = var.wp_db_port
-  db_name                = local.mariadb_app_map["grangesdutilleul-stage"].db_name
-  db_user                = local.mariadb_app_map["grangesdutilleul-stage"].user
-  db_password            = local.mariadb_app_map["grangesdutilleul-stage"].password
-  wordpress_table_prefix = "wp_"
-  uploads_storage_size   = var.grangesdutilleul_stage_storage_size
-  dockerhub_user         = var.dockerhub_user
-  dockerhub_pat          = var.dockerhub_pat
-  dockerhub_email        = var.dockerhub_email
-  velero_namespace       = module.k8s-config.velero_namespace
-  enable_velero          = var.enable_velero
+  namespace                     = "grangesdutilleul-stage"
+  app_env                       = "dev"
+  host                          = var.grangesdutilleul_stage_host
+  tls_secret_name               = "grangesdutilleul-stage-tls"
+  db_host                       = module.k8s-config.mariadb_service_fqdn
+  db_port                       = var.wp_db_port
+  db_name                       = local.mariadb_app_map["grangesdutilleul-stage"].db_name
+  db_user                       = local.mariadb_app_map["grangesdutilleul-stage"].user
+  db_password                   = local.mariadb_app_map["grangesdutilleul-stage"].password
+  replicas                      = var.wp_replicas
+  storage_size                  = var.grangesdutilleul_stage_storage_size
+  image                         = var.wp_image
+  wp_cache                      = var.wp_cache
+  wpms_on                       = var.wpms_on
+  wp_hsts_max_age               = var.wp_hsts_max_age
+  wp_hsts_preload               = var.wp_hsts_preload
+  wp_security_txt               = var.wp_security_txt
+  wp_humans_txt                 = var.wp_humans_txt
+  wp_security_contact_email     = var.wp_security_contact_email
+  wp_security_txt_sig           = var.wp_security_txt_sig
+  wp_security_txt_signature_url = var.wp_security_txt_signature_url
+  ingress_class_name            = local.ingress_class_name
+  enable_tls                    = var.enable_tls
+  dockerhub_user                = var.dockerhub_user
+  dockerhub_pat                 = var.dockerhub_pat
+  dockerhub_email               = var.dockerhub_email
+  velero_namespace              = module.k8s-config.velero_namespace
+  enable_velero                 = var.enable_velero
+  backup_schedule_name          = "grangesdutilleul-stage-daily"
+  as3_provider                  = var.wp_as3_provider
+  as3_access_key                = var.wp_as3_access_key
+  as3_secret_key                = var.wp_as3_secret_key
+  mail_from                     = var.wp_mail_from
+  mail_from_name                = var.wp_mail_from_name
+  smtp_host                     = var.wp_smtp_host
+  smtp_port                     = var.wp_smtp_port
+  smtp_ssl                      = var.wp_smtp_ssl
+  smtp_auth                     = var.wp_smtp_auth
+  smtp_user                     = var.wp_smtp_user
+  smtp_pass                     = var.wp_smtp_pass
+  wp_lang                       = var.wp_lang
 }
 
 /*

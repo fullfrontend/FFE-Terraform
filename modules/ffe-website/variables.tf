@@ -9,6 +9,17 @@ variable "host" {
   description = "FQDN ingress pour WordPress"
 }
 
+variable "app_env" {
+  type        = string
+  default     = ""
+  description = "Valeur APP_ENV injectée dans WordPress (vide = variable absente)"
+
+  validation {
+    condition     = contains(["", "prod", "dev"], var.app_env)
+    error_message = "app_env doit être vide, 'prod' ou 'dev'."
+  }
+}
+
 variable "tls_secret_name" {
   type        = string
   description = "Secret TLS pour l’ingress WordPress"
@@ -226,4 +237,10 @@ variable "enable_velero" {
   type        = bool
   default     = true
   description = "Activer la création du Schedule Velero (désactiver si Velero n'est pas déployé)"
+}
+
+variable "backup_schedule_name" {
+  type        = string
+  default     = "wordpress-daily"
+  description = "Nom unique du Schedule Velero dans son namespace"
 }

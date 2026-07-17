@@ -9,7 +9,7 @@ resource "kubernetes_manifest" "wordpress_backup" {
     apiVersion = "velero.io/v1"
     kind       = "Schedule"
     metadata = {
-      name      = "wordpress-daily"
+      name      = var.backup_schedule_name
       namespace = var.velero_namespace
       labels = {
         "app.kubernetes.io/name"       = "velero"

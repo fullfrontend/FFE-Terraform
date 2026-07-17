@@ -92,7 +92,7 @@ Docs utiles:
 
 ### Apps
 - WordPress (MariaDB + PVC)
-- WordPress Granges du Tilleul en staging (PHP-FPM 8.3 + Caddy, `APP_ENV=dev`, MariaDB et sauvegarde dédiées)
+- WordPress Granges du Tilleul en staging (même module et même configuration que `fullfrontend.be`, avec `APP_ENV=dev`, MariaDB et sauvegarde dédiées)
 
 Convention : tout hostname sous `*.staging.fullfrontend.be` est un environnement applicatif DEV et doit recevoir `APP_ENV=dev`. Ces workloads peuvent être hébergés sur le cluster public DOKS pour bénéficier du DNS et de TLS sans devenir des environnements applicatifs de production.
 - n8n (Postgres + Redis optionnel)
