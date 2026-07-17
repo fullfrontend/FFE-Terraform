@@ -225,8 +225,8 @@ variable "wp_storage_size" {
 
 variable "wp_image" {
   type        = string
-  default     = "wordpress:6.9.4-php8.2-apache"
-  description = "Image WordPress (officielle, non Bitnami)"
+  default     = "wordpress:latest"
+  description = "Dernière image WordPress officielle avec Apache"
 }
 
 variable "wp_cache" {
@@ -375,6 +375,61 @@ variable "grangesdutilleul_stage_storage_size" {
   type        = string
   default     = "2Gi"
   description = "Taille du PVC WordPress de staging Granges du Tilleul"
+}
+
+variable "grangesdutilleul_stage_wpms_on" {
+  type        = bool
+  default     = false
+  description = "Activer le SMTP dédié du staging Granges du Tilleul"
+}
+
+variable "grangesdutilleul_stage_mail_from" {
+  type        = string
+  default     = ""
+  description = "Adresse expéditeur dédiée au staging Granges du Tilleul"
+}
+
+variable "grangesdutilleul_stage_mail_from_name" {
+  type        = string
+  default     = ""
+  description = "Nom expéditeur dédié au staging Granges du Tilleul"
+}
+
+variable "grangesdutilleul_stage_smtp_host" {
+  type        = string
+  default     = ""
+  description = "Hôte SMTP dédié au staging Granges du Tilleul"
+}
+
+variable "grangesdutilleul_stage_smtp_port" {
+  type        = string
+  default     = "465"
+  description = "Port SMTP dédié au staging Granges du Tilleul"
+}
+
+variable "grangesdutilleul_stage_smtp_ssl" {
+  type        = string
+  default     = "ssl"
+  description = "Mode SSL/TLS SMTP du staging Granges du Tilleul"
+}
+
+variable "grangesdutilleul_stage_smtp_auth" {
+  type        = bool
+  default     = true
+  description = "Activer l'authentification SMTP du staging Granges du Tilleul"
+}
+
+variable "grangesdutilleul_stage_smtp_user" {
+  type        = string
+  default     = ""
+  description = "Utilisateur SMTP dédié au staging Granges du Tilleul"
+}
+
+variable "grangesdutilleul_stage_smtp_pass" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Mot de passe SMTP dédié au staging Granges du Tilleul"
 }
 
 variable "n8n_smtp_sender" {

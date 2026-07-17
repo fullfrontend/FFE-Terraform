@@ -320,8 +320,8 @@ module "grangesdutilleul_stage" {
   replicas                      = var.wp_replicas
   storage_size                  = var.grangesdutilleul_stage_storage_size
   image                         = var.wp_image
-  wp_cache                      = var.wp_cache
-  wpms_on                       = var.wpms_on
+  wp_cache                      = false
+  wpms_on                       = var.grangesdutilleul_stage_wpms_on
   wp_hsts_max_age               = var.wp_hsts_max_age
   wp_hsts_preload               = var.wp_hsts_preload
   wp_security_txt               = var.wp_security_txt
@@ -337,17 +337,15 @@ module "grangesdutilleul_stage" {
   velero_namespace              = module.k8s-config.velero_namespace
   enable_velero                 = var.enable_velero
   backup_schedule_name          = "grangesdutilleul-stage-daily"
-  as3_provider                  = var.wp_as3_provider
-  as3_access_key                = var.wp_as3_access_key
-  as3_secret_key                = var.wp_as3_secret_key
-  mail_from                     = var.wp_mail_from
-  mail_from_name                = var.wp_mail_from_name
-  smtp_host                     = var.wp_smtp_host
-  smtp_port                     = var.wp_smtp_port
-  smtp_ssl                      = var.wp_smtp_ssl
-  smtp_auth                     = var.wp_smtp_auth
-  smtp_user                     = var.wp_smtp_user
-  smtp_pass                     = var.wp_smtp_pass
+  enable_as3                    = false
+  mail_from                     = var.grangesdutilleul_stage_mail_from
+  mail_from_name                = var.grangesdutilleul_stage_mail_from_name
+  smtp_host                     = var.grangesdutilleul_stage_smtp_host
+  smtp_port                     = var.grangesdutilleul_stage_smtp_port
+  smtp_ssl                      = var.grangesdutilleul_stage_smtp_ssl
+  smtp_auth                     = var.grangesdutilleul_stage_smtp_auth
+  smtp_user                     = var.grangesdutilleul_stage_smtp_user
+  smtp_pass                     = var.grangesdutilleul_stage_smtp_pass
   wp_lang                       = var.wp_lang
 }
 

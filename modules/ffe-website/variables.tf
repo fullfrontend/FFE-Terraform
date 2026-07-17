@@ -85,6 +85,12 @@ variable "as3_provider" {
   description = "Provider pour AS3CF (ex: do)"
 }
 
+variable "enable_as3" {
+  type        = bool
+  default     = true
+  description = "Injecter la configuration S3/AS3CF dans WordPress"
+}
+
 variable "as3_access_key" {
   type        = string
   default     = ""

@@ -1,16 +1,24 @@
 /*
     Extra config injected into wp-config.php via WORDPRESS_CONFIG_EXTRA
-    (AS3CF + WP Mail SMTP + langue).
+    (AS3CF optionnel + cache optionnel + WP Mail SMTP + langue).
 */
 locals {
-  wordpress_config_extra = <<-EOT
-    define('AS3CF_SETTINGS', serialize([
-        'provider'          => '${var.as3_provider}',
-        'access-key-id'     => '${var.as3_access_key}',
-        'secret-access-key' => '${var.as3_secret_key}',
-    ]));
+  as3_config = var.enable_as3 ? join("\n", [
+    "define('AS3CF_SETTINGS', serialize([",
+    "    'provider'          => '${var.as3_provider}',",
+    "    'access-key-id'     => '${var.as3_access_key}',",
+    "    'secret-access-key' => '${var.as3_secret_key}',",
+    "]));",
+  ]) : ""
 
-    define('WP_CACHE', ${var.wp_cache});
+  cache_config = var.wp_cache ? join("\n", [
+    "define('WP_CACHE', true);",
+    "define('WPCACHEHOME', '/var/www/html/wp-content/plugins/wp-super-cache/');",
+  ]) : "define('WP_CACHE', false);"
+
+  wordpress_config_extra = <<-EOT
+    ${local.as3_config}
+    ${local.cache_config}
 
     define('WPMS_ON', ${var.wpms_on});
     define('WPMS_MAIL_FROM', '${var.mail_from}');
@@ -32,8 +40,6 @@ locals {
         include_once('/var/www/html/aios-bootstrap.php');
     }
     // End AIOWPSEC Firewall
-
-    define('WPCACHEHOME', '/var/www/html/wp-content/plugins/wp-super-cache/');
 
     define('WPLANG', '${var.wp_lang}');
   EOT
