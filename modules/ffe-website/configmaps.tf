@@ -132,18 +132,6 @@ resource "kubernetes_config_map" "wordpress_htaccess" {
       <Files wp-config.php>
         Require all denied
       </Files>
-
-      # Begin AIOWPSEC Firewall
-      <IfModule mod_php5.c>
-        php_value auto_prepend_file '/var/www/html/aios-bootstrap.php'
-      </IfModule>
-      <IfModule mod_php7.c>
-        php_value auto_prepend_file '/var/www/html/aios-bootstrap.php'
-      </IfModule>
-      <IfModule mod_php.c>
-        php_value auto_prepend_file '/var/www/html/aios-bootstrap.php'
-      </IfModule>
-      # End AIOWPSEC Firewall
     EOT
   }
 }

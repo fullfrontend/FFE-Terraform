@@ -108,11 +108,20 @@ resource "kubernetes_deployment" "wordpress" {
           name    = "wordpress"
           image   = var.image
           command = ["bash", "-c"]
-          args    = ["a2enmod headers >/dev/null 2>&1 || true; apache2-foreground"]
+          args    = ["a2enmod headers >/dev/null 2>&1 || true; exec /usr/local/bin/docker-entrypoint.sh apache2-foreground"]
 
           port {
             name           = "http"
             container_port = 80
+          }
+
+          readiness_probe {
+            exec {
+              command = ["sh", "-c", "test -f /var/www/html/index.php"]
+            }
+
+            initial_delay_seconds = 5
+            period_seconds        = 10
           }
 
           resources {
