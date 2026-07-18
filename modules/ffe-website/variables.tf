@@ -74,6 +74,24 @@ variable "storage_size" {
   description = "Taille du PVC pour WordPress"
 }
 
+variable "private_guides_storage_size" {
+  type        = string
+  default     = ""
+  description = "Taille du PVC monté dans /var/www/ffe-private-guides (vide = désactivé)"
+}
+
+variable "php_upload_max_filesize" {
+  type        = string
+  default     = "100M"
+  description = "Limite PHP upload_max_filesize"
+}
+
+variable "php_post_max_size" {
+  type        = string
+  default     = "100M"
+  description = "Limite PHP post_max_size"
+}
+
 variable "image" {
   type        = string
   description = "Image WordPress (officielle, non Bitnami)"

@@ -31,7 +31,7 @@ locals {
     define('WPMS_SSL', '${var.smtp_ssl}');
     define('WPMS_SMTP_AUTH', ${var.smtp_auth});
     define('WPMS_SMTP_USER', '${var.smtp_user}');
-    define('WPMS_SMTP_PASS', '${var.smtp_pass}');
+    define('WPMS_SMTP_PASS', getenv('WPMS_SMTP_PASS'));
     define('WPMS_SMTP_AUTOTLS', false);
     define('WPMS_MAILER', 'smtp');
 
@@ -86,6 +86,20 @@ resource "kubernetes_deployment" "wordpress" {
       }
 
       spec {
+        dynamic "init_container" {
+          for_each = var.private_guides_storage_size != "" ? [1] : []
+          content {
+            name    = "private-guides-permissions"
+            image   = "busybox:1.37"
+            command = ["sh", "-c", "chown 33:33 /private-guides && chmod 0770 /private-guides"]
+
+            volume_mount {
+              name       = "private-guides"
+              mount_path = "/private-guides"
+            }
+          }
+        }
+
         container {
           name    = "wordpress"
           image   = var.image
@@ -156,6 +170,60 @@ resource "kubernetes_deployment" "wordpress" {
             name  = "WORDPRESS_CONFIG_EXTRA"
             value = local.wordpress_config_extra
           }
+          env {
+            name = "WPMS_SMTP_PASS"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.smtp.metadata[0].name
+                key  = "smtp_password"
+              }
+            }
+          }
+          dynamic "env" {
+            for_each = var.private_guides_storage_size != "" ? [1] : []
+            content {
+              name  = "FFE_GUIDE_PRIVATE_DIR"
+              value = "/var/www/ffe-private-guides"
+            }
+          }
+          dynamic "env" {
+            for_each = var.private_guides_storage_size != "" ? [1] : []
+            content {
+              name  = "FFE_GUIDE_ENCRYPTION_KEY_ID"
+              value = "v1"
+            }
+          }
+          dynamic "env" {
+            for_each = var.private_guides_storage_size != "" ? [1] : []
+            content {
+              name  = "FFE_GUIDE_DISABLE_TRAFFIC_CRON"
+              value = "true"
+            }
+          }
+          dynamic "env" {
+            for_each = var.private_guides_storage_size != "" ? [1] : []
+            content {
+              name = "FFE_GUIDE_CONTEXT_KEY"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.guide_delivery[0].metadata[0].name
+                  key  = "context_key"
+                }
+              }
+            }
+          }
+          dynamic "env" {
+            for_each = var.private_guides_storage_size != "" ? [1] : []
+            content {
+              name = "FFE_GUIDE_ENCRYPTION_KEY"
+              value_from {
+                secret_key_ref {
+                  name = kubernetes_secret.guide_delivery[0].metadata[0].name
+                  key  = "encryption_key"
+                }
+              }
+            }
+          }
           dynamic "env" {
             for_each = var.app_env != "" ? [var.app_env] : []
             content {
@@ -167,6 +235,14 @@ resource "kubernetes_deployment" "wordpress" {
           volume_mount {
             name       = "wordpress-content"
             mount_path = "/var/www/html"
+          }
+
+          dynamic "volume_mount" {
+            for_each = var.private_guides_storage_size != "" ? [1] : []
+            content {
+              name       = "private-guides"
+              mount_path = "/var/www/ffe-private-guides"
+            }
           }
 
           volume_mount {
@@ -231,6 +307,17 @@ resource "kubernetes_deployment" "wordpress" {
 
           persistent_volume_claim {
             claim_name = kubernetes_persistent_volume_claim.wp_content.metadata[0].name
+          }
+        }
+
+        dynamic "volume" {
+          for_each = var.private_guides_storage_size != "" ? [1] : []
+          content {
+            name = "private-guides"
+
+            persistent_volume_claim {
+              claim_name = kubernetes_persistent_volume_claim.private_guides[0].metadata[0].name
+            }
           }
         }
 

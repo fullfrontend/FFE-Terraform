@@ -37,8 +37,8 @@ resource "kubernetes_config_map" "php_uploads" {
 
   data = {
     "uploads.ini" = <<-EOT
-      upload_max_filesize = 100M
-      post_max_size = 100M
+      upload_max_filesize = ${var.php_upload_max_filesize}
+      post_max_size = ${var.php_post_max_size}
     EOT
   }
 }

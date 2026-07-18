@@ -223,10 +223,28 @@ variable "wp_storage_size" {
   description = "Taille du PVC WordPress"
 }
 
+variable "wp_private_guides_storage_size" {
+  type        = string
+  default     = "1Gi"
+  description = "Taille du PVC FFE monté dans /var/www/ffe-private-guides"
+}
+
+variable "wp_php_upload_max_filesize" {
+  type        = string
+  default     = "2G"
+  description = "Limite PHP upload_max_filesize du WordPress FFE"
+}
+
+variable "wp_php_post_max_size" {
+  type        = string
+  default     = "2G"
+  description = "Limite PHP post_max_size du WordPress FFE"
+}
+
 variable "wp_image" {
   type        = string
-  default     = "wordpress:latest"
-  description = "Dernière image WordPress officielle avec Apache"
+  default     = "wordpress@sha256:d40b86dbdfcfad808a2029acf6543c670c4a61c29f70b9d24605e7d0b31ab83d"
+  description = "Image WordPress officielle avec Apache, figée par digest"
 }
 
 variable "wp_cache" {

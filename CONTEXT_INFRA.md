@@ -43,7 +43,7 @@ Ne jamais monter Spaces comme volume POSIX principal.
 - FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; OpenCloud `cloud.<root_domain>` ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; FRP `frp.<root_domain>` ; dashboard `tunnels.<root_domain>` ; tunnel HTTP `social.<root_domain>` ; Registry `registry.<root_domain>`.
 - Redirect dédié : `staging.fullfrontend.be` redirige en 301 vers `https://fullfrontend.be` en conservant le chemin et la query string.
 - Règles app :  
-  - WordPress : MariaDB + PVC wp-content, plugin S3 optionnel, ingress cert-manager en prod. Le staging Granges du Tilleul réutilise le module de `fullfrontend.be` avec `APP_ENV=dev`, sans S3 ni cache et avec un SMTP dédié optionnel; il est isolé dans son propre namespace, avec base/utilisateur MariaDB, PVC, certificat et sauvegarde Velero dédiés.
+  - WordPress : MariaDB + PVC wp-content, plugin S3 optionnel, ingress cert-manager en prod. Le WordPress FFE dispose aussi d’un PVC privé de 1 GiB monté dans `/var/www/ffe-private-guides`, avec `upload_max_filesize` et `post_max_size` réglés à 2 GiB. Le staging Granges du Tilleul réutilise le module de `fullfrontend.be` avec `APP_ENV=dev`, sans S3 ni cache et avec un SMTP dédié optionnel; il est isolé dans son propre namespace, avec base/utilisateur MariaDB, PVC, certificat et sauvegarde Velero dédiés.
   - n8n : Postgres partagé, S3 optionnel, ingress.  
   - CRM (à choisir) : Postgres par défaut, S3 si fichiers.  
   - OpenCloud : OpenCloud en conteneur unique avec LDAP embarqué et PVC config/data.  
