@@ -89,9 +89,13 @@ resource "kubernetes_deployment" "wordpress" {
         dynamic "init_container" {
           for_each = var.private_guides_storage_size != "" ? [1] : []
           content {
-            name    = "private-guides-permissions"
-            image   = "busybox:1.37"
-            command = ["sh", "-c", "chown 33:33 /private-guides && chmod 0770 /private-guides"]
+            name  = "private-guides-permissions"
+            image = "busybox:1.37"
+            command = [
+              "sh",
+              "-c",
+              "chown -R 33:33 /private-guides && find /private-guides -type d -exec chmod 0770 {} + && find /private-guides -type f -exec chmod 0640 {} +",
+            ]
 
             volume_mount {
               name       = "private-guides"
