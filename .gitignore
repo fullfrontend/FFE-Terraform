@@ -44,3 +44,4 @@ data
 /mariadb-data.tar.gz
 /postgres-data.tar.gz
 /wp-content.tar.gz
+/backups/
