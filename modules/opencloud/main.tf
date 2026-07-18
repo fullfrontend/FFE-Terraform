@@ -108,10 +108,11 @@ resource "kubernetes_deployment" "opencloud" {
         }
 
         container {
-          name    = "opencloud"
-          image   = var.image
-          command = ["/bin/sh", "-c"]
-          args    = ["opencloud init || true; opencloud server"]
+          name              = "opencloud"
+          image             = var.image
+          image_pull_policy = "Always"
+          command           = ["/bin/sh", "-c"]
+          args              = ["opencloud init || true; opencloud server"]
 
           security_context {
             run_as_user  = 1000
