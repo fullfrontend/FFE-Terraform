@@ -2,34 +2,49 @@ resource "random_id" "cluster_name" {
   byte_length = 5
 }
 
+resource "random_password" "grangesdutilleul_stage_db" {
+  count = local.enable_grangesdutilleul_stage ? 1 : 0
+
+  length  = 32
+  special = false
+}
+
 /*
     Global toggles:
     - prod = DOKS with managed infra
     - dev  = local kube (ex: docker-desktop)
 */
 locals {
-  is_prod            = var.app_env == "prod"
-  cluster_name       = local.is_prod ? "${var.doks_name}-${random_id.cluster_name.hex}" : "docker-desktop"
-  root_domain        = local.is_prod ? var.root_domain_prod : var.root_domain_dev
-  kubeconfig_path    = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
-  velero_s3_url      = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
-  storage_class_name = var.storage_class_name
-  analytics_domains  = length(var.analytics_domains) > 0 ? var.analytics_domains : [local.root_domain]
-  ingress_class_name = local.is_prod ? "traefik" : "nginx"
-  postgres_app_map   = { for app in var.postgres_app_credentials : app.name => app }
-  mariadb_app_map    = { for app in var.mariadb_app_credentials : app.name => app }
-  twenty_host        = var.twenty_host != "" ? var.twenty_host : format("crm.%s", local.root_domain)
-  sentry_host        = var.sentry_host != "" ? var.sentry_host : format("sentry.%s", local.root_domain)
-  frp_host           = var.frp_host != "" ? var.frp_host : format("frp.%s", local.root_domain)
-  frp_dashboard_host = var.frp_dashboard_host != "" ? var.frp_dashboard_host : format("tunnels.%s", local.root_domain)
-  frp_http_hosts     = distinct(concat([format("social.%s", local.root_domain)], var.frp_additional_http_hosts))
-  sentry_admin_email = var.sentry_admin_email != "" ? var.sentry_admin_email : format("ops@%s", local.root_domain)
-  twenty_db_creds    = lookup(local.postgres_app_map, "twenty", null)
-  smtp_port          = tonumber(var.wp_smtp_port)
-  smtp_mode          = lower(var.wp_smtp_ssl)
-  smtp_is_ssl        = local.smtp_mode == "ssl"
-  smtp_is_starttls   = local.smtp_mode == "tls"
-  smtp_oc_encryption = local.smtp_is_ssl ? "ssltls" : local.smtp_is_starttls ? "starttls" : "none"
+  is_prod                       = var.app_env == "prod"
+  enable_grangesdutilleul_stage = local.is_prod && var.enable_grangesdutilleul_stage
+  cluster_name                  = local.is_prod ? "${var.doks_name}-${random_id.cluster_name.hex}" : "docker-desktop"
+  root_domain                   = local.is_prod ? var.root_domain_prod : var.root_domain_dev
+  kubeconfig_path               = local.is_prod ? "${path.root}/.kube/config" : "~/.kube/config"
+  velero_s3_url                 = var.velero_s3_url != "" ? var.velero_s3_url : format("https://%s.digitaloceanspaces.com", var.doks_region)
+  storage_class_name            = var.storage_class_name
+  analytics_domains             = length(var.analytics_domains) > 0 ? var.analytics_domains : [local.root_domain]
+  ingress_class_name            = local.is_prod ? "traefik" : "nginx"
+  postgres_app_map              = { for app in var.postgres_app_credentials : app.name => app }
+  grangesdutilleul_stage_db_credentials = local.enable_grangesdutilleul_stage ? [{
+    name     = "grangesdutilleul-stage"
+    db_name  = "grangesdutilleul_stage"
+    user     = "grangesdutilleul_stage"
+    password = random_password.grangesdutilleul_stage_db[0].result
+  }] : []
+  mariadb_app_credentials = concat(var.mariadb_app_credentials, local.grangesdutilleul_stage_db_credentials)
+  mariadb_app_map         = { for app in local.mariadb_app_credentials : app.name => app }
+  twenty_host             = var.twenty_host != "" ? var.twenty_host : format("crm.%s", local.root_domain)
+  sentry_host             = var.sentry_host != "" ? var.sentry_host : format("sentry.%s", local.root_domain)
+  frp_host                = var.frp_host != "" ? var.frp_host : format("frp.%s", local.root_domain)
+  frp_dashboard_host      = var.frp_dashboard_host != "" ? var.frp_dashboard_host : format("tunnels.%s", local.root_domain)
+  frp_http_hosts          = distinct(concat([format("social.%s", local.root_domain)], var.frp_additional_http_hosts))
+  sentry_admin_email      = var.sentry_admin_email != "" ? var.sentry_admin_email : format("ops@%s", local.root_domain)
+  twenty_db_creds         = lookup(local.postgres_app_map, "twenty", null)
+  smtp_port               = tonumber(var.wp_smtp_port)
+  smtp_mode               = lower(var.wp_smtp_ssl)
+  smtp_is_ssl             = local.smtp_mode == "ssl"
+  smtp_is_starttls        = local.smtp_mode == "tls"
+  smtp_oc_encryption      = local.smtp_is_ssl ? "ssltls" : local.smtp_is_starttls ? "starttls" : "none"
 
   n8n_smtp_sender             = var.n8n_smtp_sender != "" ? var.n8n_smtp_sender : var.wp_mail_from
   n8n_smtp_user               = var.n8n_smtp_user != "" ? var.n8n_smtp_user : var.wp_smtp_user
@@ -90,20 +105,13 @@ module "k8s-config" {
   enable_tls           = var.enable_tls
   enable_monitoring    = var.enable_monitoring
 
-  enable_velero         = var.enable_velero
-  enable_waf            = var.enable_waf
-  waf_plugin_module     = var.waf_plugin_module
-  waf_plugin_version    = var.waf_plugin_version
-  waf_modsecurity_image = var.waf_modsecurity_image
-  waf_dummy_image       = var.waf_dummy_image
-  waf_max_body_size     = var.waf_max_body_size
-  waf_timeout_ms        = var.waf_timeout_ms
-  velero_bucket         = var.velero_bucket
-  velero_s3_url         = local.velero_s3_url
-  velero_access_key     = var.velero_access_key
-  velero_secret_key     = var.velero_secret_key
-  minio_access_key      = var.minio_access_key
-  minio_secret_key      = var.minio_secret_key
+  enable_velero     = var.enable_velero
+  velero_bucket     = var.velero_bucket
+  velero_s3_url     = local.velero_s3_url
+  velero_access_key = var.velero_access_key
+  velero_secret_key = var.velero_secret_key
+  minio_access_key  = var.minio_access_key
+  minio_secret_key  = var.minio_secret_key
 
   storage_class_name = local.storage_class_name
 
@@ -115,7 +123,7 @@ module "k8s-config" {
   mariadb_image           = var.mariadb_image
   mariadb_storage_size    = var.mariadb_storage_size
   mariadb_root_password   = var.mariadb_root_password
-  mariadb_app_credentials = var.mariadb_app_credentials
+  mariadb_app_credentials = local.mariadb_app_credentials
 
   ovh_endpoint           = var.ovh_endpoint
   ovh_application_key    = var.ovh_application_key
@@ -271,6 +279,7 @@ module "wordpress" {
   wp_security_txt_sig           = var.wp_security_txt_sig
   wp_security_txt_signature_url = var.wp_security_txt_signature_url
   ingress_class_name            = local.ingress_class_name
+  enable_tls                    = var.enable_tls
   dockerhub_user                = var.dockerhub_user
   dockerhub_pat                 = var.dockerhub_pat
   dockerhub_email               = var.dockerhub_email
@@ -290,6 +299,73 @@ module "wordpress" {
   wp_lang                       = var.wp_lang
 }
 //*/
+
+/*
+    App: WordPress staging Granges du Tilleul
+*/
+module "grangesdutilleul_stage" {
+  count      = local.enable_grangesdutilleul_stage ? 1 : 0
+  source     = "./modules/ffe-website"
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
+
+  namespace                     = "grangesdutilleul-stage"
+  app_env                       = "dev"
+  host                          = var.grangesdutilleul_stage_host
+  tls_secret_name               = "grangesdutilleul-stage-tls"
+  db_host                       = module.k8s-config.mariadb_service_fqdn
+  db_port                       = var.wp_db_port
+  db_name                       = local.mariadb_app_map["grangesdutilleul-stage"].db_name
+  db_user                       = local.mariadb_app_map["grangesdutilleul-stage"].user
+  db_password                   = local.mariadb_app_map["grangesdutilleul-stage"].password
+  replicas                      = var.wp_replicas
+  storage_size                  = var.grangesdutilleul_stage_storage_size
+  image                         = var.wp_image
+  wp_cache                      = false
+  wpms_on                       = var.grangesdutilleul_stage_wpms_on
+  wp_hsts_max_age               = var.wp_hsts_max_age
+  wp_hsts_preload               = var.wp_hsts_preload
+  wp_security_txt               = var.wp_security_txt
+  wp_humans_txt                 = var.wp_humans_txt
+  wp_security_contact_email     = var.wp_security_contact_email
+  wp_security_txt_sig           = var.wp_security_txt_sig
+  wp_security_txt_signature_url = var.wp_security_txt_signature_url
+  ingress_class_name            = local.ingress_class_name
+  enable_tls                    = var.enable_tls
+  dockerhub_user                = var.dockerhub_user
+  dockerhub_pat                 = var.dockerhub_pat
+  dockerhub_email               = var.dockerhub_email
+  velero_namespace              = module.k8s-config.velero_namespace
+  enable_velero                 = var.enable_velero
+  backup_schedule_name          = "grangesdutilleul-stage-daily"
+  enable_as3                    = false
+  mail_from                     = var.grangesdutilleul_stage_mail_from
+  mail_from_name                = var.grangesdutilleul_stage_mail_from_name
+  smtp_host                     = var.grangesdutilleul_stage_smtp_host
+  smtp_port                     = var.grangesdutilleul_stage_smtp_port
+  smtp_ssl                      = var.grangesdutilleul_stage_smtp_ssl
+  smtp_auth                     = var.grangesdutilleul_stage_smtp_auth
+  smtp_user                     = var.grangesdutilleul_stage_smtp_user
+  smtp_pass                     = var.grangesdutilleul_stage_smtp_pass
+  wp_lang                       = var.wp_lang
+}
+
+/*
+    staging.fullfrontend.be -> fullfrontend.be
+*/
+module "stage_redirect" {
+  count      = local.enable_grangesdutilleul_stage ? 1 : 0
+  source     = "./modules/domain-redirect"
+  depends_on = [module.k8s-config, module.cert_manager_issuer]
+
+  namespace          = "infra"
+  name               = "staging-fullfrontend-redirect"
+  source_domain      = "staging.fullfrontend.be"
+  include_www        = false
+  target_url         = "https://fullfrontend.be"
+  ingress_class_name = local.ingress_class_name
+  enable_tls         = var.enable_tls
+  tls_secret_name    = "staging-fullfrontend-redirect-tls"
+}
 
 
 /*

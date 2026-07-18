@@ -13,7 +13,7 @@ Public : personnes qui veulent comprendre l’architecture et les règles de la 
   - `data` (Postgres, MariaDB)  
   - `metrics` (kube-prometheus-stack)  
   - `apps/<app>` (wordpress, n8n, crm, opencloud, analytics, registry)
-- Ingress : Traefik en prod, nginx via minikube en dev. WAF global (ModSecurity + OWASP CRS via Traefik, prod). Certificats : cert-manager (Let’s Encrypt) en prod. DNS : external-dns (DO).
+- Ingress : Traefik en prod, nginx via minikube en dev. Certificats : cert-manager (Let’s Encrypt) en prod. DNS : external-dns (DO).
 - Backups : Velero (prod → DO Spaces, dev → MinIO hostPath). Planification 03:00, rétention 30 jours.
 - Registry : Zot exposé via ingress `registry.<root_domain>`.
 - Interdit : images/charts Bitnami.
@@ -39,10 +39,11 @@ Ne jamais monter Spaces comme volume POSIX principal.
 - Init Jobs (TTL 120s) créent DB/utilisateur par app en `IF NOT EXISTS`. Si le Job disparaît ou qu’une app est ajoutée, un apply recrée uniquement les bases manquantes.
 
 ## Domaines et applications
-- Domaine par environnement (défauts : prod `fullfrontend.be`, dev `fullfrontend.kube`). Pas d’override app.
+- Domaine par environnement (défauts : prod `fullfrontend.be`, dev `fullfrontend.kube`). Convention absolue : tout hostname sous `*.staging.fullfrontend.be` est un environnement applicatif DEV et reçoit `APP_ENV=dev`, même si le workload est hébergé sur DOKS pour disposer du DNS et de TLS. Le staging Granges du Tilleul utilise `grangesdutilleul.staging.fullfrontend.be`.
 - FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; OpenCloud `cloud.<root_domain>` ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; FRP `frp.<root_domain>` ; dashboard `tunnels.<root_domain>` ; tunnel HTTP `social.<root_domain>` ; Registry `registry.<root_domain>`.
+- Redirect dédié : `staging.fullfrontend.be` redirige en 301 vers `https://fullfrontend.be` en conservant le chemin et la query string.
 - Règles app :  
-  - WordPress : MariaDB + PVC wp-content, plugin S3 optionnel, ingress cert-manager en prod.  
+  - WordPress : MariaDB + PVC wp-content, plugin S3 optionnel, ingress cert-manager en prod. Le staging Granges du Tilleul réutilise le module de `fullfrontend.be` avec `APP_ENV=dev`, sans S3 ni cache et avec un SMTP dédié optionnel; il est isolé dans son propre namespace, avec base/utilisateur MariaDB, PVC, certificat et sauvegarde Velero dédiés.
   - n8n : Postgres partagé, S3 optionnel, ingress.  
   - CRM (à choisir) : Postgres par défaut, S3 si fichiers.  
   - OpenCloud : OpenCloud en conteneur unique avec LDAP embarqué et PVC config/data.  

@@ -3,7 +3,7 @@ Objectif (IA)
 - Séparer bloc/objet, backups quotidiens, pas de services managés ni Bitnami.
 
 Plateforme  
-- Ingress : Traefik en prod, nginx via minikube en dev. WAF global (ModSecurity + OWASP CRS via Traefik, prod). Certificats : cert-manager (prod). DNS : external-dns (prod).  
+- Ingress : Traefik en prod, nginx via minikube en dev. Certificats : cert-manager (prod). DNS : external-dns (prod).
 - Stockage : PVC bloc (DO CSI) pour tout le stateful ; objet Spaces/MinIO pour médias et backups.  
 - Backups : Velero (03:00, rétention 30 jours). Apps peuvent ajouter leur `Schedule` Velero.  
 - Registry : Zot via ingress `registry.<root_domain>`.
@@ -22,10 +22,10 @@ Secrets (SOPS/age)
 Architecture  
 - Namespaces : infra (traefik, cert-manager, external-dns, velero), data (postgres, mariadb), metrics (kube-prometheus-stack), apps (wordpress, n8n, twenty, opencloud, analytics, registry).  
 - Stockage : PVC pour stateful, objet pour médias/backups ; OpenCloud utilise ici des PVC dédiés pour sa config et ses données.  
-- Domaines (`root_domain` uniquement, pas d’override) : prod défaut `fullfrontend.be`, dev défaut `fullfrontend.kube`. FQDN : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; OpenCloud `cloud.<root_domain>` ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; FRP `frp.<root_domain>` ; dashboard `tunnels.<root_domain>` ; tunnel HTTP `social.<root_domain>` ; Registry `registry.<root_domain>`.
+- Domaines : prod défaut `fullfrontend.be`, dev défaut `fullfrontend.kube`. FQDN principaux dérivés de `root_domain` : WordPress `<root_domain>` ; n8n `n8n.<root_domain>` + webhooks `webhook.<root_domain>` ; OpenCloud `cloud.<root_domain>` ; Analytics `insights.<root_domain>` ; Sentry `sentry.<root_domain>` ; FRP `frp.<root_domain>` ; dashboard `tunnels.<root_domain>` ; tunnel HTTP `social.<root_domain>` ; Registry `registry.<root_domain>`. La zone `*.staging.fullfrontend.be` est réservée aux environnements applicatifs DEV (`APP_ENV=dev`), même lorsqu'ils tournent sur DOKS pour disposer du DNS et de TLS. WordPress Granges du Tilleul utilise `grangesdutilleul.staging.fullfrontend.be`, avec `staging.fullfrontend.be` redirigé vers `https://fullfrontend.be`.
 
 Applications  
-- WordPress : MariaDB, PVC wp-content, S3 optionnel, ingress cert-manager (prod), FQDN `<root_domain>`.  
+- WordPress : MariaDB, PVC wp-content, S3 optionnel, ingress cert-manager (prod), FQDN `<root_domain>`. Le staging Granges du Tilleul réutilise le module WordPress de `fullfrontend.be` avec `APP_ENV=dev`, sans S3 ni cache et avec un SMTP dédié optionnel; son namespace, son PVC, son compte/base MariaDB, son certificat et son Schedule Velero sont isolés.
 - n8n : Postgres partagé, S3 optionnel, ingress, FQDN `n8n.<root_domain>` + webhooks.  
 - CRM (Twenty) : Postgres (DB dédiée), ingress `twenty.<root_domain>`, Redis interne, stockage local éphémère (S3 optionnel non câblé).  
 - OpenCloud : OpenCloud en conteneur unique avec PVC config/data et FQDN `cloud.<root_domain>`  

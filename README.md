@@ -32,7 +32,6 @@ Stack Kubernetes complète, gérée en Infrastructure-as-Code avec OpenTofu + He
 
 ### Stack Overview
 - Ingress: Traefik en prod, nginx en dev (minikube)
-- WAF global: ModSecurity + OWASP CRS via Traefik (prod)
 - TLS: cert-manager (prod)
 - DNS: external-dns (prod)
 - Backups: Velero (prod: DO Spaces, dev: MinIO)
@@ -45,8 +44,10 @@ Stack Kubernetes complète, gérée en Infrastructure-as-Code avec OpenTofu + He
 ### Domains
 - Prod: `root_domain_prod` (défaut `fullfrontend.be`)
 - Dev: `root_domain_dev` (défaut `fullfrontend.kube`)
-- FQDN dérivés uniquement de `root_domain`:
+- FQDN principaux dérivés de `root_domain`, avec les exceptions de staging indiquées :
   - WordPress: `<root_domain>`
+  - WordPress Granges du Tilleul (staging): `grangesdutilleul.staging.fullfrontend.be`
+  - Redirect staging: `staging.fullfrontend.be` → `https://fullfrontend.be`
   - n8n: `n8n.<root_domain>` + `webhook.<root_domain>`
   - Analytics: `insights.<root_domain>`
   - Sentry: `sentry.<root_domain>`
@@ -81,14 +82,6 @@ Principaux toggles:
 - `app_env`: `prod` / `dev`
 - `enable_tls`: active TLS + redirect HTTPS
 - `enable_velero`: backups Velero
-- `enable_waf`: WAF global Traefik
-
-WAF (prod):
-- `waf_plugin_module`
-- `waf_plugin_version`
-- `waf_modsecurity_image`
-- `waf_max_body_size`
-- `waf_timeout_ms`
 
 Docs utiles:
 - Contexte infra: [CONTEXT_INFRA.md](CONTEXT_INFRA.md)
@@ -99,6 +92,9 @@ Docs utiles:
 
 ### Apps
 - WordPress (MariaDB + PVC)
+- WordPress Granges du Tilleul en staging (même socle que `fullfrontend.be`, avec `APP_ENV=dev`, sans S3 ni cache, et SMTP dédié optionnel)
+
+Convention : tout hostname sous `*.staging.fullfrontend.be` est un environnement applicatif DEV et doit recevoir `APP_ENV=dev`. Ces workloads peuvent être hébergés sur le cluster public DOKS pour bénéficier du DNS et de TLS sans devenir des environnements applicatifs de production.
 - n8n (Postgres + Redis optionnel)
 - Twenty CRM (optionnel)
 - Analytics (Vince)
@@ -113,7 +109,6 @@ Docs utiles:
 - Dashboards: [grafana/dashboards/](grafana/dashboards/)
 
 ### Platform Security
-- WAF global via Traefik (ModSecurity + OWASP CRS)
 - TLS via cert-manager en prod
 - Secrets chiffrés (SOPS/age)
 

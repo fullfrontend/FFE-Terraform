@@ -11,7 +11,13 @@ variable "name" {
 
 variable "source_domain" {
   type        = string
-  description = "Domaine apex source a rediriger (ex: he8us.be)"
+  description = "Domaine source à rediriger (ex: he8us.be ou stage.example.com)"
+}
+
+variable "include_www" {
+  type        = bool
+  default     = true
+  description = "Rediriger aussi le sous-domaine www du domaine source"
 }
 
 variable "target_url" {
