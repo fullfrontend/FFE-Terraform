@@ -186,3 +186,64 @@ resource "kubernetes_ingress_v1" "wordpress_http_plain" {
     }
   }
 }
+
+resource "kubernetes_manifest" "wordpress_wp_cron_public_block" {
+  count = var.private_guides_storage_size != "" ? 1 : 0
+
+  manifest = {
+    apiVersion = "traefik.io/v1alpha1"
+    kind       = "Middleware"
+    metadata = {
+      name      = "wordpress-wp-cron-public-block"
+      namespace = kubernetes_namespace.wordpress.metadata[0].name
+    }
+    spec = {
+      ipAllowList = {
+        sourceRange = ["127.0.0.1/32"]
+      }
+    }
+  }
+}
+
+resource "kubernetes_ingress_v1" "wordpress_wp_cron_public_block" {
+  count = var.private_guides_storage_size != "" && var.enable_tls ? 1 : 0
+
+  metadata {
+    name      = "wordpress-wp-cron-public-block"
+    namespace = kubernetes_namespace.wordpress.metadata[0].name
+    annotations = {
+      "kubernetes.io/ingress.class"                      = var.ingress_class_name
+      "traefik.ingress.kubernetes.io/router.entrypoints" = "web,websecure"
+      "traefik.ingress.kubernetes.io/router.middlewares" = "${kubernetes_namespace.wordpress.metadata[0].name}-wordpress-wp-cron-public-block@kubernetescrd"
+      "traefik.ingress.kubernetes.io/router.priority"    = "1000"
+      "traefik.ingress.kubernetes.io/router.tls"         = "true"
+    }
+  }
+
+  spec {
+    ingress_class_name = var.ingress_class_name
+
+    rule {
+      host = var.host
+      http {
+        path {
+          path      = "/wp-cron.php"
+          path_type = "Exact"
+          backend {
+            service {
+              name = kubernetes_service.wordpress.metadata[0].name
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+
+    tls {
+      hosts       = [var.host]
+      secret_name = var.tls_secret_name
+    }
+  }
+}

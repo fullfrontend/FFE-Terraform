@@ -37,8 +37,8 @@ resource "kubernetes_config_map" "php_uploads" {
 
   data = {
     "uploads.ini" = <<-EOT
-      upload_max_filesize = 100M
-      post_max_size = 100M
+      upload_max_filesize = ${var.php_upload_max_filesize}
+      post_max_size = ${var.php_post_max_size}
     EOT
   }
 }
@@ -132,18 +132,6 @@ resource "kubernetes_config_map" "wordpress_htaccess" {
       <Files wp-config.php>
         Require all denied
       </Files>
-
-      # Begin AIOWPSEC Firewall
-      <IfModule mod_php5.c>
-        php_value auto_prepend_file '/var/www/html/aios-bootstrap.php'
-      </IfModule>
-      <IfModule mod_php7.c>
-        php_value auto_prepend_file '/var/www/html/aios-bootstrap.php'
-      </IfModule>
-      <IfModule mod_php.c>
-        php_value auto_prepend_file '/var/www/html/aios-bootstrap.php'
-      </IfModule>
-      # End AIOWPSEC Firewall
     EOT
   }
 }
