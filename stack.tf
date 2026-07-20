@@ -267,6 +267,8 @@ module "wordpress" {
   db_user                       = local.mariadb_app_map["ffe-website"].user
   db_password                   = local.mariadb_app_map["ffe-website"].password
   replicas                      = var.wp_replicas
+  memory_request                = var.wp_memory_request
+  memory_limit                  = var.wp_memory_limit
   storage_size                  = var.wp_storage_size
   private_guides_storage_size   = var.wp_private_guides_storage_size
   php_upload_max_filesize       = var.wp_php_upload_max_filesize

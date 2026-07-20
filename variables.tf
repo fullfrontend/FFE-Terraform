@@ -217,6 +217,18 @@ variable "wp_replicas" {
   description = "Réplicas WordPress"
 }
 
+variable "wp_memory_request" {
+  type        = string
+  default     = "512Mi"
+  description = "Mémoire demandée par le WordPress FFE"
+}
+
+variable "wp_memory_limit" {
+  type        = string
+  default     = "1Gi"
+  description = "Limite mémoire du WordPress FFE"
+}
+
 variable "wp_storage_size" {
   type        = string
   default     = "2Gi"

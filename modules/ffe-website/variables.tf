@@ -69,6 +69,18 @@ variable "replicas" {
   description = "Nombre de replicas de WordPress"
 }
 
+variable "memory_request" {
+  type        = string
+  default     = "512Mi"
+  description = "Mémoire demandée par le conteneur WordPress"
+}
+
+variable "memory_limit" {
+  type        = string
+  default     = "512Mi"
+  description = "Limite mémoire du conteneur WordPress"
+}
+
 variable "storage_size" {
   type        = string
   description = "Taille du PVC pour WordPress"
