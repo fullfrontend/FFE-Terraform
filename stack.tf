@@ -323,6 +323,8 @@ module "grangesdutilleul_stage" {
   db_user                       = local.mariadb_app_map["grangesdutilleul-stage"].user
   db_password                   = local.mariadb_app_map["grangesdutilleul-stage"].password
   replicas                      = var.wp_replicas
+  memory_request                = var.wp_memory_request
+  memory_limit                  = var.wp_memory_limit
   storage_size                  = var.grangesdutilleul_stage_storage_size
   image                         = var.wp_image
   wp_cache                      = false
