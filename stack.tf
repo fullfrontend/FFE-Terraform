@@ -323,10 +323,12 @@ module "grangesdutilleul_stage" {
   db_user                       = local.mariadb_app_map["grangesdutilleul-stage"].user
   db_password                   = local.mariadb_app_map["grangesdutilleul-stage"].password
   replicas                      = var.wp_replicas
+  memory_request                = var.wp_memory_request
+  memory_limit                  = var.wp_memory_limit
   storage_size                  = var.grangesdutilleul_stage_storage_size
   image                         = var.wp_image
   wp_cache                      = false
-  wpms_on                       = var.grangesdutilleul_stage_wpms_on
+  wpms_on                       = var.wpms_on
   wp_hsts_max_age               = var.wp_hsts_max_age
   wp_hsts_preload               = var.wp_hsts_preload
   wp_security_txt               = var.wp_security_txt
@@ -343,14 +345,14 @@ module "grangesdutilleul_stage" {
   enable_velero                 = var.enable_velero
   backup_schedule_name          = "grangesdutilleul-stage-daily"
   enable_as3                    = false
-  mail_from                     = var.grangesdutilleul_stage_mail_from
-  mail_from_name                = var.grangesdutilleul_stage_mail_from_name
-  smtp_host                     = var.grangesdutilleul_stage_smtp_host
-  smtp_port                     = var.grangesdutilleul_stage_smtp_port
-  smtp_ssl                      = var.grangesdutilleul_stage_smtp_ssl
-  smtp_auth                     = var.grangesdutilleul_stage_smtp_auth
-  smtp_user                     = var.grangesdutilleul_stage_smtp_user
-  smtp_pass                     = var.grangesdutilleul_stage_smtp_pass
+  mail_from                     = var.wp_mail_from
+  mail_from_name                = var.wp_mail_from_name
+  smtp_host                     = var.wp_smtp_host
+  smtp_port                     = var.wp_smtp_port
+  smtp_ssl                      = var.wp_smtp_ssl
+  smtp_auth                     = var.wp_smtp_auth
+  smtp_user                     = var.wp_smtp_user
+  smtp_pass                     = var.wp_smtp_pass
   wp_lang                       = var.wp_lang
 }
 
